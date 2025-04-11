@@ -34,5 +34,64 @@ class FirestoreService {
       }).toList();
     });
   }
-  
+
+  // دالة تسجيل الدخول بالاسم وكلمة المرور
+  Future<bool> signInWithNameAndPassword(String name, String password) async {
+    print("الاسم المدخل: '$name'");
+    print("كلمة المرور المدخلة: '$password'");
+
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('first_name', isEqualTo: name)
+          .where('password', isEqualTo: password)
+          .get();
+
+      print("عدد النتائج: ${querySnapshot.docs.length}");
+      for (var doc in querySnapshot.docs) {
+        print("تم العثور على مستخدم: ${doc.data()}");
+      }
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("حدث خطأ أثناء تسجيل الدخول: $e");
+      return false;
+    }
+  }
+
+  Future<bool> isEmailAlreadyExists(String email) async {
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+//sign up
+  Future<bool> createUser({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final docRef = _firestore.collection('users').doc(); // توليد ID تلقائي
+      await docRef.set({
+        'id': docRef.id, // حفظ الـ ID داخل بيانات المستخدم
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'password': password,
+      });
+      return true;
+    } catch (e) {
+      print("خطأ أثناء إنشاء المستخدم: $e");
+      return false;
+    }
+  }
 }
