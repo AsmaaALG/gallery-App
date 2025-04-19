@@ -47,28 +47,34 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
               ),
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  "مرحبًا بك في تطبيق معرضي",
-                  style: TextStyle(
-                    fontFamily: mainFont,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                Column(
+                  children: [
+                    Text(
+                      "مرحبًا بك في تطبيق معرضي",
+                      style: TextStyle(
+                        fontFamily: mainFont,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "يمكنك الآن التسجيل في التطبيق لتتبع كل المعارض التي تثير إعجابك و المعارض التي قمت بزيارتها، مما يتيح لك تجربة مثالية في عالم المعارض",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontFamily: mainFont,
+                          fontSize: 14,
+                          color: Colors.black87),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Text(
-                  "يمكنك الآن التسجيل في التطبيق لتتبع كل المعارض التي تثير إعجابك و المعارض التي قمت بزيارتها، مما يتيح لك تجربة مثالية في عالم المعارض",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontFamily: mainFont,
-                      fontSize: 14,
-                      color: Colors.black87),
-                ),
-                SizedBox(height: 80),
+
+                // SizedBox(height: 80),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     ElevatedButton(
                       onPressed: () {
@@ -84,12 +90,13 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
-                      child: Text("Sign in",
-                          style: TextStyle(color: Colors.white)),
+                      child: Text("تسجيل الدخول",
+                          style: TextStyle(
+                              color: Colors.white, fontFamily: mainFont)),
                     ),
-                    SizedBox(width: 40),
+                    // SizedBox(width: 40),
                     OutlinedButton(
                       onPressed: () {
                         Navigator.push(
@@ -107,10 +114,11 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                         ),
                         side: BorderSide(color: cardBackground),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                       ),
-                      child: Text("Sign up",
-                          style: TextStyle(color: primaryColor)),
+                      child: Text("إنشاء حساب جديد",
+                          style: TextStyle(
+                              color: primaryColor, fontFamily: mainFont)),
                     ),
                   ],
                 ),

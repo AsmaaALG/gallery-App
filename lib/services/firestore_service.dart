@@ -35,40 +35,39 @@ class FirestoreService {
     });
   }
 
-  // دالة تسجيل الدخول بالاسم وكلمة المرور
-  Future<bool> signInWithNameAndPassword(String name, String password) async {
-    print("الاسم المدخل: '$name'");
-    print("كلمة المرور المدخلة: '$password'");
+  // // دالة تسجيل الدخول بالاسم وكلمة المرور
+  // Future<bool> signInWithNameAndPassword(String name, String password) async {
+  //   print("الاسم المدخل: '$name'");
+  //   print("كلمة المرور المدخلة: '$password'");
 
-    try {
-      final querySnapshot = await _firestore
-          .collection('users')
-          .where('first_name', isEqualTo: name)
-          .where('password', isEqualTo: password)
-          .get();
+  //   try {
+  //     final querySnapshot = await _firestore
+  //         .collection('users')
+  //         .where('first_name', isEqualTo: name)
+  //         .where('password', isEqualTo: password)
+  //         .get();
 
-      print("عدد النتائج: ${querySnapshot.docs.length}");
-      for (var doc in querySnapshot.docs) {
-        print("تم العثور على مستخدم: ${doc.data()}");
-      }
+  //     print("عدد النتائج: ${querySnapshot.docs.length}");
+  //     for (var doc in querySnapshot.docs) {
+  //       print("تم العثور على مستخدم: ${doc.data()}");
+  //     }
 
-      if (querySnapshot.docs.isNotEmpty) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      print("حدث خطأ أثناء تسجيل الدخول: $e");
-      return false;
-    }
-  }
+  //     if (querySnapshot.docs.isNotEmpty) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     print("حدث خطأ أثناء تسجيل الدخول: $e");
+  //     return false;
+  //   }
+  // }
 
   Future<bool> isEmailAlreadyExists(String email) async {
     final querySnapshot = await _firestore
         .collection('users')
         .where('email', isEqualTo: email)
         .get();
-
     return querySnapshot.docs.isNotEmpty;
   }
 
