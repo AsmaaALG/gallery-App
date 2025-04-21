@@ -14,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategoryId = 'all';
   TextEditingController _searchController = TextEditingController();
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -160,6 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     return GalleryCard(
+                      id:items[index].id,
                       imageUrl:
                           'https://drive.google.com/uc?id=${items[index].imageURL}',
                       name: items[index].title,

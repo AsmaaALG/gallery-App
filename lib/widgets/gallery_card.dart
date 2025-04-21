@@ -1,8 +1,12 @@
+import 'package:final_project/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:final_project/constants.dart';
 
+//طريقة ايجاد نسبة النجوم
+//(عدد التقييمات ×5 \مجموع التقييمات)×5
 class GalleryCard extends StatefulWidget {
+  final String id;
   final String imageUrl;
   final String name;
   final String description;
@@ -20,6 +24,7 @@ class GalleryCard extends StatefulWidget {
     required this.visitors,
     required this.rating,
     required this.endDate,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -134,20 +139,47 @@ class _GalleryCardState extends State<GalleryCard> {
                     ),
                     // النجوم
 
-                    Row(children: const [
-                      Text(
-                        '4.5',
-                        style: TextStyle(color: Colors.grey, fontSize: 11),
-                      ),
-                      SizedBox(
-                        width: 3,
-                      ),
-                      Icon(
-                        Icons.star,
-                        color: secondaryColor,
-                        size: 15,
-                      ),
-                    ]),
+                    FutureBuilder<double>(
+                        future: FirestoreService().calculateRating(widget.id),
+                        builder: (context, snapshot) {
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator(); // عرض مؤشر التحميل
+                          } else if (snapshot.hasError) {
+                            return Text('??');
+                          } else {
+                            double stars = snapshot.data ?? 0.0;
+                            return Row(children: [
+                              Text(
+                                stars.toStringAsFixed(1), // عرض عدد النجوم
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 11),
+                              ),
+                              SizedBox(width: 3),
+                              Icon(
+                                Icons.star,
+                                color: secondaryColor,
+                                size: 15,
+                              )
+                            ]);
+                          }
+                        }),
+
+                    // Row(children: const [
+                    //   Text(
+                    //     '4.5',
+                    //     style: TextStyle(color: Colors.grey, fontSize: 11),
+                    //   ),
+                    //   SizedBox(
+                    //     width: 3,
+                    //   ),
+                    //   Icon(
+                    //     Icons.star,
+                    //     color: secondaryColor,
+                    //     size: 15,
+                    //   ),
+                    // ]),
                   ],
                 )
               ],

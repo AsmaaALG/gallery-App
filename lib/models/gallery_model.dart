@@ -8,7 +8,7 @@ class GalleryModel {
   final String imageURL;
   final String description;
   final String endDate;
-  final int id;
+  final String id;
   final String location;
   final String phone;
   final String startDate;
@@ -27,15 +27,15 @@ class GalleryModel {
     required this.title,
   });
 
- factory GalleryModel.fromJson(Map<String, dynamic> json) {
+ factory GalleryModel.fromJson(Map<String, dynamic> json,String id) {
   return GalleryModel(
+        id: id, // تعيين المعرف
     qrCode: json['QR code'],
     classificationId: json['classification id'] != null 
         ? (json['classification id'] as DocumentReference).id 
         : 'default_id', // أو يمكنك استخدام قيمة افتراضية
     description: json['description'],
     endDate: json['end date'],
-    id: json['id'],
     imageURL: json['image url'],
     location: json['location'],
     phone: json['phone'],

@@ -16,7 +16,8 @@ class FirestoreService {
   Stream<List<GalleryModel>> getItems() {
     return _firestore.collection('2').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        return GalleryModel.fromJson(doc.data() as Map<String, dynamic>);
+        return GalleryModel.fromJson(
+            doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     });
   }
@@ -92,5 +93,64 @@ class FirestoreService {
       print("خطأ أثناء إنشاء المستخدم: $e");
       return false;
     }
+  }
+
+  // Future<double> calculateRating(String galleryId) async {
+  //   final QuerySnapshot snapshot = await FirebaseFirestore.instance
+  //       .collection('reviews')
+  //       .where('gallery id', isEqualTo: galleryId)
+  //       .get();
+  //   print("here id you send ========= $galleryId");
+  //   if (snapshot.docs.isEmpty) {
+  //     print("No reviews found for gallery ID: $galleryId");
+
+  //     return 0.0;
+  //   }
+
+  //   double totalStars = 0;
+  //   int count = snapshot.docs.length;
+
+  //   for (var doc in snapshot.docs) {
+  //     print("Review stars for document ${doc.id}: ${doc['number of stars']}");
+  //     totalStars += doc['number of stars'];
+  //   }
+
+  //   print("Total stars: $totalStars, Count: $count");
+  //   return (totalStars / count); // قم بإزالة قسم الضرب في 5
+  // }
+
+  Future<double> calculateRating(String galleryId) async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('reviews').get();
+
+    double totalStars = 0;
+    int count = 0;
+
+    for (var doc in snapshot.docs) {
+      // التحقق من نوع gallery id
+      String currentGalleryId;
+      if (doc['gallery id'] is DocumentReference) {
+        DocumentReference galleryRef = doc['gallery id'];
+        currentGalleryId = galleryRef.id; // استخرج المعرف
+      } else if (doc['gallery id'] is String) {
+        currentGalleryId = doc['gallery id'];
+      } else {
+        continue; // تخطي المستندات التي لا تحتوي على gallery id صالح
+      }
+
+      // تحقق مما إذا كان المعرف يطابق المعرف المدخل
+      if (currentGalleryId == galleryId) {
+        double stars = (doc['number of stars'] as num).toDouble();
+        totalStars += stars;
+        count++;
+      }
+    }
+
+    if (count == 0) {
+      print("No reviews found for gallery ID: $galleryId");
+      return 0.0;
+    }
+
+    return (totalStars / (count * 5)) * 5; 
   }
 }
