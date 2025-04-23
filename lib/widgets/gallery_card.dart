@@ -1,10 +1,9 @@
-import 'package:final_project/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:final_project/constants.dart';
+import 'package:final_project/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-//طريقة ايجاد نسبة النجوم
-//(عدد التقييمات ×5 \مجموع التقييمات)×5
 class GalleryCard extends StatefulWidget {
   final String id;
   final String imageUrl;
@@ -14,6 +13,8 @@ class GalleryCard extends StatefulWidget {
   final int visitors;
   final double rating;
   final String endDate;
+  final bool isInitiallyFavorite;
+  final String galleryId;
 
   const GalleryCard({
     Key? key,
@@ -25,6 +26,8 @@ class GalleryCard extends StatefulWidget {
     required this.rating,
     required this.endDate,
     required this.id,
+    required this.isInitiallyFavorite,
+    required this.galleryId,
   }) : super(key: key);
 
   @override
@@ -32,12 +35,57 @@ class GalleryCard extends StatefulWidget {
 }
 
 class _GalleryCardState extends State<GalleryCard> {
-  bool isFavorite = false;
+  late bool isFavorite;
+  final FirestoreService _firestoreService = FirestoreService();
+  final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
-  // دالة للتحقق مما إذا كان المعرض مغلقاً أم لا
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.isInitiallyFavorite;
+    if (_userId != null && widget.galleryId != null) {
+      _firestoreService
+          .isFavorite(_userId!, widget.galleryId)
+          .listen((favorite) {
+        if (mounted) {
+          setState(() {
+            isFavorite = favorite;
+          });
+        }
+      });
+    }
+  }
+
   bool isClosed() {
-    final endDate = DateFormat('DD/MM/yyyy').parse(widget.endDate);
-    return DateTime.now().isAfter(endDate);
+    try {
+      final endDate = DateFormat('dd/MM/yyyy').parse(widget.endDate);
+      return DateTime.now().isAfter(endDate);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_userId == null || widget.galleryId.isEmpty) return;
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    try {
+      if (isFavorite) {
+        await _firestoreService.addToFavorite(_userId!, widget.galleryId);
+      } else {
+        await _firestoreService.removeFromFavorite(_userId!, widget.galleryId);
+      }
+    } catch (e) {
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ أثناء تحديث المفضلة')),
+      );
+    }
   }
 
   @override
@@ -62,18 +110,15 @@ class _GalleryCardState extends State<GalleryCard> {
                   color: isFavorite ? primaryColor : Colors.grey,
                   size: 20,
                 ),
-                onPressed: () {
-                  setState(() {
-                    isFavorite = !isFavorite; // عكس حالة القلب عند الضغط
-                  });
-                },
+                onPressed: _toggleFavorite,
               ),
             ),
-            // الصورة في المنتصف
             Center(
               child: Image.network(
                 widget.imageUrl,
                 fit: BoxFit.cover,
+                height: 120,
+                width: double.infinity,
               ),
             ),
             Row(
@@ -84,7 +129,6 @@ class _GalleryCardState extends State<GalleryCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // اسم المعرض
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
@@ -98,17 +142,13 @@ class _GalleryCardState extends State<GalleryCard> {
                               color: primaryColor),
                         ),
                       ),
-                      // الوصف
                       Text(
                         widget.description,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(fontFamily: mainFont, fontSize: 9),
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      // الموقع
+                      SizedBox(height: 5),
                       Text(
                         "الموقع: ${widget.location}",
                         overflow: TextOverflow.ellipsis,
@@ -124,9 +164,6 @@ class _GalleryCardState extends State<GalleryCard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Text('عدد الزوار: ${widget.visitors}'),
-                    // // حالة المعرض (مفتوح أو مغلق)
-                    // const SizedBox(height: 4),
                     Text(
                       isClosed() ? ' مغلق' : ' مفتوح',
                       style: TextStyle(
@@ -134,52 +171,33 @@ class _GalleryCardState extends State<GalleryCard> {
                           fontFamily: mainFont,
                           fontSize: 12),
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    // النجوم
-
+                    SizedBox(height: 5),
                     FutureBuilder<double>(
-                        future: FirestoreService().calculateRating(widget.id),
-                        builder: (context, snapshot) {
-
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator(); // عرض مؤشر التحميل
-                          } else if (snapshot.hasError) {
-                            return Text('??');
-                          } else {
-                            double stars = snapshot.data ?? 0.0;
-                            return Row(children: [
-                              Text(
-                                stars.toStringAsFixed(1), // عرض عدد النجوم
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 11),
-                              ),
-                              SizedBox(width: 3),
-                              Icon(
-                                Icons.star,
-                                color: secondaryColor,
-                                size: 15,
-                              )
-                            ]);
-                          }
-                        }),
-
-                    // Row(children: const [
-                    //   Text(
-                    //     '4.5',
-                    //     style: TextStyle(color: Colors.grey, fontSize: 11),
-                    //   ),
-                    //   SizedBox(
-                    //     width: 3,
-                    //   ),
-                    //   Icon(
-                    //     Icons.star,
-                    //     color: secondaryColor,
-                    //     size: 15,
-                    //   ),
-                    // ]),
+                      future: _firestoreService.calculateRating(widget.id),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('??');
+                        } else {
+                          double stars = snapshot.data ?? 0.0;
+                          return Row(children: [
+                            Text(
+                              stars.toStringAsFixed(1),
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 11),
+                            ),
+                            SizedBox(width: 3),
+                            Icon(
+                              Icons.star,
+                              color: secondaryColor,
+                              size: 15,
+                            )
+                          ]);
+                        }
+                      },
+                    ),
                   ],
                 )
               ],

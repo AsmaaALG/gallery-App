@@ -159,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     return GalleryCard(
-                      id:items[index].id,
                       imageUrl:
                           'https://drive.google.com/uc?id=${items[index].imageURL}',
                       name: items[index].title,
@@ -168,6 +167,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       visitors: 2,
                       rating: 5.0,
                       endDate: items[index].endDate,
+                      id: items[index].id.toString(),
+                      isInitiallyFavorite:
+                          false, // يمكنك تغيير هذه القيمة حسب الحاجة
+                      galleryId: items[index]
+                          .id
+                          .toString(), // استخدام معرف المعرض كـ galleryId
                     );
                   },
                 );

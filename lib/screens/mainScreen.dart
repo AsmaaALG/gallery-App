@@ -1,3 +1,4 @@
+import 'package:final_project/screens/favorite_screen.dart';
 import 'package:final_project/screens/signIn_screen.dart';
 import 'package:final_project/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -195,7 +196,7 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return HomeScreen();
       case 3:
-        return Center(child: Text('المفضلة', style: TextStyle(fontSize: 24)));
+        return FavoriteScreen();
       case 4:
         return Center(child: Text('الرائجة', style: TextStyle(fontSize: 24)));
       default:
