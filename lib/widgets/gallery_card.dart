@@ -1,3 +1,4 @@
+import 'package:final_project/screens/gallery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:final_project/constants.dart';
@@ -15,6 +16,7 @@ class GalleryCard extends StatefulWidget {
   final String endDate;
   final bool isInitiallyFavorite;
   final String galleryId;
+  final String startDate;
 
   const GalleryCard({
     Key? key,
@@ -25,18 +27,51 @@ class GalleryCard extends StatefulWidget {
     required this.visitors,
     required this.rating,
     required this.endDate,
+    required this.startDate,
     required this.id,
     required this.isInitiallyFavorite,
     required this.galleryId,
+    required bool showRemainingDays,
+    required bool isActiveScreen,
   }) : super(key: key);
 
   @override
   _GalleryCardState createState() => _GalleryCardState();
 }
 
+final FirestoreService _firestoreService = FirestoreService();
+
+FutureBuilder<double> numberOfStars(String id) {
+  return FutureBuilder<double>(
+    future: _firestoreService.calculateRating(id),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator(
+          color: primaryColor,
+        );
+      } else if (snapshot.hasError) {
+        return Text('??');
+      } else {
+        double stars = snapshot.data ?? 0.0;
+        return Row(children: [
+          Text(
+            stars.toStringAsFixed(1),
+            style: TextStyle(color: Colors.grey, fontSize: 11),
+          ),
+          SizedBox(width: 3),
+          Icon(
+            Icons.star,
+            color: secondaryColor,
+            size: 15,
+          )
+        ]);
+      }
+    },
+  );
+}
+
 class _GalleryCardState extends State<GalleryCard> {
   late bool isFavorite;
-  final FirestoreService _firestoreService = FirestoreService();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
@@ -90,119 +125,113 @@ class _GalleryCardState extends State<GalleryCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: cardBackground,
-      elevation: 3,
-      margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? primaryColor : Colors.grey,
-                  size: 20,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => GalleryScreen(
+                    id: widget.id,
+                    imageUrl: widget.imageUrl,
+                    name: widget.name,
+                    description: widget.description,
+                    location: widget.location,
+                    visitors: widget.visitors,
+                    rating: widget.rating,
+                    endDate: widget.endDate,
+                    startDate: widget.startDate,
+                  )),
+        );
+      },
+      child: Card(
+        color: cardBackground,
+        elevation: 3,
+        margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 5, 16, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? primaryColor : Colors.grey,
+                    size: 20,
+                  ),
+                  onPressed: _toggleFavorite,
                 ),
-                onPressed: _toggleFavorite,
               ),
-            ),
-            Center(
-              child: Image.network(
-                widget.imageUrl,
-                fit: BoxFit.cover,
-                height: 120,
-                width: double.infinity,
+              Center(
+                child: Image.network(
+                  widget.imageUrl,
+                  fit: BoxFit.cover,
+                  height: 120,
+                  width: double.infinity,
+                ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 220,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          widget.name,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 220,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            widget.name,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: mainFont,
+                                color: primaryColor),
+                          ),
+                        ),
+                        Text(
+                          widget.description,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(fontFamily: mainFont, fontSize: 9),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          "الموقع: ${widget.location}",
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
                               fontFamily: mainFont,
-                              color: primaryColor),
+                              fontSize: 9,
+                              color: Colors.grey),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        widget.description,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(fontFamily: mainFont, fontSize: 9),
+                        isClosed() ? ' مغلق' : ' مفتوح',
+                        style: TextStyle(
+                            color: isClosed() ? primaryColor : Colors.green,
+                            fontFamily: mainFont,
+                            fontSize: 12),
                       ),
                       SizedBox(height: 5),
-                      Text(
-                        "الموقع: ${widget.location}",
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                            fontFamily: mainFont,
-                            fontSize: 9,
-                            color: Colors.grey),
-                      ),
+                      numberOfStars(widget.id),
                     ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isClosed() ? ' مغلق' : ' مفتوح',
-                      style: TextStyle(
-                          color: isClosed() ? primaryColor : Colors.green,
-                          fontFamily: mainFont,
-                          fontSize: 12),
-                    ),
-                    SizedBox(height: 5),
-                    FutureBuilder<double>(
-                      future: _firestoreService.calculateRating(widget.id),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('??');
-                        } else {
-                          double stars = snapshot.data ?? 0.0;
-                          return Row(children: [
-                            Text(
-                              stars.toStringAsFixed(1),
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 11),
-                            ),
-                            SizedBox(width: 3),
-                            Icon(
-                              Icons.star,
-                              color: secondaryColor,
-                              size: 15,
-                            )
-                          ]);
-                        }
-                      },
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ],
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

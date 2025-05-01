@@ -1,6 +1,11 @@
-// lib/services/firestore_service.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/models/ad_model.dart';
+import 'package:final_project/models/partner.dart';
+import 'package:final_project/models/reviews.dart';
+import 'package:final_project/models/suite.dart';
+import 'package:final_project/models/suite_image.dart';
+import 'package:final_project/models/users.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../models/gallery_model.dart';
 import '../models/category_model.dart';
@@ -73,8 +78,27 @@ class FirestoreService {
         .map((snapshot) => snapshot.docs.isNotEmpty);
   }
 
+  Future<bool> isGalleryFavorite(String userId, String galleryId) async {
+    final snapshot = await _firestore
+        .collection('favorite')
+        .where('user_id', isEqualTo: userId)
+        .where('gallery_id', isEqualTo: galleryId)
+        .get();
+    return snapshot.docs.isNotEmpty;
+  }
+
   //////////////////////////////////////////////////////////////////////////
   ///العلانـــــــات
+
+  final CollectionReference adsCollection =
+      FirebaseFirestore.instance.collection('ads');
+
+  Future<List<AdModel>> getAds() async {
+    final snapshot = await adsCollection.get();
+    return snapshot.docs
+        .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
 
 //////////////////////////////////////////////////////////////////////////
   ///المعــــــــــارض
@@ -102,34 +126,6 @@ class FirestoreService {
       }).toList();
     });
   }
-
-  // // دالة تسجيل الدخول بالاسم وكلمة المرور
-  // Future<bool> signInWithNameAndPassword(String name, String password) async {
-  //   print("الاسم المدخل: '$name'");
-  //   print("كلمة المرور المدخلة: '$password'");
-
-  //   try {
-  //     final querySnapshot = await _firestore
-  //         .collection('users')
-  //         .where('first_name', isEqualTo: name)
-  //         .where('password', isEqualTo: password)
-  //         .get();
-
-  //     print("عدد النتائج: ${querySnapshot.docs.length}");
-  //     for (var doc in querySnapshot.docs) {
-  //       print("تم العثور على مستخدم: ${doc.data()}");
-  //     }
-
-  //     if (querySnapshot.docs.isNotEmpty) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     print("حدث خطأ أثناء تسجيل الدخول: $e");
-  //     return false;
-  //   }
-  // }
 
   Future<bool> isEmailAlreadyExists(String email) async {
     final querySnapshot = await _firestore
@@ -218,6 +214,74 @@ class FirestoreService {
       return 0.0;
     }
 
-    return (totalStars / (count * 5)) * 5;
+    return ((totalStars / (count * 5)) * 5);
+  }
+  ////////////////////////////////////////////////////////////////////////////
+  ///الاجنحة
+
+  // دالة لجلب الأجنحة المرتبطة بمعرض معين
+  Future<List<Suite>> getSuites(String galleryId) async {
+    try {
+      // استعلام لجلب الأجنحة التي تتطابق مع galleryId
+      QuerySnapshot snapshot = await _firestore
+          .collection('suite') // اسم مجموعة الأجنحة
+          .where('gallery id', isEqualTo: galleryId) // الشرط للبحث
+          .get();
+      // تحويل مستندات Firestore إلى قائمة من كائنات Suite
+      return snapshot.docs.map((doc) {
+        return Suite.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+    } catch (e) {
+      print('Error fetching suites: $e');
+      return []; // في حال حدوث خطأ، إرجاع قائمة فارغة
+    }
+  }
+
+  Future<List<Review>> getReviews(String galleryId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('reviews')
+        .where('gallery id', isEqualTo: galleryId)
+        .get();
+
+    List<Review> reviews = snapshot.docs
+        .map((doc) =>
+            Review.fromJson(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+
+    for (var review in reviews) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(review.userId).get();
+      Users user =
+          Users.fromJson(userDoc.data() as Map<String, dynamic>, userDoc.id);
+      review.userName =
+          '${user.firstName} ${user.lastName}'; // تكوين الاسم الكامل
+      print("name::::::: ${review.userName} comment ${review.comment}");
+    }
+
+    return reviews;
+  }
+
+  Future<List<Partner>> getPartners(String galleryId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('partners')
+        .where('gallery id',
+            isEqualTo: galleryId) // تصفية الشركاء حسب معرف المعرض
+        .get();
+    return snapshot.docs.map((doc) {
+      return Partner.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+    }).toList();
+  }
+
+  /////////////image
+  Future<List<SuiteImage>> getSuiteImages(String suiteId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('suite image')
+        .where('suite id', isEqualTo: suiteId)
+        .get();
+    print("number:::::::::: ${snapshot.size}");
+
+    return snapshot.docs.map((doc) {
+      return SuiteImage.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+    }).toList();
   }
 }

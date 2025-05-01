@@ -170,9 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       id: items[index].id.toString(),
                       isInitiallyFavorite:
                           false, // يمكنك تغيير هذه القيمة حسب الحاجة
-                      galleryId: items[index]
-                          .id
-                          .toString(), // استخدام معرف المعرض كـ galleryId
+                      galleryId: items[index].id.toString(),
+                      showRemainingDays: false, startDate: '',
+                      isActiveScreen: false,
+                      // استخدام معرف المعرض كـ galleryId
                     );
                   },
                 );

@@ -212,7 +212,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         .toList();
 
                     return ListView.builder(
-                      itemCount: favoriteGalleries.length,
+                      itemCount: favoriteGalleries.length, //حسب حجم المفضلة
                       itemBuilder: (context, index) {
                         final gallery = favoriteGalleries[index];
                         return FutureBuilder<double>(
@@ -232,6 +232,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               isInitiallyFavorite: true,
                               galleryId: gallery.id.toString(),
                               id: gallery.id.toString(),
+                              showRemainingDays: false,
+                              startDate: '',
+                              isActiveScreen: false,
                             );
                           },
                         );

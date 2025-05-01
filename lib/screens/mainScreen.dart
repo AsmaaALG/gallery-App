@@ -1,3 +1,6 @@
+import 'package:final_project/screens/Active_screen.dart';
+import 'package:final_project/screens/about_screen.dart';
+import 'package:final_project/screens/ads_screen.dart';
 import 'package:final_project/screens/favorite_screen.dart';
 import 'package:final_project/screens/signIn_screen.dart';
 import 'package:final_project/services/auth.dart';
@@ -78,7 +81,10 @@ class _MainScreenState extends State<MainScreen> {
           ),
           ListTile(
             leading: Icon(Icons.home),
-            title: Text('Home'),
+            title: Text(
+              'الرئيسية',
+              style: TextStyle(fontFamily: mainFont),
+            ),
             onTap: () {
               Navigator.pop(context);
               _onItemTapped(2);
@@ -86,23 +92,21 @@ class _MainScreenState extends State<MainScreen> {
           ),
           ListTile(
             leading: Icon(Icons.search),
-            title: Text('Search'),
+            title: Text(
+              'الاشعارات',
+              style: TextStyle(fontFamily: mainFont),
+            ),
             onTap: () {
               Navigator.pop(context);
               _onItemTapped(1);
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              _onItemTapped(0);
-            },
-          ),
-          ListTile(
             leading: Icon(Icons.person),
-            title: Text('Profile'),
+            title: Text(
+              'الحساب',
+              style: TextStyle(fontFamily: mainFont),
+            ),
             onTap: () {
               Navigator.pop(context);
               _onItemTapped(3);
@@ -110,10 +114,13 @@ class _MainScreenState extends State<MainScreen> {
           ),
           ListTile(
             leading: Icon(Icons.info),
-            title: Text('About'),
+            title: Text(
+              'عن التطبيق',
+              style: TextStyle(fontFamily: mainFont),
+            ),
             onTap: () {
               Navigator.pop(context);
-              _onItemTapped(4);
+              _onItemTapped(0);
             },
           ),
           ListTile(
@@ -189,16 +196,15 @@ class _MainScreenState extends State<MainScreen> {
   Widget getCurrentScreen() {
     switch (_selectedIndex) {
       case 0:
-        return Center(
-            child: Text('تمت زيارتها', style: TextStyle(fontSize: 24)));
+        return AboutAppScreen();
       case 1:
-        return Center(child: Text('الإعلانات', style: TextStyle(fontSize: 24)));
+        return AdsScreen();
       case 2:
         return HomeScreen();
       case 3:
         return FavoriteScreen();
       case 4:
-        return Center(child: Text('الرائجة', style: TextStyle(fontSize: 24)));
+        return ActiveScreen();
       default:
         return Center(
             child: Text('شاشة غير معروفة', style: TextStyle(fontSize: 24)));

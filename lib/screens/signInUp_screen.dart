@@ -28,9 +28,9 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                 Text(
                   "مرحبًا بك في عالم المعارض",
                   style: TextStyle(
-                      fontFamily: mainFont,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                    fontFamily: mainFont,
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),

@@ -52,12 +52,12 @@ class _SplashScreenState extends State<SplashScreen> {
             bottom: -50,
             left: -50,
             child: Container(
-              width: 250,
-              height: 250,
+              width: 300,
+              height: 300,
               decoration: BoxDecoration(
                 color: secondaryColor,
                 borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(190),
+                  topRight: Radius.circular(250),
                 ),
               ),
             ),
@@ -69,15 +69,14 @@ class _SplashScreenState extends State<SplashScreen> {
               children: [
                 Image.asset(
                   'images/logo.png', // استبدل بالمسار الصحيح لشعارك
-                  width: 170,
+                  width: 200,
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 3),
                 Text(
                   'مرحبًا بك في عالم المعارض',
                   style: TextStyle(
                     fontFamily: mainFont,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                     color: Colors.black,
                   ),
                 ),

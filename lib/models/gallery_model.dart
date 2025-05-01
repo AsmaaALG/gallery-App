@@ -27,20 +27,20 @@ class GalleryModel {
     required this.title,
   });
 
- factory GalleryModel.fromJson(Map<String, dynamic> json,String id) {
-  return GalleryModel(
-        id: id, // تعيين المعرف
-    qrCode: json['QR code'],
-    classificationId: json['classification id'] != null 
-        ? (json['classification id'] as DocumentReference).id 
-        : 'default_id', // أو يمكنك استخدام قيمة افتراضية
-    description: json['description'],
-    endDate: json['end date'],
-    imageURL: json['image url'],
-    location: json['location'],
-    phone: json['phone'],
-    startDate: json['start date'],
-    title: json['title'],
-  );
-}
+  factory GalleryModel.fromJson(Map<String, dynamic> json, String id) {
+    return GalleryModel(
+      id: id, // تعيين المعرف
+      qrCode: json['QR code'] ?? '',
+      classificationId: json['classification id'] != null
+          ? (json['classification id'] as DocumentReference).id
+          : 'default_id', // أو يمكنك استخدام قيمة افتراضية
+      description: json['description'] ?? '',
+      endDate: json['end date'] ?? '',
+      imageURL: json['image url'] ?? '',
+      location: json['location'] ?? '',
+      phone: json['phone'] ?? '',
+      startDate: json['start date'] ?? '',
+      title: json['title'] ?? '',
+    );
+  }
 }
