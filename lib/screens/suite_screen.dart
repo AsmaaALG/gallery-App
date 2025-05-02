@@ -170,7 +170,10 @@ class _SuiteScreenState extends State<SuiteScreen> {
                         },
                         child: Text(
                           "المزيد",
-                          style: TextStyle(color: primaryColor),
+                          style: TextStyle(
+                            color: primaryColor,
+                            fontFamily: mainFont,
+                          ),
                         ),
                       ),
                     if (isExpanded) // زر "أقل" يظهر عند توسيع الوصف
@@ -182,7 +185,10 @@ class _SuiteScreenState extends State<SuiteScreen> {
                         },
                         child: Text(
                           "أقل",
-                          style: TextStyle(color: primaryColor),
+                          style: TextStyle(
+                            color: primaryColor,
+                            fontFamily: mainFont,
+                          ),
                         ),
                       ),
                   ],

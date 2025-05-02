@@ -21,6 +21,10 @@ class ActiveScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 350;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -28,6 +32,7 @@ class ActiveScreen extends StatelessWidget {
         title: Text(
           'المعارض المنعقدة الآن',
           style: TextStyle(
+            fontSize: isSmallScreen ? 18 : 20,
             fontFamily: mainFont,
             fontWeight: FontWeight.bold,
             color: const Color.fromRGBO(166, 23, 28, 1),
@@ -38,15 +43,15 @@ class ActiveScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                20, 4, 20, 35), // زيادة المسافة السفلية
+            padding: EdgeInsets.fromLTRB(
+                20, 4, 20, screenHeight * 0.03), // مسافة سفلية نسبية
             child: Text(
               'سارع بزيارتنا قبل انتهاء المعرض، الفرصة لا تُفوّت!',
               textAlign: TextAlign.start,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: isSmallScreen ? 11 : 13,
                 fontFamily: mainFont,
-                color: Colors.grey[700], // لون النص
+                color: Colors.grey[700],
               ),
             ),
           ),
@@ -72,17 +77,22 @@ class ActiveScreen extends StatelessWidget {
                 }).toList();
 
                 if (activeGalleries.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'لا توجد معارض منعقدة حاليًا.',
-                      style: TextStyle(fontFamily: mainFont),
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(screenWidth * 0.05),
+                      child: Text(
+                        'لا توجد معارض منعقدة حاليًا.',
+                        style: TextStyle(
+                          fontFamily: mainFont,
+                          fontSize: isSmallScreen ? 14 : 16,
+                        ),
+                      ),
                     ),
                   );
                 }
 
                 return ListView.builder(
-                  padding:
-                      const EdgeInsets.only(bottom: 20), // مسافة أسفل القائمة
+                  padding: EdgeInsets.only(bottom: screenHeight * 0.02),
                   itemCount: activeGalleries.length,
                   itemBuilder: (context, index) {
                     final gallery = activeGalleries[index];
@@ -90,8 +100,10 @@ class ActiveScreen extends StatelessWidget {
                         calculateRemainingDays(gallery.endDate);
 
                     return Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.04,
+                        vertical: screenHeight * 0.01,
+                      ),
                       child: Stack(
                         children: [
                           GalleryCard(
@@ -111,11 +123,13 @@ class ActiveScreen extends StatelessWidget {
                             startDate: '',
                           ),
                           Positioned(
-                            top: 1,
-                            right: 6,
+                            top: screenHeight * 0.00,
+                            right: screenWidth * 0.02,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.04,
+                                vertical: screenHeight * 0.005,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color.fromARGB(255, 241, 192, 69),
                                 borderRadius: BorderRadius.circular(20),
@@ -131,7 +145,7 @@ class ActiveScreen extends StatelessWidget {
                                 'متبقي $remainingDays من الايام',
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 88, 20, 19),
-                                  fontSize: 12,
+                                  fontSize: isSmallScreen ? 10 : 12,
                                   fontFamily: mainFont,
                                   fontWeight: FontWeight.bold,
                                 ),

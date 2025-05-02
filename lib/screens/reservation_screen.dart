@@ -20,6 +20,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 400;
+
     return Scaffold(
       backgroundColor: Color(0xFFFBF3F3),
       appBar: AppBar(
@@ -27,14 +31,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
         title: Text(
           'نموذج حجز مساحة',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: isSmallScreen ? 14 : 16,
             fontFamily: mainFont,
             color: const Color.fromARGB(255, 96, 3, 6),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(23),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Form(
@@ -43,37 +47,40 @@ class _ReservationScreenState extends State<ReservationScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 35),
+                  padding: EdgeInsets.only(top: screenHeight * 0.03),
                   child: Text(
-                    'يمكنك تعبئة النموذج لاشتراك وحجز مساحة لك داخل المعرض',
+                    'يمكنك تعبئة النموذج للاشتراك وحجز مساحة لك داخل المعرض',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isSmallScreen ? 15 : 16,
                       fontFamily: mainFont,
                       color: const Color.fromARGB(255, 60, 59, 59),
                     ),
+                    textAlign: TextAlign.start,
                   ),
                 ),
-                const SizedBox(height: 35),
-                _buildTextField('الاسم...', _nameController, isRequired: true),
+                SizedBox(height: screenHeight * 0.04),
+                _buildTextField('الاسم...', _nameController,
+                    isRequired: true, context: context),
                 _buildTextField('العنوان...', _addressController,
-                    isRequired: true),
+                    isRequired: true, context: context),
                 _buildTextField('الهاتف...', _phoneController,
-                    isRequired: true),
+                    isRequired: true, context: context),
                 _buildTextField('البريد الإلكتروني...', _emailController,
-                    isRequired: true, isEmail: true),
+                    isRequired: true, isEmail: true, context: context),
                 _buildTextField('المؤسسة المسؤولة...', _organizationController,
-                    isRequired: true),
+                    isRequired: true, context: context),
                 _buildTextField('نوع البضاعة...', _productTypeController,
-                    isRequired: true),
-                const SizedBox(height: 30),
+                    isRequired: true, context: context),
+                SizedBox(height: screenHeight * 0.04),
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 241, 192, 69),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 150,
-                        vertical: 10,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.2,
+                        vertical: screenHeight * 0.02,
                       ),
+                      minimumSize: Size(screenWidth * 0.5, screenHeight * 0.06),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
@@ -88,7 +95,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       'إرسال',
                       style: TextStyle(
                         color: const Color.fromARGB(255, 49, 45, 45),
-                        fontSize: 18,
+                        fontSize: isSmallScreen ? 16 : 18,
                         fontFamily: mainFont,
                       ),
                     ),
@@ -102,10 +109,17 @@ class _ReservationScreenState extends State<ReservationScreen> {
     );
   }
 
-  Widget _buildTextField(String hint, TextEditingController controller,
-      {bool isRequired = false, bool isEmail = false}) {
+  Widget _buildTextField(
+    String hint,
+    TextEditingController controller, {
+    bool isRequired = false,
+    bool isEmail = false,
+    required BuildContext context,
+  }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: EdgeInsets.only(bottom: screenWidth * 0.04),
       child: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -162,7 +176,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
             ),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05, vertical: screenWidth * 0.04),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import '../widgets/gallery_card.dart';
 import '../models/gallery_model.dart';
 import '../models/category_model.dart';
 import '../widgets/category_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -14,10 +15,26 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategoryId = 'all';
   TextEditingController _searchController = TextEditingController();
+  final String? _userId = FirebaseAuth.instance.currentUser?.uid;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+    });
   }
 
   @override
@@ -26,78 +43,90 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
+          // عنوان الترحيب
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding:
-                  EdgeInsets.fromLTRB(0, 5, 20, 15), // تقليل البادئة السفلية
+              padding: EdgeInsets.fromLTRB(0, 5, 20, 15),
               child: RichText(
                 text: TextSpan(
                   children: const <TextSpan>[
                     TextSpan(
                       text: "مرحبا بك ",
                       style: TextStyle(
-                          fontFamily: mainFont,
-                          color: primaryColor,
-                          fontSize: titleSize),
+                        fontFamily: mainFont,
+                        color: primaryColor,
+                        fontSize: titleSize,
+                      ),
                     ),
                     TextSpan(
                       text: "في عالم المعارض",
                       style: TextStyle(
-                          fontFamily: mainFont,
-                          color: Colors.black,
-                          fontSize: titleSize),
+                        fontFamily: mainFont,
+                        color: Colors.black,
+                        fontSize: titleSize,
+                      ),
                     )
                   ],
                 ),
               ),
             ),
           ),
-          // حقل البحث المعدل بحجم أصغر
+
+          // حقل البحث
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: SizedBox(
-                height: 40, // ارتفاع أصغر
-                width: 250, // عرض أصغر
+                height: 40,
+                width: 250,
                 child: TextField(
-                  cursorHeight: 14,
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'بحث',
+                    hintText: 'ابحث باسم المعرض',
                     hintStyle: TextStyle(
                       color: Colors.grey[500],
-                      fontSize: 12, // حجم نص أصغر
+                      fontSize: 12,
+                      fontFamily: mainFont,
                     ),
                     prefixIcon: Padding(
-                      padding: EdgeInsets.only(left: 8), // تعديل موقع الأيقونة
+                      padding: EdgeInsets.only(left: 8),
                       child: Icon(
                         Icons.search,
                         color: Colors.grey[500],
-                        size: 18, // حجم أيقونة أصغر
+                        size: 18,
                       ),
                     ),
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(20), // زوايا أقل استدارة
+                      borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      vertical: 0, // تقليل المساحة العمودية
+                      vertical: 0,
                       horizontal: 10,
                     ),
                     isDense: true,
                   ),
-                  style: TextStyle(fontSize: 12), // حجم نص إدخال أصغر
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: mainFont,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
                 ),
               ),
             ),
           ),
+
+          // أزرار التصنيفات
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 25),
+            padding: const EdgeInsets.symmetric(vertical: 15),
             child: StreamBuilder<List<CategoryModel>>(
               stream: FirestoreService().getCategories(),
               builder: (context, snapshot) {
@@ -113,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
+                      SizedBox(width: 15),
                       CategoryButton(
                         label: 'الكل',
                         isSelected: selectedCategoryId == 'all',
@@ -133,50 +163,127 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         );
                       }).toList(),
+                      SizedBox(width: 15),
                     ],
                   ),
                 );
               },
             ),
           ),
+
+          // عرض قائمة المعارض
           Expanded(
             child: StreamBuilder<List<GalleryModel>>(
               stream: FirestoreService().getItems(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+              builder: (context, gallerySnapshot) {
+                if (gallerySnapshot.hasError) {
+                  return Center(child: Text('Error: ${gallerySnapshot.error}'));
                 }
-                if (!snapshot.hasData) {
+                if (!gallerySnapshot.hasData) {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                final items = snapshot.data!.where((item) {
-                  return selectedCategoryId == 'all' ||
+                final allItems = gallerySnapshot.data!;
+                final filteredItems = allItems.where((item) {
+                  final matchesSearch =
+                      item.title.toLowerCase().contains(_searchQuery);
+                  final matchesCategory = selectedCategoryId == 'all' ||
                       item.classificationId == selectedCategoryId;
+                  return matchesSearch && matchesCategory;
                 }).toList();
 
-                return ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    return GalleryCard(
-                      imageUrl:
-                          'https://drive.google.com/uc?id=${items[index].imageURL}',
-                      name: items[index].title,
-                      description: items[index].description,
-                      location: items[index].location,
-                      visitors: 2,
-                      rating: 5.0,
-                      endDate: items[index].endDate,
-                      id: items[index].id.toString(),
-                      isInitiallyFavorite:
-                          false, // يمكنك تغيير هذه القيمة حسب الحاجة
-                      galleryId: items[index].id.toString(),
-                      showRemainingDays: false, startDate: '',
-                      isActiveScreen: false,
-                      // استخدام معرف المعرض كـ galleryId
-                    );
-                  },
-                );
+                // إذا لم توجد نتائج للبحث
+                if (filteredItems.isEmpty && _searchQuery.isNotEmpty) {
+                  return Center(
+                    child: Text(
+                      'لا توجد نتائج بحث',
+                      style: TextStyle(
+                        fontFamily: mainFont,
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+
+                // إذا كان المستخدم مسجل دخول، جلب المفضلة
+                return _userId != null
+                    ? StreamBuilder<List<String>>(
+                        stream: FirestoreService().getUserFavorites(_userId!),
+                        builder: (context, favoriteSnapshot) {
+                          if (favoriteSnapshot.hasError) {
+                            return Center(
+                                child:
+                                    Text('Error: ${favoriteSnapshot.error}'));
+                          }
+
+                          final favoriteIds = favoriteSnapshot.data ?? [];
+
+                          return ListView.builder(
+                            // أضفنا padding في الأسفل لإعطاء مسافة بعد آخر معرض
+                            padding: EdgeInsets.only(top: 10, bottom: 60),
+                            itemCount: filteredItems.length,
+                            itemBuilder: (context, index) {
+                              final item = filteredItems[index];
+                              final isFavorite =
+                                  favoriteIds.contains(item.id.toString());
+
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 8),
+                                child: GalleryCard(
+                                  key: ValueKey(item.id),
+                                  imageUrl:
+                                      'https://drive.google.com/uc?id=${item.imageURL}',
+                                  name: item.title,
+                                  description: item.description,
+                                  location: item.location,
+                                  visitors: 2,
+                                  rating: 5.0,
+                                  endDate: item.endDate,
+                                  id: item.id.toString(),
+                                  isInitiallyFavorite: isFavorite,
+                                  galleryId: item.id.toString(),
+                                  showRemainingDays: false,
+                                  startDate: item.startDate,
+                                  isActiveScreen: false,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      )
+
+                    // إذا لم يكن المستخدم مسجل دخول
+                    : ListView.builder(
+                        // أضفنا padding في الأسفل لإعطاء مسافة بعد آخر معرض
+                        padding: EdgeInsets.only(top: 10, bottom: 20),
+                        itemCount: filteredItems.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredItems[index];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            child: GalleryCard(
+                              key: ValueKey(item.id),
+                              imageUrl:
+                                  'https://drive.google.com/uc?id=${item.imageURL}',
+                              name: item.title,
+                              description: item.description,
+                              location: item.location,
+                              visitors: 2,
+                              rating: 5.0,
+                              endDate: item.endDate,
+                              id: item.id.toString(),
+                              isInitiallyFavorite: false,
+                              galleryId: item.id.toString(),
+                              showRemainingDays: false,
+                              startDate: item.startDate,
+                              isActiveScreen: false,
+                            ),
+                          );
+                        },
+                      );
               },
             ),
           ),
@@ -185,4 +292,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-///////////////////////////////////////////////////////////

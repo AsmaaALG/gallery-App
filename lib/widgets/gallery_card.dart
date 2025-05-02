@@ -17,6 +17,8 @@ class GalleryCard extends StatefulWidget {
   final bool isInitiallyFavorite;
   final String galleryId;
   final String startDate;
+  final bool showRemainingDays;
+  final bool isActiveScreen;
 
   const GalleryCard({
     Key? key,
@@ -31,8 +33,8 @@ class GalleryCard extends StatefulWidget {
     required this.id,
     required this.isInitiallyFavorite,
     required this.galleryId,
-    required bool showRemainingDays,
-    required bool isActiveScreen,
+    required this.showRemainingDays,
+    required this.isActiveScreen,
   }) : super(key: key);
 
   @override
@@ -78,7 +80,7 @@ class _GalleryCardState extends State<GalleryCard> {
   void initState() {
     super.initState();
     isFavorite = widget.isInitiallyFavorite;
-    if (_userId != null && widget.galleryId != null) {
+    if (_userId != null && widget.galleryId.isNotEmpty) {
       _firestoreService
           .isFavorite(_userId!, widget.galleryId)
           .listen((favorite) {
@@ -172,6 +174,14 @@ class _GalleryCardState extends State<GalleryCard> {
                   fit: BoxFit.cover,
                   height: 120,
                   width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: const Color.fromARGB(255, 253, 242, 242),
+                      child: Icon(Icons.broken_image,
+                          size: 50,
+                          color: const Color.fromARGB(255, 193, 192, 184)),
+                    );
+                  },
                 ),
               ),
               Row(

@@ -157,6 +157,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         child: Image.network(
                           widget.imageUrl,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: Icon(Icons.broken_image,
+                                  size: 30,
+                                  color:
+                                      const Color.fromARGB(255, 207, 202, 174)),
+                            );
+                          },
                         ),
                       ),
                       Padding(

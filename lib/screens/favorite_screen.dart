@@ -15,11 +15,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   late TextEditingController _searchController;
   late BuildContext _savedContext;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
@@ -28,12 +30,20 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     _savedContext = context;
   }
 
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+    });
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
+  // نافذة تأكيد لحذف جميع المعارض من المفضلة
   Future<void> _showDeleteAllDialog() async {
     final confirmed = await showDialog<bool>(
       context: _savedContext,
@@ -90,6 +100,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // في حال عدم تسجيل الدخول
     if (_userId == null) {
       return Center(
         child: Text(
@@ -105,19 +116,24 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         backgroundColor: Colors.white,
         title: Text(
           'المفضلة',
-          style: TextStyle(fontFamily: mainFont),
+          style: TextStyle(
+            fontFamily: mainFont,
+            color: const Color.fromRGBO(166, 23, 28, 1),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: _showDeleteAllDialog,
+            onPressed: _showDeleteAllDialog, // زر لحذف الكل
           ),
         ],
       ),
       body: Column(
         children: [
+          // حقل البحث
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: SizedBox(
@@ -127,7 +143,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   cursorHeight: 14,
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'بحث',
+                    hintText: 'ابحث باسم المعرض',
                     hintStyle: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -157,10 +173,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     fontSize: 12,
                     fontFamily: mainFont,
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
                 ),
               ),
             ),
           ),
+          SizedBox(height: 10),
+          // عرض قائمة المعارض المفضلة
           Expanded(
             child: StreamBuilder<List<String>>(
               stream: _firestoreService.getUserFavorites(_userId!),
@@ -202,17 +225,27 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       return Center(child: CircularProgressIndicator());
                     }
 
+                    // فلترة المعارض حسب المفضلة والبحث
                     var favoriteGalleries = gallerySnapshot.data!
                         .where((gallery) =>
                             favoriteIds.contains(gallery.id.toString()))
-                        .where(
-                            (gallery) => gallery.title.toLowerCase().contains(
-                                  _searchController.text.toLowerCase(),
-                                ))
+                        .where((gallery) =>
+                            gallery.title.toLowerCase().contains(_searchQuery))
                         .toList();
 
+                    if (favoriteGalleries.isEmpty && _searchQuery.isNotEmpty) {
+                      return Center(
+                        child: Text(
+                          'لا توجد نتائج بحث',
+                          style: TextStyle(fontFamily: mainFont),
+                        ),
+                      );
+                    }
+
                     return ListView.builder(
-                      itemCount: favoriteGalleries.length, //حسب حجم المفضلة
+                      // أضفنا هنا مسافة إضافية في الأسفل بعد آخر معرض
+                      padding: EdgeInsets.only(top: 10, bottom: 60),
+                      itemCount: favoriteGalleries.length,
                       itemBuilder: (context, index) {
                         final gallery = favoriteGalleries[index];
                         return FutureBuilder<double>(
@@ -220,21 +253,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               .calculateRating(gallery.id.toString()),
                           builder: (context, ratingSnapshot) {
                             double rating = ratingSnapshot.data ?? 0.0;
-                            return GalleryCard(
-                              imageUrl:
-                                  'https://drive.google.com/uc?id=${gallery.imageURL}',
-                              name: gallery.title,
-                              description: gallery.description,
-                              location: gallery.location,
-                              visitors: 2,
-                              rating: rating,
-                              endDate: gallery.endDate,
-                              isInitiallyFavorite: true,
-                              galleryId: gallery.id.toString(),
-                              id: gallery.id.toString(),
-                              showRemainingDays: false,
-                              startDate: '',
-                              isActiveScreen: false,
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 20),
+                              child: GalleryCard(
+                                imageUrl:
+                                    'https://drive.google.com/uc?id=${gallery.imageURL}',
+                                name: gallery.title,
+                                description: gallery.description,
+                                location: gallery.location,
+                                visitors: 2,
+                                rating: rating,
+                                endDate: gallery.endDate,
+                                isInitiallyFavorite: true,
+                                galleryId: gallery.id.toString(),
+                                id: gallery.id.toString(),
+                                showRemainingDays: false,
+                                startDate: '',
+                                isActiveScreen: false,
+                              ),
                             );
                           },
                         );
