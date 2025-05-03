@@ -119,8 +119,8 @@ class _MainScreenState extends State<MainScreen> {
               style: TextStyle(fontFamily: mainFont),
             ),
             onTap: () {
-              Navigator.pop(context);
-              _onItemTapped(0);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AboutAppScreen()));
             },
           ),
           ListTile(
@@ -196,7 +196,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget getCurrentScreen() {
     switch (_selectedIndex) {
       case 0:
-        return AboutAppScreen();
+        return Center(
+            child: Text('تم زيارتها', style: TextStyle(fontSize: 24)));
       case 1:
         return AdsScreen();
       case 2:

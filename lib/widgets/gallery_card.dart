@@ -47,12 +47,8 @@ FutureBuilder<double> numberOfStars(String id) {
   return FutureBuilder<double>(
     future: _firestoreService.calculateRating(id),
     builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator(
-          color: primaryColor,
-        );
-      } else if (snapshot.hasError) {
-        return Text('??');
+      if (snapshot.hasError) {
+        return Text('');
       } else {
         double stars = snapshot.data ?? 0.0;
         return Row(children: [
@@ -148,7 +144,7 @@ class _GalleryCardState extends State<GalleryCard> {
       child: Card(
         color: cardBackground,
         elevation: 3,
-        margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
+        margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -185,10 +181,10 @@ class _GalleryCardState extends State<GalleryCard> {
                 ),
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Container(
-                    width: 220,
+                    width: 200,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

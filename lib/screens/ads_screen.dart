@@ -38,11 +38,6 @@ class AdsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-      ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 25.0),
         child: FutureBuilder<List<AdModel>>(
@@ -78,7 +73,6 @@ class AdsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 // Container مع الظل والأيقونة
                 Stack(
                   children: [
@@ -153,18 +147,18 @@ class AdsScreen extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: ''),
-        ],
-        selectedItemColor: Color(0xFFF4C94C),
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const [
+      //     BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
+      //     BottomNavigationBarItem(icon: Icon(Icons.category), label: ''),
+      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+      //     BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: ''),
+      //   ],
+      //   selectedItemColor: Color(0xFFF4C94C),
+      //   unselectedItemColor: Colors.grey,
+      //   showSelectedLabels: false,
+      //   showUnselectedLabels: false,
+      // ),
     );
   }
 }

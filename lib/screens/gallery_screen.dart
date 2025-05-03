@@ -40,7 +40,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   List<Suite> suites = [];
   List<Review> reviews = []; // قائمة التعليقات
   List<Partner> partners = []; // قائمة الشركاء
-
+  bool isExpanded = false;
   bool isLoading = true;
   bool isFavorite = false; // حالة المفضلة
   final FirestoreService _firestoreService = FirestoreService();
@@ -69,6 +69,22 @@ class _GalleryScreenState extends State<GalleryScreen> {
     } catch (e) {
       print('Error checking favorite status: $e');
     }
+  }
+
+  bool _isMoreTextVisible(String text) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: 12, fontFamily: mainFont),
+      ),
+      maxLines: 3,
+      textDirection: TextDirection.rtl,
+    )..layout(
+        maxWidth: MediaQuery.of(context).size.width -
+            40); // الحساب بناءً على عرض الشاشة
+
+    return textPainter
+        .didExceedMaxLines; // تحقق مما إذا كان النص يتجاوز ثلاث أسطر
   }
 
   // دالة للتبديل بين حالة المفضلة
@@ -232,10 +248,45 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       ),
                       Text(
                         widget.description,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 5,
+                        textAlign: TextAlign.right,
+                        overflow: isExpanded ? null : TextOverflow.ellipsis,
+                        maxLines: isExpanded ? null : 3,
                         style: TextStyle(fontFamily: mainFont, fontSize: 10),
                       ),
+                      if (!isExpanded &&
+                          _isMoreTextVisible(
+                              widget.description)) // شرط لإظهار "المزيد"
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              isExpanded = true; // توسيع الوصف عند الضغط
+                            });
+                          },
+                          child: Text(
+                            "المزيد",
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: primaryColor,
+                              fontFamily: mainFont,
+                            ),
+                          ),
+                        ),
+                      if (isExpanded) // زر "أقل" يظهر عند توسيع الوصف
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              isExpanded = false; // تقليل الوصف عند الضغط
+                            });
+                          },
+                          child: Text(
+                            "أقل",
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: primaryColor,
+                              fontFamily: mainFont,
+                            ),
+                          ),
+                        ),
                       SizedBox(
                         height: 20,
                       ),
@@ -317,10 +368,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                         future: FirestoreService()
                                             .calculateRating(widget.id),
                                         builder: (context, snapshot) {
-                                          // if (snapshot.connectionState ==
-                                          //     ConnectionState.waiting) {
-                                          //   return CircularProgressIndicator(); // عرض مؤشر التحميل
-                                          // } else
                                           if (snapshot.hasError) {
                                             return Text(
                                                 'Error: ${snapshot.error}');

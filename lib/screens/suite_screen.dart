@@ -173,6 +173,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                           style: TextStyle(
                             color: primaryColor,
                             fontFamily: mainFont,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -188,6 +189,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                           style: TextStyle(
                             color: primaryColor,
                             fontFamily: mainFont,
+                            fontSize: 12,
                           ),
                         ),
                       ),

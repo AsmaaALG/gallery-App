@@ -7,10 +7,22 @@ class AboutAppScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: primaryColor,
+            )),
+        title: Text(
+          "عن التطبيق",
+          style: TextStyle(
+              fontFamily: mainFont, color: primaryColor, fontSize: 16),
+        ),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
