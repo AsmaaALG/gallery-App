@@ -3,6 +3,7 @@ import 'package:final_project/screens/about_screen.dart';
 import 'package:final_project/screens/ads_screen.dart';
 import 'package:final_project/screens/favorite_screen.dart';
 import 'package:final_project/screens/signIn_screen.dart';
+import 'package:final_project/screens/visited_screen.dart';
 import 'package:final_project/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -196,8 +197,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget getCurrentScreen() {
     switch (_selectedIndex) {
       case 0:
-        return Center(
-            child: Text('تم زيارتها', style: TextStyle(fontSize: 24)));
+        return VisitedScreen(currentUserId: _user!.uid);
       case 1:
         return AdsScreen();
       case 2:

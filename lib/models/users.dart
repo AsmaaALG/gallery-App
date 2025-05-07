@@ -14,9 +14,9 @@ class Users {
   });
 
   // دالة لتحويل البيانات من JSON إلى كائن User
-  factory Users.fromJson(Map<String, dynamic> json, String id) {
+  factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
-      id: id,
+      id: json['id'] ?? '',
       email: json['email'] ?? '',
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
@@ -28,6 +28,7 @@ class Users {
   // دالة لتحويل كائن User إلى JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'email': email,
       'first_name': firstName,
       'last_name': lastName,

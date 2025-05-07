@@ -2,6 +2,8 @@ import 'package:final_project/constants.dart';
 import 'package:final_project/models/partner.dart';
 import 'package:final_project/models/reviews.dart';
 import 'package:final_project/models/suite.dart';
+import 'package:final_project/screens/QR_code_screen.dart';
+// import 'package:final_project/screens/qr_code_scanner.dart'; // استيراد شاشة QRScanner
 import 'package:final_project/screens/suite_screen.dart';
 import 'package:final_project/services/firestore_service.dart';
 import 'package:flutter/material.dart';
@@ -38,24 +40,23 @@ class GalleryScreen extends StatefulWidget {
 
 class _GalleryScreenState extends State<GalleryScreen> {
   List<Suite> suites = [];
-  List<Review> reviews = []; // قائمة التعليقات
-  List<Partner> partners = []; // قائمة الشركاء
+  List<Review> reviews = [];
+  List<Partner> partners = [];
   bool isExpanded = false;
   bool isLoading = true;
-  bool isFavorite = false; // حالة المفضلة
+  bool isFavorite = false;
   final FirestoreService _firestoreService = FirestoreService();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void initState() {
     super.initState();
-    fetchSuites(); // استدعاء دالة جلب الأجنحة عند تحميل الشاشة
+    fetchSuites();
     fetchReviews();
-    fetchPartners(); // استدعاء دالة جلب الشركاء
-    _checkFavoriteStatus(); // التحقق من حالة المفضلة
+    fetchPartners();
+    _checkFavoriteStatus();
   }
 
-  // دالة للتحقق من حالة المفضلة
   Future<void> _checkFavoriteStatus() async {
     if (_userId == null) return;
     try {
@@ -79,15 +80,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
       maxLines: 3,
       textDirection: TextDirection.rtl,
-    )..layout(
-        maxWidth: MediaQuery.of(context).size.width -
-            40); // الحساب بناءً على عرض الشاشة
+    )..layout(maxWidth: MediaQuery.of(context).size.width - 40);
 
-    return textPainter
-        .didExceedMaxLines; // تحقق مما إذا كان النص يتجاوز ثلاث أسطر
+    return textPainter.didExceedMaxLines;
   }
 
-  // دالة للتبديل بين حالة المفضلة
   Future<void> _toggleFavorite() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,8 +118,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       List<Review> fetchedReviews =
           await FirestoreService().getReviews(widget.id);
       setState(() {
-        reviews = fetchedReviews; // تحديث حالة التعليقات
-        print("number of reviewsssss:::::: ${reviews.length}");
+        reviews = fetchedReviews;
       });
     } catch (e) {
       print('Error fetching reviews: $e');
@@ -134,7 +130,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       List<Partner> fetchedPartners =
           await FirestoreService().getPartners(widget.id);
       setState(() {
-        partners = fetchedPartners; // تحديث حالة الشركاء
+        partners = fetchedPartners;
       });
     } catch (e) {
       print('Error fetching partners: $e');
@@ -148,8 +144,63 @@ class _GalleryScreenState extends State<GalleryScreen> {
     } catch (e) {
       print('Error parsing date: $e');
       print('end date value: ${widget.endDate}');
-
       return false;
+    }
+  }
+
+  // دالة لتسجيل الزائر
+  Future<void> _registerVisitor() async {
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('يجب تسجيل الدخول لتسجيل الزيارة')),
+      );
+      return;
+    }
+
+    try {
+      // التحقق من وجود تسجيل سابق
+      bool alreadyRegistered =
+          await _firestoreService.isVisitorRegistered(_userId!, widget.id);
+
+      if (alreadyRegistered) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم تسجيل زيارتك لهذا المعرض مسبقًا')),
+        );
+        return;
+      }
+
+      // تسجيل الزيارة
+      await _firestoreService.registerVisitor(_userId!, widget.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تم تسجيل زيارتك بنجاح!')),
+      );
+    } catch (e) {
+      print('Error registering visitor: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ أثناء تسجيل الزيارة')),
+      );
+    }
+  }
+
+  // دالة لمسح رمز QR
+  void _scanQRCode() async {
+    final qrCodeData = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QRScannerScreen(), // تمرير معرف المعرض
+      ),
+    );
+
+    if (qrCodeData != null) {
+      // التحقق من الرمز ومطابقته مع معرف المعرض
+      if (qrCodeData == widget.id) {
+        // تسجيل المستخدم كزائر
+        _registerVisitor();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('الرمز غير صالح')),
+        );
+      }
     }
   }
 
@@ -190,17 +241,31 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            IconButton(
-                              icon: Icon(
-                                isFavorite
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded,
-                                color: isFavorite
-                                    ? const Color.fromARGB(255, 158, 17, 17)
-                                    : primaryColor,
-                                size: 28,
-                              ),
-                              onPressed: _toggleFavorite,
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    isFavorite
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    color: isFavorite
+                                        ? const Color.fromARGB(255, 158, 17, 17)
+                                        : primaryColor,
+                                    size: 28,
+                                  ),
+                                  onPressed: _toggleFavorite,
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.qr_code_scanner,
+                                    color:
+                                        isClosed() ? Colors.grey : primaryColor,
+                                  ),
+                                  onPressed: isClosed()
+                                      ? null
+                                      : _scanQRCode, // تعطيل الزر إذا كان المعرض مغلق
+                                ),
+                              ],
                             ),
                             IconButton(
                               icon: Icon(Icons.arrow_forward,
@@ -253,13 +318,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         maxLines: isExpanded ? null : 3,
                         style: TextStyle(fontFamily: mainFont, fontSize: 10),
                       ),
-                      if (!isExpanded &&
-                          _isMoreTextVisible(
-                              widget.description)) // شرط لإظهار "المزيد"
+                      if (!isExpanded && _isMoreTextVisible(widget.description))
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              isExpanded = true; // توسيع الوصف عند الضغط
+                              isExpanded = true;
                             });
                           },
                           child: Text(
@@ -271,11 +334,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
                             ),
                           ),
                         ),
-                      if (isExpanded) // زر "أقل" يظهر عند توسيع الوصف
+                      if (isExpanded)
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              isExpanded = false; // تقليل الوصف عند الضغط
+                              isExpanded = false;
                             });
                           },
                           child: Text(
@@ -316,8 +379,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                       Text(
                                         "111",
                                         style: TextStyle(
-                                          fontFamily: mainFont, // تعيين الخط
-                                          fontSize: 10, // تصغير حجم النص
+                                          fontFamily: mainFont,
+                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
@@ -333,8 +396,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                       Text(
                                         "${widget.startDate}\n${widget.endDate}",
                                         style: TextStyle(
-                                          fontFamily: mainFont, // تعيين الخط
-                                          fontSize: 10, // تصغير حجم النص
+                                          fontFamily: mainFont,
+                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
@@ -407,11 +470,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                 ),
-                // قائمة الأجنحة
                 if (isLoading)
                   CircularProgressIndicator(
                     color: primaryColor,
-                  ) // عرض مؤشر التحميل
+                  )
                 else if (suites.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -429,7 +491,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 else
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 10),
-                    height: suites.length * 120, // ارتفاع قسم الأجنحة
+                    height: suites.length * 120,
                     child: ListView.builder(
                       itemCount: suites.length,
                       itemBuilder: (context, index) {
@@ -438,9 +500,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           child: Container(
-                            height: 100, // ارتفاع كل جناح
-                            margin: EdgeInsets.symmetric(
-                                vertical: 5), // هامش بين الأجنحة
+                            height: 100,
+                            margin: EdgeInsets.symmetric(vertical: 5),
                             decoration: BoxDecoration(
                               color: cardBackground,
                               borderRadius: BorderRadius.circular(10),
@@ -458,8 +519,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                      15.0), // تحديد نصف القطر لجعل الحواف مدورة
+                                  borderRadius: BorderRadius.circular(15.0),
                                   child: Image.network(
                                       'https://drive.google.com/uc?id=${suite.imageUrl}',
                                       fit: BoxFit.cover,
@@ -531,19 +591,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                         width: 0.5, // عرض الحواف
                                       ),
                                       padding: EdgeInsets.symmetric(
-                                          vertical: 8.0,
-                                          horizontal:
-                                              16.0), // تعديل المساحة الداخلية
-
-                                      minimumSize:
-                                          Size(40, 30), // تحديد الحجم الأدنى
+                                          vertical: 8.0, horizontal: 16.0),
+                                      minimumSize: Size(40, 30),
                                     ),
                                     child: Text(
                                       "المزيد",
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 12,
-                                        fontFamily: mainFont, // لون النص
+                                        fontFamily: mainFont,
                                       ),
                                     ),
                                   ),
@@ -556,8 +612,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                 SizedBox(height: 20),
-/////////////////////////////////////////////////////////////////////////////
-                // قسم التعليقات
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
@@ -569,11 +623,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         fontFamily: mainFont),
                   ),
                 ),
-                // قائمة التعليقات
                 if (isLoading)
                   CircularProgressIndicator(
                     color: primaryColor,
-                  ) // عرض مؤشر التحميل
+                  )
                 else if (reviews.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -590,31 +643,25 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   )
                 else
                   SizedBox(
-                    height:
-                        reviews.length >= 3 ? 400 : 200, // ارتفاع قسم التعليقات
+                    height: reviews.length >= 3 ? 400 : 200,
                     child: ListView.builder(
                       itemCount: reviews.length,
                       itemBuilder: (context, index) {
-                        final review = reviews[index]; // الحصول على التعليق
+                        final review = reviews[index];
                         return Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 20), // هامش بين التعليقات
+                          margin:
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                           decoration: BoxDecoration(
-                            color: Colors.white, // لون خلفية التعليق
+                            color: Colors.white,
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(
-                                  35), // حافة مدورة في الأعلى اليسار
-                              topRight: Radius.circular(
-                                  0), // حافة مدببة في الأعلى اليمين
-                              bottomLeft: Radius.circular(
-                                  35), // حافة مدورة في الأسفل اليسار
-                              bottomRight: Radius.circular(
-                                  35), // حافة مدورة في الأسفل اليمين
+                              topLeft: Radius.circular(35),
+                              topRight: Radius.circular(0),
+                              bottomLeft: Radius.circular(35),
+                              bottomRight: Radius.circular(35),
                             ),
                             border: Border.all(
                                 color: const Color.fromARGB(131, 219, 185, 185),
-                                width: 2), // تحديد لون الحافة
+                                width: 2),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -677,7 +724,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                 SizedBox(height: 20),
-                // قسم الشركاء
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
@@ -689,11 +735,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         fontFamily: mainFont),
                   ),
                 ),
-                // قائمة الشركاء
                 if (isLoading)
                   CircularProgressIndicator(
                     color: primaryColor,
-                  ) // عرض مؤشر التحميل
+                  )
                 else if (partners.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -717,17 +762,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       itemBuilder: (context, index) {
                         final partner = partners[index];
                         return Container(
-                          // color: primaryColor,
                           width: 150,
                           margin:
                               EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                           child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                    50.0), // تحديد نصف القطر لجعل الحواف مدورة
+                                borderRadius: BorderRadius.circular(50.0),
                                 child: Image.network(
                                     'https://drive.google.com/uc?id=${partner.image}',
                                     fit: BoxFit.cover,
@@ -778,13 +820,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
     try {
       List<Suite> fetchedSuites = await FirestoreService().getSuites(widget.id);
       setState(() {
-        suites = fetchedSuites; // تحديث حالة الأجنحة
-        isLoading = false; // انتهاء التحميل
+        suites = fetchedSuites;
+        isLoading = false;
       });
     } catch (e) {
       print('Error fetching suites: $e');
       setState(() {
-        isLoading = false; // تعيين حالة التحميل إلى false إذا حدث خطأ
+        isLoading = false;
       });
     }
   }

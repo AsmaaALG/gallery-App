@@ -5,6 +5,7 @@ import 'package:final_project/models/reviews.dart';
 import 'package:final_project/models/suite.dart';
 import 'package:final_project/models/suite_image.dart';
 import 'package:final_project/models/users.dart';
+import 'package:final_project/models/visit_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../models/gallery_model.dart';
@@ -249,13 +250,25 @@ class FirestoreService {
         .toList();
 
     for (var review in reviews) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(review.userId).get();
-      Users user =
-          Users.fromJson(userDoc.data() as Map<String, dynamic>, userDoc.id);
-      review.userName =
-          '${user.firstName} ${user.lastName}'; // تكوين الاسم الكامل
-      print("name::::::: ${review.userName} comment ${review.comment}");
+      // تعديل الاستعلام هنا
+      QuerySnapshot userQuery = await _firestore
+          .collection('users')
+          .where('userId',
+              isEqualTo: review.userId) // استخدام where مع الفيلد 'id'
+          .get();
+
+      if (userQuery.docs.isNotEmpty) {
+        DocumentSnapshot userDoc =
+            userQuery.docs.first; // الحصول على أول دوكيومنت
+        Users user = Users.fromJson(userDoc.data() as Map<String, dynamic>);
+        review.userName =
+            '${user.firstName} ${user.lastName}'; // تكوين الاسم الكامل
+        print("name::::::: ${review.userName} comment ${review.comment}");
+      } else {
+        // معالجة الحالة التي لا يوجد فيها مستخدم بهذا الـ id
+        print("User with id ${review.userId} not found");
+        review.userName = "Unknown User"; // أو أي قيمة افتراضية أخرى
+      }
     }
 
     return reviews;
@@ -284,4 +297,65 @@ class FirestoreService {
       return SuiteImage.fromJson(doc.data() as Map<String, dynamic>, doc.id);
     }).toList();
   }
+
+  ///////////////تمت زيارلتهاظ////
+  Future<GalleryModel?> getGalleryById(String galleryId) async {
+    try {
+      final doc = await _firestore.collection('2').doc(galleryId).get();
+      if (doc.exists) {
+        return GalleryModel.fromJson(
+            doc.data() as Map<String, dynamic>, doc.id);
+      }
+      return null;
+    } catch (e) {
+      print('خطأ في getGalleryById: $e');
+      return null;
+    }
+  }
+
+  ///
+
+  // إضافة زيارة جديدة
+  Future<void> addVisit(String galleryId, String userId) async {
+    await _firestore.collection('visit').add({
+      'galleryId': galleryId,
+      'userId': userId,
+    });
+  }
+
+  Stream<List<VisitModel>> getUserVisit(String userId) {
+    return _firestore
+        .collection('visit')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+      print('عدد النتائج من الكويري: ${snapshot.docs.length}');
+      return snapshot.docs.map((doc) {
+        return VisitModel.fromJson(doc.data(), doc.id);
+      }).toList();
+    });
+  }
+
+   Future<void> registerVisitor(String userId, String galleryId) async {
+    await _firestore.collection('visit').add({
+      'userId': userId,
+      'galleryId': galleryId,
+      // 'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // دالة للتحقق من وجود تسجيل سابق للزائر
+  Future<bool> isVisitorRegistered(String userId, String galleryId) async {
+    final snapshot = await _firestore
+        .collection('visit')
+        .where('userId', isEqualTo: userId)
+        .where('galleryId', isEqualTo: galleryId)
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
+
+  
+
 }
