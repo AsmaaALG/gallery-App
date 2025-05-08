@@ -371,14 +371,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                   Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
-                                    children: const [
-                                      Icon(
+                                    children: [
+                                      const Icon(
                                         Icons.groups_rounded,
                                         size: 20,
                                       ),
                                       Text(
-                                        "111",
-                                        style: TextStyle(
+                                        widget.visitors.toString(),
+                                        style: const TextStyle(
                                           fontFamily: mainFont,
                                           fontSize: 10,
                                         ),

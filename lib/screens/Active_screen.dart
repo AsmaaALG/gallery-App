@@ -32,7 +32,7 @@ class ActiveScreen extends StatelessWidget {
         title: Text(
           'المعارض المنعقدة الآن',
           style: TextStyle(
-            fontSize: isSmallScreen ? 18 : 20,
+            fontSize: titleSize,
             fontFamily: mainFont,
             fontWeight: FontWeight.bold,
             color: const Color.fromRGBO(166, 23, 28, 1),
@@ -112,7 +112,6 @@ class ActiveScreen extends StatelessWidget {
                             name: gallery.title,
                             description: gallery.description,
                             location: gallery.location,
-                            visitors: 2,
                             rating: 5.0,
                             endDate: gallery.endDate,
                             id: gallery.id,
@@ -120,7 +119,7 @@ class ActiveScreen extends StatelessWidget {
                             showRemainingDays: false,
                             galleryId: gallery.id,
                             isActiveScreen: true,
-                            startDate: '',
+                            startDate: gallery.startDate,
                           ),
                           Positioned(
                             top: screenHeight * 0.00,

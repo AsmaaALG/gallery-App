@@ -9,7 +9,7 @@ const cardBackground = Color.fromARGB(255, 253, 245, 245);
 //sizes
 const mainCardHeight = 90;
 const mainCardWidth = 90;
-const titleSize = 16.0;
+const titleSize = 20.0;
 
 //padding
 const titlePadding = 20.0;

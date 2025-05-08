@@ -249,6 +249,8 @@ class FirestoreService {
             Review.fromJson(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
 
+    reviews = reviews.where((review) => review.comment.isNotEmpty).toList();
+
     for (var review in reviews) {
       // تعديل الاستعلام هنا
       QuerySnapshot userQuery = await _firestore
@@ -336,7 +338,7 @@ class FirestoreService {
     });
   }
 
-   Future<void> registerVisitor(String userId, String galleryId) async {
+  Future<void> registerVisitor(String userId, String galleryId) async {
     await _firestore.collection('visit').add({
       'userId': userId,
       'galleryId': galleryId,
@@ -355,7 +357,12 @@ class FirestoreService {
     return snapshot.docs.isNotEmpty;
   }
 
-
-  
-
+// حساب عدد الزوار
+  Future<int> getVisitorCount(String galleryId) async {
+    final snapshot = await _firestore
+        .collection('visit')
+        .where('galleryId', isEqualTo: galleryId)
+        .get();
+    return snapshot.docs.length; // حساب عدد الوثائق
+  }
 }

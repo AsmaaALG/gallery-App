@@ -11,7 +11,6 @@ class GalleryCard extends StatefulWidget {
   final String name;
   final String description;
   final String location;
-  final int visitors;
   final double rating;
   final String endDate;
   final bool isInitiallyFavorite;
@@ -26,7 +25,6 @@ class GalleryCard extends StatefulWidget {
     required this.name,
     required this.description,
     required this.location,
-    required this.visitors,
     required this.rating,
     required this.endDate,
     required this.startDate,
@@ -121,6 +119,15 @@ class _GalleryCardState extends State<GalleryCard> {
     }
   }
 
+  Future<int> getVisitorCount() async {
+    try {
+      return await _firestoreService.getVisitorCount(widget.galleryId);
+    } catch (e) {
+      print('Error fetching visitor count: $e');
+      return 0; // ارجع صفر في حالة حدوث خطأ
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -128,16 +135,22 @@ class _GalleryCardState extends State<GalleryCard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => GalleryScreen(
-                    id: widget.id,
-                    imageUrl: widget.imageUrl,
-                    name: widget.name,
-                    description: widget.description,
-                    location: widget.location,
-                    visitors: widget.visitors,
-                    rating: widget.rating,
-                    endDate: widget.endDate,
-                    startDate: widget.startDate,
+              builder: (context) => FutureBuilder<int>(
+                    future: getVisitorCount(),
+                    builder: (context, snapshot) {
+                      int visitors = snapshot.data ?? 0;
+                      return GalleryScreen(
+                        id: widget.id,
+                        imageUrl: widget.imageUrl,
+                        name: widget.name,
+                        description: widget.description,
+                        location: widget.location,
+                        visitors: visitors, // تمرير عدد الزوار
+                        rating: widget.rating,
+                        endDate: widget.endDate,
+                        startDate: widget.startDate,
+                      );
+                    },
                   )),
         );
       },

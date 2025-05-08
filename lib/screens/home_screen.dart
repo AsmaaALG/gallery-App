@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontFamily: mainFont,
                         color: primaryColor,
-                        fontSize: titleSize,
+                        fontSize: 16,
                       ),
                     ),
                     TextSpan(
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontFamily: mainFont,
                         color: Colors.black,
-                        fontSize: titleSize,
+                        fontSize: 16,
                       ),
                     )
                   ],
@@ -238,7 +238,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   name: item.title,
                                   description: item.description,
                                   location: item.location,
-                                  visitors: 2,
                                   rating: 5.0,
                                   endDate: item.endDate,
                                   id: item.id.toString(),
@@ -271,7 +270,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               name: item.title,
                               description: item.description,
                               location: item.location,
-                              visitors: 2,
                               rating: 5.0,
                               endDate: item.endDate,
                               id: item.id.toString(),

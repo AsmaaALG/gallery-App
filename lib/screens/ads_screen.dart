@@ -66,7 +66,7 @@ class AdsScreen extends StatelessWidget {
                   child: Text(
                     'الإعلانات',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: titleSize,
                       fontFamily: mainFont,
                       fontWeight: FontWeight.bold,
                       color: const Color.fromRGBO(166, 23, 28, 1),

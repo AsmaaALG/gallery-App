@@ -120,6 +120,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             fontFamily: mainFont,
             color: const Color.fromRGBO(166, 23, 28, 1),
             fontWeight: FontWeight.bold,
+            fontSize: titleSize,
           ),
         ),
         actions: [
@@ -262,14 +263,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 name: gallery.title,
                                 description: gallery.description,
                                 location: gallery.location,
-                                visitors: 2,
                                 rating: rating,
                                 endDate: gallery.endDate,
                                 isInitiallyFavorite: true,
                                 galleryId: gallery.id.toString(),
                                 id: gallery.id.toString(),
                                 showRemainingDays: false,
-                                startDate: '',
+                                startDate: gallery.startDate,
                                 isActiveScreen: false,
                               ),
                             );

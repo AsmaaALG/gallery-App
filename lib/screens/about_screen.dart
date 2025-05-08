@@ -24,21 +24,22 @@ class AboutAppScreen extends StatelessWidget {
               fontFamily: mainFont, color: primaryColor, fontSize: 16),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // شعار التطبيق
             Container(
                 margin: EdgeInsets.only(bottom: 5),
-                width: 250,
-                height: 250,
+                width: 220,
+                height: 220,
                 child: Image.asset('images/logo.png')),
 
             // نص نبذة عن التطبيق
             Container(
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 'تطبيق يهدف إلى إدارة المعارض بشكل رقمي وفعّال، من خلال تسهيل تسجيل العارضين والزوار، '
                 'عرض معلومات المعارض، وتوفير تحديثات فورية، مما يعزز تجربة المستخدم ويطور أداء الفعاليات.',

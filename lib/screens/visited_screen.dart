@@ -65,7 +65,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
             return const Center(
               child: Text(
                 'لم تقم بزيارة أي معرض بعد.',
-                style: TextStyle(fontFamily: mainFont, fontSize: 18),
+                style: TextStyle(fontFamily: mainFont),
               ),
             );
           }
