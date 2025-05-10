@@ -19,6 +19,39 @@ class FirestoreService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  //////////////////////////////////////////////////////////////////////////
+  ///تعديل الحساب
+  // جلب بيانات المستخدم من Firestore
+  Future<Map<String, dynamic>?> getUserData(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return {
+          'data': querySnapshot.docs.first.data(),
+          'docId': querySnapshot.docs.first.id
+        };
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to get user data: $e');
+    }
+  }
+
+  // تحديث بيانات المستخدم في Firestore
+  Future<void> updateUserData(
+      String docId, Map<String, dynamic> updatedData) async {
+    try {
+      await _firestore.collection('users').doc(docId).update(updatedData);
+    } catch (e) {
+      throw Exception('Failed to update user data: $e');
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
   ///المفضلـــــــــــة
 
