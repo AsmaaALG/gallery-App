@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:final_project/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/constants.dart';
 
 class ReservationScreen extends StatefulWidget {
+  final String adId;
+
+  const ReservationScreen({Key? key, required this.adId}) : super(key: key);
+
   @override
   _ReservationScreenState createState() => _ReservationScreenState();
 }
 
 class _ReservationScreenState extends State<ReservationScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _firestore = FirebaseFirestore.instance;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
   final TextEditingController _productTypeController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +29,9 @@ class _ReservationScreenState extends State<ReservationScreen> {
     final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFBF3F3),
+      backgroundColor: const Color(0xFFFBF3F3),
       appBar: AppBar(
-        backgroundColor: Color(0xFFEADDDA),
+        backgroundColor: const Color(0xFFEADDDA),
         title: Text(
           'نموذج حجز مساحة',
           style: TextStyle(
@@ -88,9 +92,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       shadowColor: const Color.fromARGB(255, 247, 205, 205)
                           .withOpacity(0.6),
                     ),
-                    onPressed: () {
-                      _submitForm(context);
-                    },
+                    onPressed: _submitForm,
                     child: Text(
                       'إرسال',
                       style: TextStyle(
@@ -151,8 +153,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(50),
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 255, 255, 255)),
+              borderSide: BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(50),
@@ -188,10 +189,11 @@ class _ReservationScreenState extends State<ReservationScreen> {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  Future<void> _submitForm(BuildContext context) async {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
         await _firestore.collection('space_form').add({
+          'adId': widget.adId,
           'name': _nameController.text,
           'address': _addressController.text,
           'phone': _phoneController.text,
@@ -203,10 +205,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'تم إرسال طلب الحجز بنجاح',
-              style: TextStyle(fontFamily: mainFont),
-            ),
+            content: Text('تم إرسال طلب الحجز بنجاح',
+                style: TextStyle(fontFamily: mainFont)),
             backgroundColor: Colors.green,
           ),
         );
@@ -217,10 +217,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'حدث خطأ أثناء حفظ البيانات: ${e.toString()}',
-              style: TextStyle(fontFamily: mainFont),
-            ),
+            content: Text('حدث خطأ أثناء حفظ البيانات: ${e.toString()}',
+                style: TextStyle(fontFamily: mainFont)),
             backgroundColor: Colors.red,
           ),
         );

@@ -122,7 +122,7 @@ class FirestoreService {
   }
 
   //////////////////////////////////////////////////////////////////////////
-  ///العلانـــــــات
+  ///الاعلانـــــــات
 
   final CollectionReference adsCollection =
       FirebaseFirestore.instance.collection('ads');
@@ -130,7 +130,8 @@ class FirestoreService {
   Future<List<AdModel>> getAds() async {
     final snapshot = await adsCollection.get();
     return snapshot.docs
-        .map((doc) => AdModel.fromMap(doc.data() as Map<String, dynamic>))
+        .map((doc) =>
+            AdModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
   }
 

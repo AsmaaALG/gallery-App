@@ -1,0 +1,1 @@
+C:\development\flutter-projects\gallery-App\build\app\intermediates\cxx\Debug\3q2v5h3g\obj\arm64-v8a

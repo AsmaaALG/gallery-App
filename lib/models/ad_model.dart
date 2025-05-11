@@ -1,4 +1,5 @@
 class AdModel {
+  final String id;
   final String title;
   final String description;
   final String imageUrl;
@@ -8,6 +9,7 @@ class AdModel {
   final String stopAd;
 
   AdModel({
+    required this.id,
     required this.title,
     required this.description,
     required this.imageUrl,
@@ -17,8 +19,9 @@ class AdModel {
     required this.stopAd,
   });
 
-  factory AdModel.fromMap(Map<String, dynamic> data) {
+  factory AdModel.fromMap(Map<String, dynamic> data, String documentId) {
     return AdModel(
+      id: documentId,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       imageUrl: data['image url'] ?? '',
