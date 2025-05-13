@@ -135,6 +135,58 @@ class FirestoreService {
         .toList();
   }
 
+// نقل الاعلانات من واجهة الاعلانات الى الواجهة الرئيسية عند وصول تاريخ البداية الى تاريخ اليوم
+  Future<void> moveAdToCollection(AdModel ad, String collectionName) async {
+    if (ad.id.isEmpty) {
+      print('معرف الوثيقة غير صالح');
+      return;
+    }
+
+    // التحقق مما إذا كان الكوليكشن موجود
+    DocumentSnapshot snapshot =
+        await _firestore.collection('ads').doc(ad.id).get();
+    if (!snapshot.exists) {
+      print('الوثيقة غير موجودة');
+      return;
+    }
+
+    try {
+      // تنسيق التواريخ إلى الشكل المطلوب "d/m/yyyy"
+      String formattedStartDate = _formatDate(ad.startDate);
+      String formattedEndDate = _formatDate(ad.endDate);
+
+      // إضافة الإعلان إلى المجموعة الجديدة
+      await _firestore.collection(collectionName).doc(ad.id).set({
+        'title': ad.title,
+        'description': ad.description,
+        'start date': formattedStartDate,
+        'end date': formattedEndDate,
+        'image url': ad.imageUrl,
+        'location': ad.location,
+        'QR code': ad.qrCode,
+        'phone': ad.phone,
+        'classification id': ad.classificationId,
+      });
+
+      print('تم نقل الإعلان إلى المجموعة $collectionName بنجاح.');
+    } catch (e) {
+      print('حدث خطأ أثناء نقل الإعلان: $e');
+    }
+  }
+
+// دالة لتحويل التاريخ إلى الصيغة المطلوبة "d/m/yyyy"
+  String _formatDate(String dateStr) {
+    final parts = dateStr.split('-');
+    if (parts.length != 3)
+      return dateStr; // إرجاع التاريخ الأصلي إذا كان غير صحيح
+
+    // إزالة الأصفار البادئة
+    final day = int.parse(parts[0]); // اليوم
+    final month = int.parse(parts[1]); // الشهر
+    final year = parts[2]; // السنة
+
+    return '$day/$month/$year'; // إعادة التاريخ بالشكل المطلوب
+  }
 //////////////////////////////////////////////////////////////////////////
   ///المعــــــــــارض
 
@@ -170,6 +222,7 @@ class FirestoreService {
     return querySnapshot.docs.isNotEmpty;
   }
 
+//////////////////////////////////////////////////////////////////////////
 //sign up
   Future<bool> createUser({
     required String firstName,
@@ -251,6 +304,7 @@ class FirestoreService {
 
     return ((totalStars / (count * 5)) * 5);
   }
+
   ////////////////////////////////////////////////////////////////////////////
   ///الاجنحة
 
@@ -321,6 +375,7 @@ class FirestoreService {
     }).toList();
   }
 
+//////////////////////////////////////////////////////////////////////////
   /////////////image
   Future<List<SuiteImage>> getSuiteImages(String suiteId) async {
     QuerySnapshot snapshot = await _firestore
@@ -334,7 +389,8 @@ class FirestoreService {
     }).toList();
   }
 
-  ///////////////تمت زيارلتهاظ////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///تمت زيارلتها
   Future<GalleryModel?> getGalleryById(String galleryId) async {
     try {
       final doc = await _firestore.collection('2').doc(galleryId).get();
@@ -348,8 +404,6 @@ class FirestoreService {
       return null;
     }
   }
-
-  ///
 
   // إضافة زيارة جديدة
   Future<void> addVisit(String galleryId, String userId) async {
@@ -398,5 +452,33 @@ class FirestoreService {
         .where('galleryId', isEqualTo: galleryId)
         .get();
     return snapshot.docs.length; // حساب عدد الوثائق
+  }
+
+  Future<void> addGalleryToCollection2({
+    required String qrCode,
+    required String classificationId,
+    required String description,
+    required String endDate,
+    required String imageURL,
+    required String location,
+    required String phone,
+    required String startDate,
+    required String title,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('2').add({
+        'QR code': qrCode,
+        'classification id': classificationId,
+        'description': description,
+        'end date': endDate,
+        'image url': imageURL,
+        'location': location,
+        'phone': phone,
+        'start date': startDate,
+        'title': title,
+      });
+    } catch (e) {
+      throw 'Failed to add gallery to collection 2: $e';
+    }
   }
 }

@@ -22,6 +22,15 @@ class AdsScreen extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
+    // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
+    ads.forEach((ad) {
+      final startAd = _parseDate(ad.startDate);
+      if (startAd.isAtSameMomentAs(today)) {
+        firestoreService.moveAdToCollection(
+            ad, '2'); // نقل الإعلان إلى المجموعة 2
+      }
+    });
+
     return ads.where((ad) {
       try {
         final stopAd = _parseDate(ad.stopAd);
@@ -51,7 +60,7 @@ class AdsScreen extends StatelessWidget {
               return Text('لا توجد بيانات حالياً');
             }
 
-            // تصفية وترتيب الإعلانات
+            // تصفية وترتيب الإعلانات بحيث التاريخ الاقرب يكون هوا الاول
             final filteredAds = _filterAndSortAds(snapshot.data!);
 
             if (filteredAds.isEmpty) {
@@ -60,7 +69,7 @@ class AdsScreen extends StatelessWidget {
 
             return ListView(
               children: [
-                // العنوان الجديد
+                // العنوان
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   child: Text(
@@ -81,10 +90,8 @@ class AdsScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 40),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          // إضافة border
-                          color:
-                              Color.fromARGB(255, 239, 211, 211), // لون البورد
-                          width: 1, // سماكة البورد
+                          color: Color.fromARGB(255, 239, 211, 211),
+                          width: 1,
                         ),
                         color: Color.fromARGB(255, 255, 255, 255),
                         borderRadius: BorderRadius.only(
@@ -147,18 +154,6 @@ class AdsScreen extends StatelessWidget {
           },
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const [
-      //     BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
-      //     BottomNavigationBarItem(icon: Icon(Icons.category), label: ''),
-      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-      //     BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: ''),
-      //   ],
-      //   selectedItemColor: Color(0xFFF4C94C),
-      //   unselectedItemColor: Colors.grey,
-      //   showSelectedLabels: false,
-      //   showUnselectedLabels: false,
-      // ),
     );
   }
 }
