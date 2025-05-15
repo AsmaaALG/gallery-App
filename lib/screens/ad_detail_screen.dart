@@ -180,7 +180,7 @@ class AdDetailScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReservationScreen(),
+                      builder: (context) => ReservationScreen(adId: ad.id),
                     ),
                   );
                 },

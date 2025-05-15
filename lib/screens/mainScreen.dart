@@ -1,6 +1,7 @@
 import 'package:final_project/screens/Active_screen.dart';
 import 'package:final_project/screens/about_screen.dart';
 import 'package:final_project/screens/ads_screen.dart';
+import 'package:final_project/screens/edit_profile_screen.dart';
 import 'package:final_project/screens/favorite_screen.dart';
 import 'package:final_project/screens/signIn_screen.dart';
 import 'package:final_project/screens/visited_screen.dart';
@@ -109,8 +110,8 @@ class _MainScreenState extends State<MainScreen> {
               style: TextStyle(fontFamily: mainFont),
             ),
             onTap: () {
-              Navigator.pop(context);
-              _onItemTapped(3);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => EditProfileScreen()));
             },
           ),
           ListTile(

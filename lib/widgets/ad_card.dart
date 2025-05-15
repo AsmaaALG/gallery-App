@@ -11,7 +11,7 @@ class AdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String imageUrl = ad.imageUrl.isNotEmpty
-        ? 'https://drive.google.com/uc?id=${ad.imageUrl}' // التعديل هنا لاستخدام Google Drive
+        ? 'https://drive.google.com/uc?id=${ad.imageUrl}' //   لاستخدام Google Drive
         : 'https://via.placeholder.com/300x200.png?text=No+Image';
 
     return Container(
@@ -35,7 +35,7 @@ class AdCard extends StatelessWidget {
         children: [
           // الصورة
           Container(
-            width: 110,
+            width: 120,
             height: double.infinity,
             // margin: const EdgeInsets.only(right: 4),
             child: ClipRRect(

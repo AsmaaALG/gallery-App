@@ -76,7 +76,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Text(
                   'كن جزءًا من الحدث ... حيث يلتقي الشغف بالابتكار! قيّم المعارض!',
                   style: TextStyle(
@@ -88,7 +88,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(25.0),
                   child: GridView.builder(
                     itemCount: galleries.length,
                     gridDelegate:
@@ -111,14 +111,14 @@ class _VisitedScreenState extends State<VisitedScreen> {
                                   color: const Color.fromARGB(255, 13, 3, 3)
                                       .withOpacity(0.15),
                                   blurRadius: 10,
-                                  spreadRadius: 2,
+                                  spreadRadius: 1,
                                   offset: const Offset(0, 5),
                                 ),
                               ],
                             ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 16),
+                                  horizontal: 20, vertical: 17),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -173,7 +173,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
                                             horizontal: 11, vertical: 5),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(12.5),
+                                              BorderRadius.circular(17.5),
                                         ),
                                       ),
                                       child: const Text(
