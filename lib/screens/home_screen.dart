@@ -246,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   showRemainingDays: false,
                                   startDate: item.startDate,
                                   isActiveScreen: false,
+                                  qrCode: item.qrCode,
                                 ),
                               );
                             },
@@ -278,6 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               showRemainingDays: false,
                               startDate: item.startDate,
                               isActiveScreen: false,
+                              qrCode: item.qrCode,
                             ),
                           );
                         },

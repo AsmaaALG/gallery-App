@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class GalleryScreen extends StatefulWidget {
   final String id;
+  final String qrCode;
   final String imageUrl;
   final String name;
   final String description;
@@ -31,6 +32,7 @@ class GalleryScreen extends StatefulWidget {
     required this.rating,
     required this.endDate,
     required this.startDate,
+    required this.qrCode,
   });
 
   @override
@@ -138,7 +140,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   bool isClosed() {
     try {
-      final endDate = intl.DateFormat('dd/MM/yyyy').parse(widget.endDate);
+      final endDate = intl.DateFormat('dd-MM-yyyy').parse(widget.endDate);
       return DateTime.now().isAfter(endDate);
     } catch (e) {
       print('Error parsing date: $e');
@@ -187,7 +189,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
 
     if (qrCodeData != null) {
-      if (qrCodeData == widget.id) {
+      if (qrCodeData == widget.qrCode) {
         _registerVisitor();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -583,6 +585,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
       );
     }
 
+    // عدد التعليقات المعروضة
+    int displayCount =
+        isExpanded ? reviews.length : (reviews.length < 3 ? reviews.length : 3);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -599,7 +605,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: reviews.length,
+          itemCount: displayCount,
           itemBuilder: (context, index) {
             final review = reviews[index];
             return Container(
@@ -664,6 +670,23 @@ class _GalleryScreenState extends State<GalleryScreen> {
             );
           },
         ),
+        // عرض زر "المزيد" فقط إذا كان عدد التعليقات أكثر من 3
+        if (reviews.length > 3)
+          TextButton(
+            onPressed: () {
+              setState(() {
+                isExpanded = !isExpanded; // عكس حالة التوسع
+              });
+            },
+            child: Text(
+              isExpanded ? "أقل" : "المزيد",
+              style: TextStyle(
+                color: primaryColor,
+                fontSize: 12,
+                fontFamily: mainFont,
+              ),
+            ),
+          ),
       ],
     );
   }

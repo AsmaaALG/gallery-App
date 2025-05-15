@@ -92,7 +92,7 @@ class ActiveScreen extends StatelessWidget {
                 }
 
                 return ListView.builder(
-                  padding: EdgeInsets.only(bottom: screenHeight * 0.02),
+                  padding: EdgeInsets.only(bottom: screenHeight * 0.07),
                   itemCount: activeGalleries.length,
                   itemBuilder: (context, index) {
                     final gallery = activeGalleries[index];
@@ -120,6 +120,7 @@ class ActiveScreen extends StatelessWidget {
                             galleryId: gallery.id,
                             isActiveScreen: true,
                             startDate: gallery.startDate,
+                            qrCode: gallery.qrCode,
                           ),
                           Positioned(
                             top: screenHeight * 0.00,

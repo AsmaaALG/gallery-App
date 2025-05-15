@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:final_project/constants.dart';
@@ -28,7 +29,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
     if (email.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('يرجى إدخال الاسم وكلمة المرور')),
+        SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور')),
       );
       setState(() {
         showSpinner = false;
@@ -36,26 +37,42 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    // bool isValid =
-    //     await FirestoreService().signInWithNameAndPassword(name, pass);
+    // محاولة تسجيل الدخول
     bool isValid = await Auth().signIn(emailController, passwordController);
 
     if (isValid) {
+      // تحقق من وجود المستخدم في جدول user
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email',
+              isEqualTo: email) // نفترض أن هناك حقل 'email' في المستندات
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('البريد الإلكتروني ليس مسجلاً كمسؤول')),
+        );
+        setState(() {
+          showSpinner = false;
+        });
+        return;
+      }
+
+      // إذا كان كل شيء صحيح، انتقل إلى MainScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),
       );
-      setState(() {
-        showSpinner = false;
-      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('البريد الإلكتروني أو كلمة المرور غير صحيحة')),
       );
-      setState(() {
-        showSpinner = false;
-      });
     }
+
+    setState(() {
+      showSpinner = false;
+    });
   }
 
   void dispose() {

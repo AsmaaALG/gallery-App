@@ -270,7 +270,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 id: gallery.id.toString(),
                                 showRemainingDays: false,
                                 startDate: gallery.startDate,
-                                isActiveScreen: false,
+                                isActiveScreen: false, qrCode: gallery.qrCode,
                               ),
                             );
                           },

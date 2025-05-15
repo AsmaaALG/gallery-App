@@ -156,14 +156,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Scaffold(
         backgroundColor: Colors.white, // خلفية بيضاء للشاشة
         appBar: AppBar(
-          backgroundColor: Colors.white, // خلفية بيضاء لشريط التطبيق
-          elevation: 0, // إزالة الظل
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back), // زر الرجوع
-            onPressed: () => Navigator.pop(context),
-            color: Colors.black, // لون أسود لزر الرجوع
-          ),
-        ),
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white, // خلفية بيضاء لشريط التطبيق
+            elevation: 0, // إزالة الظل
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.arrow_forward), // زر الرجوع
+                onPressed: () => Navigator.pop(context),
+                color: primaryColor, // لون أسود لزر الرجوع
+              ),
+            ]),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator()) // عرض مؤشر تحميل
             : SingleChildScrollView(

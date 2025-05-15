@@ -192,7 +192,12 @@ class FirestoreService {
 
   // دالة لاسترجاع المعارض
   Stream<List<GalleryModel>> getItems() {
-    return _firestore.collection('2').snapshots().map((snapshot) {
+    return _firestore
+        .collection('2')
+        .orderBy('end date',
+            descending: false) // تأكد من استخدام اسم الحقل الصحيح
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         return GalleryModel.fromJson(
             doc.data() as Map<String, dynamic>, doc.id);
@@ -245,7 +250,6 @@ class FirestoreService {
       return false;
     }
   }
-
 
   Future<double> calculateRating(String galleryId) async {
     final QuerySnapshot snapshot =
@@ -383,12 +387,12 @@ class FirestoreService {
   }
 
   // إضافة زيارة جديدة
-  Future<void> addVisit(String galleryId, String userId) async {
-    await _firestore.collection('visit').add({
-      'galleryId': galleryId,
-      'userId': userId,
-    });
-  }
+  // Future<void> addVisit(String galleryId, String userId) async {
+  //   await _firestore.collection('visit').add({
+  //     'galleryId': galleryId,
+  //     'userId': userId,
+  //   });
+  // }
 
   Stream<List<VisitModel>> getUserVisit(String userId) {
     return _firestore

@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class GalleryCard extends StatefulWidget {
   final String id;
+  final String qrCode;
   final String imageUrl;
   final String name;
   final String description;
@@ -33,6 +34,7 @@ class GalleryCard extends StatefulWidget {
     required this.galleryId,
     required this.showRemainingDays,
     required this.isActiveScreen,
+    required this.qrCode,
   }) : super(key: key);
 
   @override
@@ -89,7 +91,7 @@ class _GalleryCardState extends State<GalleryCard> {
 
   bool isClosed() {
     try {
-      final endDate = DateFormat('dd/MM/yyyy').parse(widget.endDate);
+      final endDate = DateFormat('dd-MM-yyyy').parse(widget.endDate);
       return DateTime.now().isAfter(endDate);
     } catch (e) {
       return false;
@@ -148,7 +150,7 @@ class _GalleryCardState extends State<GalleryCard> {
                         visitors: visitors, // تمرير عدد الزوار
                         rating: widget.rating,
                         endDate: widget.endDate,
-                        startDate: widget.startDate,
+                        startDate: widget.startDate, qrCode: widget.qrCode,
                       );
                     },
                   )),
