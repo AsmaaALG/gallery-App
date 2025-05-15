@@ -159,29 +159,6 @@ class FirestoreService {
     }
   }
 
-  // Future<double> calculateRating(String galleryId) async {
-  //   final QuerySnapshot snapshot = await FirebaseFirestore.instance
-  //       .collection('reviews')
-  //       .where('gallery id', isEqualTo: galleryId)
-  //       .get();
-  //   print("here id you send ========= $galleryId");
-  //   if (snapshot.docs.isEmpty) {
-  //     print("No reviews found for gallery ID: $galleryId");
-
-  //     return 0.0;
-  //   }
-
-  //   double totalStars = 0;
-  //   int count = snapshot.docs.length;
-
-  //   for (var doc in snapshot.docs) {
-  //     print("Review stars for document ${doc.id}: ${doc['number of stars']}");
-  //     totalStars += doc['number of stars'];
-  //   }
-
-  //   print("Total stars: $totalStars, Count: $count");
-  //   return (totalStars / count); // قم بإزالة قسم الضرب في 5
-  // }
 
   Future<double> calculateRating(String galleryId) async {
     final QuerySnapshot snapshot =

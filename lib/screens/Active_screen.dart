@@ -11,7 +11,7 @@ class ActiveScreen extends StatelessWidget {
   int calculateRemainingDays(String endDate) {
     try {
       final now = DateTime.now();
-      final end = DateFormat('dd/MM/yyyy').parse(endDate);
+      final end = DateFormat('dd-MM-yyyy').parse(endDate);
       final difference = end.difference(now).inDays + 1;
       return difference >= 0 ? difference : 0;
     } catch (e) {
@@ -69,7 +69,7 @@ class ActiveScreen extends StatelessWidget {
                 final activeGalleries = snapshot.data!.where((gallery) {
                   try {
                     final endDate =
-                        DateFormat('dd/MM/yyyy').parse(gallery.endDate);
+                        DateFormat('dd-MM-yyyy').parse(gallery.endDate);
                     return endDate.isAfter(DateTime.now());
                   } catch (e) {
                     return false;
