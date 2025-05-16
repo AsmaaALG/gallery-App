@@ -136,7 +136,8 @@ class FirestoreService {
   }
 
 // نقل الاعلانات من واجهة الاعلانات الى الواجهة الرئيسية عند وصول تاريخ البداية الى تاريخ اليوم
-  Future<void> moveAdToCollection(AdModel ad, String collectionName) async {
+  Future<void> moveAdToCollection(
+      AdModel ad, String collectionName, String startDate) async {
     if (ad.id.isEmpty) {
       print('معرف الوثيقة غير صالح');
       return;
@@ -151,9 +152,9 @@ class FirestoreService {
     }
 
     try {
-      // تنسيق التواريخ إلى الشكل المطلوب "d/m/yyyy"
-      String formattedStartDate = _formatDate(ad.startDate);
-      String formattedEndDate = _formatDate(ad.endDate);
+      // استخدام التاريخ كما هو دون تغييره
+      String formattedStartDate = startDate; // استخدم التاريخ الأصلي
+      String formattedEndDate = ad.endDate; // استخدم تاريخ الانتهاء كما هو
 
       // إضافة الإعلان إلى المجموعة الجديدة
       await _firestore.collection(collectionName).doc(ad.id).set({
@@ -172,20 +173,6 @@ class FirestoreService {
     } catch (e) {
       print('حدث خطأ أثناء نقل الإعلان: $e');
     }
-  }
-
-// دالة لتحويل التاريخ إلى الصيغة المطلوبة "d/m/yyyy"
-  String _formatDate(String dateStr) {
-    final parts = dateStr.split('-');
-    if (parts.length != 3)
-      return dateStr; // إرجاع التاريخ الأصلي إذا كان غير صحيح
-
-    // إزالة الأصفار البادئة
-    final day = int.parse(parts[0]); // اليوم
-    final month = int.parse(parts[1]); // الشهر
-    final year = parts[2]; // السنة
-
-    return '$day/$month/$year'; // إعادة التاريخ بالشكل المطلوب
   }
 //////////////////////////////////////////////////////////////////////////
   ///المعــــــــــارض

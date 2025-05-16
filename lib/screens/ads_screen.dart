@@ -26,8 +26,8 @@ class AdsScreen extends StatelessWidget {
     ads.forEach((ad) {
       final startAd = _parseDate(ad.startDate);
       if (startAd.isAtSameMomentAs(today)) {
-        firestoreService.moveAdToCollection(
-            ad, '2'); // نقل الإعلان إلى المجموعة 2
+        // نقل الإعلان إلى المجموعة 2 مع الحفاظ على التاريخ بنفس الصيغة
+        firestoreService.moveAdToCollection(ad, '2', ad.startDate);
       }
     });
 
