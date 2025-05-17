@@ -22,4 +22,6 @@ class Suite {
       galleryId: data['gallery id'] ?? '', // إضافة الحقل من البيانات
     );
   }
+
+  get mainImage => null;
 }

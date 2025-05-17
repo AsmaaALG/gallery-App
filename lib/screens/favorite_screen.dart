@@ -254,23 +254,26 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               .calculateRating(gallery.id.toString()),
                           builder: (context, ratingSnapshot) {
                             double rating = ratingSnapshot.data ?? 0.0;
+                            GalleryModel galleryModel = new GalleryModel(
+                                qrCode: gallery.qrCode,
+                                classificationId: gallery.classificationId,
+                                imageURL: gallery.imageURL,
+                                description: gallery.description,
+                                endDate: gallery.endDate,
+                                id: gallery.id,
+                                location: gallery.location,
+                                phone: gallery.phone,
+                                startDate: gallery.startDate,
+                                title: gallery.title,
+                                map: gallery.map);
                             return Padding(
                               padding: EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 20),
                               child: GalleryCard(
-                                imageUrl:
-                                    'https://drive.google.com/uc?id=${gallery.imageURL}',
-                                name: gallery.title,
-                                description: gallery.description,
-                                location: gallery.location,
-                                rating: rating,
-                                endDate: gallery.endDate,
+                                gallery: galleryModel,
                                 isInitiallyFavorite: true,
-                                galleryId: gallery.id.toString(),
-                                id: gallery.id.toString(),
                                 showRemainingDays: false,
-                                startDate: gallery.startDate,
-                                isActiveScreen: false, qrCode: gallery.qrCode,
+                                isActiveScreen: false,
                               ),
                             );
                           },

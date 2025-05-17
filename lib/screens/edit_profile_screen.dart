@@ -1,4 +1,3 @@
-// ملف شاشة تعديل الملف الشخصي
 import 'package:final_project/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // متحكمات حقول النص لإدخال البيانات
   final _firstNameController = TextEditingController(); // للاسم الأول
   final _lastNameController = TextEditingController(); // للاسم الأخير
+  final _emailController = TextEditingController(); // للاسم الأخير
   final _passwordController = TextEditingController(); // لكلمة المرور
   final _confirmPasswordController =
       TextEditingController(); // لتأكيد كلمة المرور
@@ -44,6 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           // تعبئة الحقول بالبيانات الموجودة
           _firstNameController.text = userData['data']['first_name'] ?? '';
           _lastNameController.text = userData['data']['last_name'] ?? '';
+          _emailController.text = userData['data']['email'] ?? '';
           _passwordController.text = userData['data']['password'] ?? '';
           _confirmPasswordController.text = userData['data']['password'] ?? '';
         }
@@ -60,6 +61,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // دالة لعرض نافذة تأكيد قبل الحفظ
   Future<void> _confirmAndSave() async {
+    if (!_emailController.text.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('البريد الإلكتروني غير صالح')),
+      );
+      return;
+    }
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -120,12 +127,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await _firestoreService.updateUserData(userDocId!, {
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
+          'email': _emailController,
           'password': _passwordController.text,
         });
       }
 
       // تحديث كلمة المرور في فيربيس أوث
       await user?.updatePassword(_passwordController.text);
+      await user?.updateEmail(_emailController.text);
 
       // عرض رسالة نجاح
       ScaffoldMessenger.of(context).showSnackBar(
@@ -252,6 +261,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             controller: _lastNameController,
                             decoration: InputDecoration(
                               labelText: 'الاسم الأخير',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                            ),
+                            onChanged: (_) => setState(() {}),
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: 'البريد الإلكتروني',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(25),
                                 borderSide: BorderSide(

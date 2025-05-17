@@ -1,3 +1,4 @@
+import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/screens/gallery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,35 +7,17 @@ import 'package:final_project/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class GalleryCard extends StatefulWidget {
-  final String id;
-  final String qrCode;
-  final String imageUrl;
-  final String name;
-  final String description;
-  final String location;
-  final double rating;
-  final String endDate;
+  final GalleryModel gallery;
   final bool isInitiallyFavorite;
-  final String galleryId;
-  final String startDate;
   final bool showRemainingDays;
   final bool isActiveScreen;
 
   const GalleryCard({
     Key? key,
-    required this.imageUrl,
-    required this.name,
-    required this.description,
-    required this.location,
-    required this.rating,
-    required this.endDate,
-    required this.startDate,
-    required this.id,
+    required this.gallery,
     required this.isInitiallyFavorite,
-    required this.galleryId,
     required this.showRemainingDays,
     required this.isActiveScreen,
-    required this.qrCode,
   }) : super(key: key);
 
   @override
@@ -76,9 +59,9 @@ class _GalleryCardState extends State<GalleryCard> {
   void initState() {
     super.initState();
     isFavorite = widget.isInitiallyFavorite;
-    if (_userId != null && widget.galleryId.isNotEmpty) {
+    if (_userId != null && widget.gallery.id.isNotEmpty) {
       _firestoreService
-          .isFavorite(_userId!, widget.galleryId)
+          .isFavorite(_userId!, widget.gallery.id)
           .listen((favorite) {
         if (mounted) {
           setState(() {
@@ -91,7 +74,7 @@ class _GalleryCardState extends State<GalleryCard> {
 
   bool isClosed() {
     try {
-      final endDate = DateFormat('dd-MM-yyyy').parse(widget.endDate);
+      final endDate = DateFormat('dd-MM-yyyy').parse(widget.gallery.endDate);
       return DateTime.now().isAfter(endDate);
     } catch (e) {
       return false;
@@ -99,7 +82,7 @@ class _GalleryCardState extends State<GalleryCard> {
   }
 
   Future<void> _toggleFavorite() async {
-    if (_userId == null || widget.galleryId.isEmpty) return;
+    if (_userId == null || widget.gallery.id.isEmpty) return;
 
     setState(() {
       isFavorite = !isFavorite;
@@ -107,9 +90,9 @@ class _GalleryCardState extends State<GalleryCard> {
 
     try {
       if (isFavorite) {
-        await _firestoreService.addToFavorite(_userId!, widget.galleryId);
+        await _firestoreService.addToFavorite(_userId!, widget.gallery.id);
       } else {
-        await _firestoreService.removeFromFavorite(_userId!, widget.galleryId);
+        await _firestoreService.removeFromFavorite(_userId!, widget.gallery.id);
       }
     } catch (e) {
       setState(() {
@@ -123,7 +106,7 @@ class _GalleryCardState extends State<GalleryCard> {
 
   Future<int> getVisitorCount() async {
     try {
-      return await _firestoreService.getVisitorCount(widget.galleryId);
+      return await _firestoreService.getVisitorCount(widget.gallery.id);
     } catch (e) {
       print('Error fetching visitor count: $e');
       return 0; // ارجع صفر في حالة حدوث خطأ
@@ -131,7 +114,9 @@ class _GalleryCardState extends State<GalleryCard> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -142,15 +127,8 @@ class _GalleryCardState extends State<GalleryCard> {
                     builder: (context, snapshot) {
                       int visitors = snapshot.data ?? 0;
                       return GalleryScreen(
-                        id: widget.id,
-                        imageUrl: widget.imageUrl,
-                        name: widget.name,
-                        description: widget.description,
-                        location: widget.location,
+                        galleryModel: widget.gallery,
                         visitors: visitors, // تمرير عدد الزوار
-                        rating: widget.rating,
-                        endDate: widget.endDate,
-                        startDate: widget.startDate, qrCode: widget.qrCode,
                       );
                     },
                   )),
@@ -181,7 +159,7 @@ class _GalleryCardState extends State<GalleryCard> {
               ),
               Center(
                 child: Image.network(
-                  widget.imageUrl,
+                  'https://drive.google.com/uc?id=${widget.gallery.imageURL}',
                   fit: BoxFit.cover,
                   height: 120,
                   width: double.infinity,
@@ -206,7 +184,7 @@ class _GalleryCardState extends State<GalleryCard> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(
-                            widget.name,
+                            widget.gallery.title,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(
@@ -217,14 +195,14 @@ class _GalleryCardState extends State<GalleryCard> {
                           ),
                         ),
                         Text(
-                          widget.description,
+                          widget.gallery.description,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: TextStyle(fontFamily: mainFont, fontSize: 9),
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "الموقع: ${widget.location}",
+                          "الموقع: ${widget.gallery.location}",
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: TextStyle(
@@ -246,7 +224,7 @@ class _GalleryCardState extends State<GalleryCard> {
                             fontSize: 12),
                       ),
                       SizedBox(height: 5),
-                      numberOfStars(widget.id),
+                      numberOfStars(widget.gallery.id),
                     ],
                   )
                 ],

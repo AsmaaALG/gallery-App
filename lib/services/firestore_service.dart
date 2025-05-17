@@ -373,14 +373,6 @@ class FirestoreService {
     }
   }
 
-  // إضافة زيارة جديدة
-  // Future<void> addVisit(String galleryId, String userId) async {
-  //   await _firestore.collection('visit').add({
-  //     'galleryId': galleryId,
-  //     'userId': userId,
-  //   });
-  // }
-
   Stream<List<VisitModel>> getUserVisit(String userId) {
     return _firestore
         .collection('visit')

@@ -1,4 +1,5 @@
 import 'package:final_project/constants.dart';
+import 'package:final_project/models/suite.dart';
 import 'package:final_project/models/suite_image.dart';
 import 'package:final_project/services/firestore_service.dart';
 import 'package:flutter/material.dart';
@@ -6,17 +7,11 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class SuiteScreen extends StatefulWidget {
-  final String name;
-  final String id;
-  final String mainImage;
-  final String description;
+  final Suite suite;
 
   const SuiteScreen({
     super.key,
-    required this.name,
-    required this.id,
-    required this.mainImage,
-    required this.description,
+    required this.suite,
   });
 
   @override
@@ -37,7 +32,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
   Future<void> fetchSuiteImages() async {
     try {
       List<SuiteImage> fetchedImages =
-          await FirestoreService().getSuiteImages(widget.id);
+          await FirestoreService().getSuiteImages(widget.suite.id);
       setState(() {
         suiteImages = fetchedImages; // تحديث حالة الصور
         isLoading = false; // انتهاء التحميل
@@ -108,7 +103,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(60.0),
                     child: Image.network(
-                      'https://drive.google.com/uc?id=${widget.mainImage}',
+                      'https://drive.google.com/uc?id=${widget.suite.imageUrl}',
                       fit: BoxFit.cover,
                       height: 120,
                       width: 120,
@@ -127,7 +122,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        widget.name,
+                        widget.suite.name,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
@@ -150,7 +145,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.description,
+                      widget.suite.description,
                       textAlign: TextAlign.right,
                       overflow: isExpanded ? null : TextOverflow.ellipsis,
                       maxLines: isExpanded ? null : 3,
@@ -161,7 +156,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                     ),
                     if (!isExpanded &&
                         _isMoreTextVisible(
-                            widget.description)) // شرط لإظهار "المزيد"
+                            widget.suite.description)) // شرط لإظهار "المزيد"
                       TextButton(
                         onPressed: () {
                           setState(() {

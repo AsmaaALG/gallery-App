@@ -1,38 +1,25 @@
 import 'package:final_project/constants.dart';
+import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/models/partner.dart';
 import 'package:final_project/models/reviews.dart';
 import 'package:final_project/models/suite.dart';
 import 'package:final_project/screens/QR_code_screen.dart';
+import 'package:final_project/screens/image_screen.dart';
 import 'package:final_project/screens/suite_screen.dart';
 import 'package:final_project/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:photo_view/photo_view.dart';
 
 class GalleryScreen extends StatefulWidget {
-  final String id;
-  final String qrCode;
-  final String imageUrl;
-  final String name;
-  final String description;
-  final String location;
+  final GalleryModel galleryModel;
   final int visitors;
-  final double rating;
-  final String endDate;
-  final String startDate;
 
   const GalleryScreen({
     super.key,
-    required this.id,
-    required this.imageUrl,
-    required this.name,
-    required this.description,
-    required this.location,
+    required this.galleryModel,
     required this.visitors,
-    required this.rating,
-    required this.endDate,
-    required this.startDate,
-    required this.qrCode,
   });
 
   @override
@@ -61,8 +48,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Future<void> _checkFavoriteStatus() async {
     if (_userId == null) return;
     try {
-      bool favorite =
-          await _firestoreService.isGalleryFavorite(_userId!, widget.id);
+      bool favorite = await _firestoreService.isGalleryFavorite(
+          _userId!, widget.galleryModel.id);
       if (mounted) {
         setState(() {
           isFavorite = favorite;
@@ -100,9 +87,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
     try {
       if (isFavorite) {
-        await _firestoreService.addToFavorite(_userId!, widget.id);
+        await _firestoreService.addToFavorite(_userId!, widget.galleryModel.id);
       } else {
-        await _firestoreService.removeFromFavorite(_userId!, widget.id);
+        await _firestoreService.removeFromFavorite(
+            _userId!, widget.galleryModel.id);
       }
     } catch (e) {
       setState(() {
@@ -117,7 +105,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Future<void> fetchReviews() async {
     try {
       List<Review> fetchedReviews =
-          await FirestoreService().getReviews(widget.id);
+          await FirestoreService().getReviews(widget.galleryModel.id);
       setState(() {
         reviews = fetchedReviews;
       });
@@ -129,7 +117,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Future<void> fetchPartners() async {
     try {
       List<Partner> fetchedPartners =
-          await FirestoreService().getPartners(widget.id);
+          await FirestoreService().getPartners(widget.galleryModel.id);
       setState(() {
         partners = fetchedPartners;
       });
@@ -140,11 +128,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   bool isClosed() {
     try {
-      final endDate = intl.DateFormat('dd-MM-yyyy').parse(widget.endDate);
+      final endDate =
+          intl.DateFormat('dd-MM-yyyy').parse(widget.galleryModel.endDate);
       return DateTime.now().isAfter(endDate);
     } catch (e) {
       print('Error parsing date: $e');
-      print('end date value: ${widget.endDate}');
+      print('end date value: ${widget.galleryModel.endDate}');
       return false;
     }
   }
@@ -158,8 +147,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
 
     try {
-      bool alreadyRegistered =
-          await _firestoreService.isVisitorRegistered(_userId!, widget.id);
+      bool alreadyRegistered = await _firestoreService.isVisitorRegistered(
+          _userId!, widget.galleryModel.id);
 
       if (alreadyRegistered) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +157,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         return;
       }
 
-      await _firestoreService.registerVisitor(_userId!, widget.id);
+      await _firestoreService.registerVisitor(_userId!, widget.galleryModel.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تم تسجيل زيارتك بنجاح!')),
       );
@@ -189,7 +178,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
 
     if (qrCodeData != null) {
-      if (qrCodeData == widget.qrCode) {
+      if (qrCodeData == widget.galleryModel.qrCode) {
         _registerVisitor();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -206,7 +195,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           height: 200,
           width: double.infinity,
           child: Image.network(
-            widget.imageUrl,
+            'https://drive.google.com/uc?id=${widget.galleryModel.imageURL}',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -268,7 +257,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.name,
+                widget.galleryModel.title,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(
@@ -288,13 +277,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
           ),
           SizedBox(height: 10),
           Text(
-            widget.description,
+            widget.galleryModel.description,
             textAlign: TextAlign.right,
             overflow: isExpanded ? null : TextOverflow.ellipsis,
             maxLines: isExpanded ? null : 3,
             style: TextStyle(fontFamily: mainFont, fontSize: 10),
           ),
-          if (!isExpanded && _isMoreTextVisible(widget.description))
+          if (!isExpanded &&
+              _isMoreTextVisible(widget.galleryModel.description))
             TextButton(
               onPressed: () {
                 setState(() {
@@ -357,7 +347,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     children: [
                       Icon(Icons.calendar_month_rounded, size: 20),
                       Text(
-                        "${widget.startDate}\n${widget.endDate}",
+                        "${widget.galleryModel.startDate}\n${widget.galleryModel.endDate}",
                         style: TextStyle(
                           fontFamily: mainFont,
                           fontSize: 10,
@@ -370,7 +360,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     children: [
                       Icon(Icons.location_on_outlined, size: 20),
                       Text(
-                        widget.location,
+                        widget.galleryModel.location,
                         style: TextStyle(
                           fontFamily: mainFont,
                           fontSize: 10,
@@ -383,7 +373,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     children: [
                       Icon(Icons.star_border_rounded, size: 20),
                       FutureBuilder<double>(
-                        future: FirestoreService().calculateRating(widget.id),
+                        future: FirestoreService()
+                            .calculateRating(widget.galleryModel.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
@@ -403,7 +394,40 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ],
               ),
             ),
-          )
+          ),
+          widget.galleryModel.map.isEmpty
+              ? SizedBox()
+              : GestureDetector(
+                  child: Container(
+                    width: double.infinity,
+                    // height: 50,
+                    color: cardBackground,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('خارطة المعرض',
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Colors.grey[800],
+                              )),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.grey,
+                            size: 17,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    showImage(context, widget.galleryModel.map);
+                  },
+                )
         ],
       ),
     );
@@ -523,10 +547,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => SuiteScreen(
-                                    name: suite.name,
-                                    id: suite.id,
-                                    mainImage: suite.imageUrl,
-                                    description: suite.description)),
+                                      suite: suite,
+                                    )),
                           );
                         },
                         style: OutlinedButton.styleFrom(
@@ -782,7 +804,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   Future<void> fetchSuites() async {
     try {
-      List<Suite> fetchedSuites = await FirestoreService().getSuites(widget.id);
+      List<Suite> fetchedSuites =
+          await FirestoreService().getSuites(widget.galleryModel.id);
       setState(() {
         suites = fetchedSuites;
         isLoading = false;
@@ -818,6 +841,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void showImage(BuildContext context, String imageUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageScreen(imageUrl: imageUrl),
       ),
     );
   }

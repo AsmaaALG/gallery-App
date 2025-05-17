@@ -98,7 +98,18 @@ class ActiveScreen extends StatelessWidget {
                     final gallery = activeGalleries[index];
                     final remainingDays =
                         calculateRemainingDays(gallery.endDate);
-
+                    GalleryModel galleryModel = new GalleryModel(
+                        qrCode: gallery.qrCode,
+                        classificationId: gallery.classificationId,
+                        imageURL: gallery.imageURL,
+                        description: gallery.description,
+                        endDate: gallery.endDate,
+                        id: gallery.id,
+                        location: gallery.location,
+                        phone: gallery.phone,
+                        startDate: gallery.startDate,
+                        title: gallery.title,
+                        map: gallery.map);
                     return Container(
                       margin: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.04,
@@ -107,20 +118,10 @@ class ActiveScreen extends StatelessWidget {
                       child: Stack(
                         children: [
                           GalleryCard(
-                            imageUrl:
-                                'https://drive.google.com/uc?id=${gallery.imageURL}',
-                            name: gallery.title,
-                            description: gallery.description,
-                            location: gallery.location,
-                            rating: 5.0,
-                            endDate: gallery.endDate,
-                            id: gallery.id,
+                            gallery: galleryModel,
                             isInitiallyFavorite: false,
                             showRemainingDays: false,
-                            galleryId: gallery.id,
                             isActiveScreen: true,
-                            startDate: gallery.startDate,
-                            qrCode: gallery.qrCode,
                           ),
                           Positioned(
                             top: screenHeight * 0.00,

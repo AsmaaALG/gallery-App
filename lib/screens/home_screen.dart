@@ -227,26 +227,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               final item = filteredItems[index];
                               final isFavorite =
                                   favoriteIds.contains(item.id.toString());
-
+                              GalleryModel gallery = new GalleryModel(
+                                  qrCode: item.qrCode,
+                                  classificationId: item.classificationId,
+                                  imageURL: item.imageURL,
+                                  description: item.description,
+                                  endDate: item.endDate,
+                                  id: item.id,
+                                  location: item.location,
+                                  phone: item.phone,
+                                  startDate: item.startDate,
+                                  title: item.title,
+                                  map: item.map);
                               return Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 8),
                                 child: GalleryCard(
                                   key: ValueKey(item.id),
-                                  imageUrl:
-                                      'https://drive.google.com/uc?id=${item.imageURL}',
-                                  name: item.title,
-                                  description: item.description,
-                                  location: item.location,
-                                  rating: 5.0,
-                                  endDate: item.endDate,
-                                  id: item.id.toString(),
+                                  gallery: item,
                                   isInitiallyFavorite: isFavorite,
-                                  galleryId: item.id.toString(),
                                   showRemainingDays: false,
-                                  startDate: item.startDate,
                                   isActiveScreen: false,
-                                  qrCode: item.qrCode,
                                 ),
                               );
                             },
@@ -261,25 +262,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
                           final item = filteredItems[index];
+                          GalleryModel gallery = new GalleryModel(
+                              qrCode: item.qrCode,
+                              classificationId: item.classificationId,
+                              imageURL: item.imageURL,
+                              description: item.description,
+                              endDate: item.endDate,
+                              id: item.id,
+                              location: item.location,
+                              phone: item.phone,
+                              startDate: item.startDate,
+                              title: item.title,
+                              map: item.map);
+
                           return Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 8),
                             child: GalleryCard(
                               key: ValueKey(item.id),
-                              imageUrl:
-                                  'https://drive.google.com/uc?id=${item.imageURL}',
-                              name: item.title,
-                              description: item.description,
-                              location: item.location,
-                              rating: 5.0,
-                              endDate: item.endDate,
-                              id: item.id.toString(),
+                              gallery: gallery,
                               isInitiallyFavorite: false,
-                              galleryId: item.id.toString(),
                               showRemainingDays: false,
-                              startDate: item.startDate,
                               isActiveScreen: false,
-                              qrCode: item.qrCode,
                             ),
                           );
                         },

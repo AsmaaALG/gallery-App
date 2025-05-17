@@ -226,15 +226,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         textColor: Colors.black,
                         iconColor: primaryColor,
                       ),
-
-                      // SizedBox(height: 10),
-                      // SocialButton(
-                      //   icon: FontAwesomeIcons.facebook,
-                      //   text: "continue with facebook",
-                      //   color: cardBackground,
-                      //   textColor: Colors.black,
-                      //   iconColor: Colors.blue,
-                      // ),
                     ],
                   ),
                 ),

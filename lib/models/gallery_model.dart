@@ -1,5 +1,3 @@
-// lib/models/gallery_model.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GalleryModel {
@@ -13,6 +11,7 @@ class GalleryModel {
   final String phone;
   final String startDate;
   final String title;
+  final String map;
 
   GalleryModel({
     required this.qrCode,
@@ -25,6 +24,7 @@ class GalleryModel {
     required this.phone,
     required this.startDate,
     required this.title,
+    required this.map,
   });
 
   factory GalleryModel.fromJson(Map<String, dynamic> json, String id) {
@@ -41,6 +41,7 @@ class GalleryModel {
       phone: json['phone'] ?? '',
       startDate: json['start date'] ?? '',
       title: json['title'] ?? '',
+      map:json['map']??'',
     );
   }
 }
