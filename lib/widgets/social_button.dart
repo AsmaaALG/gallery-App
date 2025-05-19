@@ -22,8 +22,8 @@ class SocialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // ✅ استبدال Container بـ GestureDetector لتفعيل onPressed
-      onTap: onPressed, // ✅ تنفيذ الدالة عند الضغط
+      //
+      onTap: onPressed, //
       child: Container(
         height: 50,
         decoration: BoxDecoration(

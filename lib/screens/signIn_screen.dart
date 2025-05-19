@@ -80,8 +80,9 @@ class _SignInScreenState extends State<SignInScreen> {
   /////////
   Future<void> _signInWithGoogle() async {
     try {
-      // ✅ تسجيل الخروج من أي جلسة سابقة
+      //  تسجيل الخروج من أي جلسة سابقة
       await GoogleSignIn().signOut();
+
       final userCredential = await Auth().signInWithGoogle();
 
       if (userCredential != null) {
@@ -108,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
           });
         }
 
-        //  الانتقال للصفحة الرئيسية
+        //
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
