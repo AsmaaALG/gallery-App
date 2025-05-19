@@ -1,0 +1,2 @@
+C:/devolpment/flutter-apps/gallery-App-7/android/app/.cxx/Debug/5j541g5w/x86/CMakeFiles/edit_cache.dir
+C:/devolpment/flutter-apps/gallery-App-7/android/app/.cxx/Debug/5j541g5w/x86/CMakeFiles/rebuild_cache.dir
