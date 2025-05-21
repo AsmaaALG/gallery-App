@@ -109,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
           });
         }
 
-        //
+        //  الانتقال للصفحة الرئيسية
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),

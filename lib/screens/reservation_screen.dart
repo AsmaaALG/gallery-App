@@ -95,7 +95,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                     'المؤسسة المسؤولة عن الجناح...', _organizationController,
                     isRequired: true, context: context),
 
-                _buildTextField('نوع البضاعة...', _productTypeController,
+                _buildTextField('وصف الجناح ...', _productTypeController,
                     isRequired: true, context: context),
 
                 SizedBox(height: screenHeight * 0.04),

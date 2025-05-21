@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "881624694446-0tl50p2vqs4sf2j503oqrk2mvg42b0mm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.final_project",
+            "certificate_hash": "f6589676925009e2f9fd31ca32fb5f793320c704"
+          }
+        },
+        {
           "client_id": "881624694446-5fk1p0q4p7ic3f52ntlkeedov0gp6ad4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -27,6 +35,9 @@
         }
       ],
       "api_key": [
+        {
+          "current_key": "AIzaSyDzZVxXVHSPawyP0UYA7k8HdS3DSNE2QrE"
+        },
         {
           "current_key": "AIzaSyByZzjvpm6s7Cv9k3SuAXwqL-dx7onwY3k"
         }
@@ -51,7 +62,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "881624694446-gs5kksss05e1v1lk5jso4kkdedmju9or.apps.googleusercontent.com",
+          "client_id": "881624694446-3us76h8tod1dhlvoj3489aipqe2rrug7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.gallery_management",
@@ -64,6 +75,9 @@
         }
       ],
       "api_key": [
+        {
+          "current_key": "AIzaSyDzZVxXVHSPawyP0UYA7k8HdS3DSNE2QrE"
+        },
         {
           "current_key": "AIzaSyByZzjvpm6s7Cv9k3SuAXwqL-dx7onwY3k"
         }
