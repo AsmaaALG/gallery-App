@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:final_project/models/gallery_model.dart';
-import 'package:final_project/services/firestore_service.dart';
+import 'package:final_project/services/visit_services.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/widgets/review_dialog.dart';
 
@@ -23,13 +23,13 @@ class _VisitedScreenState extends State<VisitedScreen> {
 
   Future<List<GalleryModel>> _loadVisitedGalleries() async {
     final visitSnapshots =
-        await FirestoreService().getUserVisit(widget.currentUserId).first;
+        await VisitServices().getUserVisit(widget.currentUserId).first;
 
     if (visitSnapshots.isEmpty) return [];
 
     List<GalleryModel> galleries = [];
     for (var visit in visitSnapshots) {
-      final gallery = await FirestoreService().getGalleryById(visit.galleryId);
+      final gallery = await VisitServices().getGalleryById(visit.galleryId);
       if (gallery != null) galleries.add(gallery);
     }
     return galleries;

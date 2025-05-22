@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:final_project/screens/mainScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -11,6 +10,7 @@ void main() async {
   runApp(MyApp());
 }
 
+// ignore: must_be_immutable
 class MyApp extends StatelessWidget {
   var db = FirebaseFirestore.instance;
   MyApp({super.key});

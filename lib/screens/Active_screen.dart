@@ -1,7 +1,7 @@
+import 'package:final_project/services/gallery_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:final_project/models/gallery_model.dart';
-import 'package:final_project/services/firestore_service.dart';
 import 'package:final_project/widgets/gallery_card.dart';
 import 'package:final_project/constants.dart';
 
@@ -12,8 +12,24 @@ class ActiveScreen extends StatelessWidget {
     try {
       final now = DateTime.now();
       final end = DateFormat('dd-MM-yyyy').parse(endDate);
-      final difference = end.difference(now).inDays + 1;
-      return difference >= 0 ? difference : 0;
+
+      // حساب الفرق بالأيام مع تجاهل الوقت (نقارن فقط التواريخ)
+      final normalizedNow = DateTime(now.year, now.month, now.day);
+      final normalizedEnd = DateTime(end.year, end.month, end.day);
+      final difference = normalizedEnd.difference(normalizedNow).inDays;
+
+      // إذا كان الفرق 0 يعني اليوم هو آخر يوم
+      if (difference == 0) {
+        return 0;
+      }
+      // إذا كان الفرق موجب يعني هناك أيام متبقية
+      else if (difference > 0) {
+        return difference;
+      }
+      // إذا كان الفرق سالب يعني التاريخ انتهى
+      else {
+        return 0;
+      }
     } catch (e) {
       return 0;
     }
@@ -43,8 +59,7 @@ class ActiveScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(
-                20, 4, 20, screenHeight * 0.03), // مسافة سفلية نسبية
+            padding: EdgeInsets.fromLTRB(20, 4, 20, screenHeight * 0.03),
             child: Text(
               'سارع بزيارتنا قبل انتهاء المعرض، الفرصة لا تُفوّت!',
               textAlign: TextAlign.start,
@@ -57,7 +72,7 @@ class ActiveScreen extends StatelessWidget {
           ),
           Expanded(
             child: StreamBuilder<List<GalleryModel>>(
-              stream: FirestoreService().getItems(),
+              stream: GalleryServices().getItems(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('حدث خطأ: ${snapshot.error}'));
@@ -70,7 +85,10 @@ class ActiveScreen extends StatelessWidget {
                   try {
                     final endDate =
                         DateFormat('dd-MM-yyyy').parse(gallery.endDate);
-                    return endDate.isAfter(DateTime.now());
+                    return endDate.isAfter(DateTime.now()) ||
+                        endDate.day == DateTime.now().day &&
+                            endDate.month == DateTime.now().month &&
+                            endDate.year == DateTime.now().year;
                   } catch (e) {
                     return false;
                   }
@@ -98,18 +116,11 @@ class ActiveScreen extends StatelessWidget {
                     final gallery = activeGalleries[index];
                     final remainingDays =
                         calculateRemainingDays(gallery.endDate);
-                    GalleryModel galleryModel = new GalleryModel(
-                        qrCode: gallery.qrCode,
-                        classificationId: gallery.classificationId,
-                        imageURL: gallery.imageURL,
-                        description: gallery.description,
-                        endDate: gallery.endDate,
-                        id: gallery.id,
-                        location: gallery.location,
-                        phone: gallery.phone,
-                        startDate: gallery.startDate,
-                        title: gallery.title,
-                        map: gallery.map);
+
+                    final daysText = remainingDays == 0
+                        ? 'اليوم هو آخر يوم!'
+                        : 'متبقي $remainingDays من الأيام';
+
                     return Container(
                       margin: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.04,
@@ -118,7 +129,7 @@ class ActiveScreen extends StatelessWidget {
                       child: Stack(
                         children: [
                           GalleryCard(
-                            gallery: galleryModel,
+                            gallery: gallery,
                             isInitiallyFavorite: false,
                             showRemainingDays: false,
                             isActiveScreen: true,
@@ -143,7 +154,7 @@ class ActiveScreen extends StatelessWidget {
                                 ],
                               ),
                               child: Text(
-                                'متبقي $remainingDays من الايام',
+                                daysText,
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 88, 20, 19),
                                   fontSize: isSmallScreen ? 10 : 12,

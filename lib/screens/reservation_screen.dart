@@ -12,7 +12,7 @@ class ReservationScreen extends StatefulWidget {
 }
 
 class _ReservationScreenState extends State<ReservationScreen> {
-  final _formKey = GlobalKey<FormState>(); //   للتحقق من الصحة
+  final _formKey = GlobalKey<FormState>(); // للتحقق من الصحة
   final _firestore =
       FirebaseFirestore.instance; // الاتصال بقاعدة بيانات Firestore
 
@@ -22,17 +22,15 @@ class _ReservationScreenState extends State<ReservationScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
-  final TextEditingController _productTypeController = TextEditingController();
-  final TextEditingController _wingNameController =
-      TextEditingController(); // حقل اسم الجناح
-  final TextEditingController _wingImageController =
-      TextEditingController(); // حقل صورة الجناح
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _wingNameController = TextEditingController();
+  final TextEditingController _wingImageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 400; // التحقق من حجم الشاشة
+    final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF3F3),
@@ -41,19 +39,18 @@ class _ReservationScreenState extends State<ReservationScreen> {
         title: Text(
           'نموذج حجز مساحة',
           style: TextStyle(
-            fontSize:
-                isSmallScreen ? 14 : 16, // حجم الخط يكون بناءً على حجم الشاشة
+            fontSize: isSmallScreen ? 14 : 16,
             fontFamily: mainFont,
             color: const Color.fromARGB(255, 96, 3, 6),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(screenWidth * 0.05),
+        padding: EdgeInsets.all(screenWidth * 0.06),
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Form(
-            key: _formKey, //    للتحقق من صحة الإدخال
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,37 +68,27 @@ class _ReservationScreenState extends State<ReservationScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.04),
 
-                //////////حقول الفورم
-
-                _buildTextField('الاسم...', _nameController,
-                    isRequired: true, context: context),
-
+                // حقول النموذج
+                _buildTextField('الاسم...', _nameController, isRequired: true),
                 _buildTextField('الهاتف...', _phoneController,
-                    isRequired: true, context: context),
-
+                    isRequired: true, isPhone: true),
                 _buildTextField('البريد الإلكتروني...', _emailController,
-                    isRequired: true, isEmail: true, context: context),
-
+                    isRequired: true, isEmail: true),
                 _buildTextField('العنوان ...', _addressController,
-                    isRequired: true, context: context),
-
+                    isRequired: true),
                 _buildTextField('اسم الجناح...', _wingNameController,
-                    isRequired: true, context: context), // حقل اسم الجناح
-
+                    isRequired: true),
                 _buildTextField('صورة الجناح...', _wingImageController,
-                    isRequired: true, context: context), // حقل صورة الجناح
-
+                    isRequired: true),
                 _buildTextField(
                     'المؤسسة المسؤولة عن الجناح...', _organizationController,
-                    isRequired: true, context: context),
-
-                _buildTextField('وصف الجناح ...', _productTypeController,
-                    isRequired: true, context: context),
+                    isRequired: true),
+                _buildTextField('وصف الجناح ...', _descriptionController,
+                    isRequired: true),
 
                 SizedBox(height: screenHeight * 0.04),
 
-                ////////////تنسيييق الفورم
-
+                // زر إرسال النموذج
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -115,10 +102,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                       elevation: 5,
-                      shadowColor: const Color.fromARGB(255, 247, 205, 205)
-                          .withOpacity(0.6),
                     ),
-                    onPressed: _submitForm, // استدعاء لدالة إرسال النموذج
+                    onPressed: _submitForm,
                     child: Text(
                       'إرسال',
                       style: TextStyle(
@@ -138,87 +123,61 @@ class _ReservationScreenState extends State<ReservationScreen> {
   }
 
   // دالة لإنشاء حقل نصي
-  Widget _buildTextField(
-    String hint,
-    TextEditingController controller, {
-    bool isRequired = false,
-    bool isEmail = false, // هل الحقل لبريد إلكتروني
-    required BuildContext context,
-  }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
+  Widget _buildTextField(String hint, TextEditingController controller,
+      {bool isRequired = false, bool isEmail = false, bool isPhone = false}) {
     return Padding(
-      padding: EdgeInsets.only(bottom: screenWidth * 0.04),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 237, 164, 164).withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: Offset(0, 2),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: TextFormField(
-          controller: controller,
-          validator: (value) {
-            if (isRequired && (value == null || value.isEmpty)) {
-              return 'هذا الحقل مطلوب';
-            }
-            if (isEmail && !_isValidEmail(value!)) {
-              return 'البريد الإلكتروني غير صالح';
-            }
-            return null;
-          },
-          //تنسيق شكل الفورم و الحقول
-
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(
-              fontFamily: mainFont,
-              color: Colors.grey,
-            ),
-
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-              borderSide: BorderSide(color: Colors.white),
-            ),
-
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 251, 207, 207)),
-            ),
-
-            //  الحدود عند التركيز
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 252, 159, 167)),
-            ),
-
-            //  الحدود عند وجود خطأ
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 246, 177, 172)),
-            ),
-
-            //  الحدود عند وجود خطأ والتركيز
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 245, 159, 153)),
-            ),
-
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05, vertical: screenWidth * 0.04),
+      padding: EdgeInsets.only(bottom: 15),
+      child: TextFormField(
+        controller: controller,
+        validator: (value) {
+          if (isRequired && (value == null || value.isEmpty)) {
+            return 'هذا الحقل مطلوب';
+          }
+          if (isEmail && !_isValidEmail(value!)) {
+            return 'البريد الإلكتروني غير صالح';
+          }
+          if (isPhone && !_isValidPhone(value!)) {
+            return 'رقم الهاتف يجب أن يكون أرقام فقط';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(
+            fontFamily: mainFont,
+            color: Colors.grey,
           ),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+            borderSide: BorderSide(
+                color:
+                    const Color.fromARGB(255, 198, 50, 39)), // لون الحواف أحمر
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+            borderSide:
+                BorderSide(color: const Color.fromARGB(255, 251, 207, 207)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+            borderSide:
+                BorderSide(color: const Color.fromARGB(255, 252, 159, 167)),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+            borderSide:
+                BorderSide(color: const Color.fromARGB(255, 246, 177, 172)),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+            borderSide:
+                BorderSide(color: const Color.fromARGB(255, 245, 159, 153)),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
+        style: TextStyle(fontFamily: mainFont), // تعيين خط الحقول
       ),
     );
   }
@@ -228,26 +187,29 @@ class _ReservationScreenState extends State<ReservationScreen> {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
+  // دالة للتحقق من صحة رقم الهاتف
+  bool _isValidPhone(String phone) {
+    return RegExp(r'^\d+$')
+        .hasMatch(phone); // تحقق من أن الرقم يحتوي على أرقام فقط
+  }
+
   // دالة لإرسال النموذج
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // التحقق من صحة النموذج
       try {
         await _firestore.collection('space_form').add({
-          // إضافة البيانات إلى Firestore
           'adId': widget.adId,
           'name': _nameController.text,
           'address': _addressController.text,
           'phone': _phoneController.text,
           'email': _emailController.text,
           'organization': _organizationController.text,
-          'productType': _productTypeController.text,
-          'wingName': _wingNameController.text, // إضافة اسم الجناح
-          'wingImage': _wingImageController.text, // إضافة صورة الجناح
+          'description': _descriptionController.text,
+          'wingName': _wingNameController.text,
+          'wingImage': _wingImageController.text,
           'timestamp': FieldValue.serverTimestamp(),
         });
 
-        //  رسالة نجاح
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم إرسال طلب الحجز بنجاح',
@@ -256,7 +218,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
           ),
         );
 
-        // العودة إلى الشاشة السابقة بعد فترة
         Future.delayed(Duration(seconds: 1), () {
           Navigator.pop(context);
         });
@@ -279,9 +240,9 @@ class _ReservationScreenState extends State<ReservationScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _organizationController.dispose();
-    _productTypeController.dispose();
-    _wingNameController.dispose(); // تحرير حقل اسم الجناح
-    _wingImageController.dispose(); // تحرير حقل صورة الجناح
+    _descriptionController.dispose();
+    _wingNameController.dispose();
+    _wingImageController.dispose();
     super.dispose();
   }
 }

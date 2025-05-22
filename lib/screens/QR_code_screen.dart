@@ -9,7 +9,8 @@ class QRScannerScreen extends StatefulWidget {
 }
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
-  final MobileScannerController cameraController = MobileScannerController(); // اجعلها final
+  final MobileScannerController cameraController =
+      MobileScannerController(); // اجعلها final
   String? qrCodeResult;
 
   @override
@@ -31,9 +32,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               builder: (context, state, child) {
                 switch (state) {
                   case TorchState.off:
-                    return const Icon(Icons.flash_off, color: Colors.grey); // إضافة const
+                    return const Icon(Icons.flash_off,
+                        color: Colors.grey); // إضافة const
                   case TorchState.on:
-                    return const Icon(Icons.flash_on, color: Colors.yellow); // إضافة const
+                    return const Icon(Icons.flash_on,
+                        color: Colors.yellow); // إضافة const
                 }
               },
             ),
@@ -60,7 +63,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         controller: cameraController,
         onDetect: (capture) {
           if (capture.barcodes.isNotEmpty) {
-            final String? code = capture.barcodes.first.rawValue; // استخدم rawValue
+            final String? code =
+                capture.barcodes.first.rawValue; // استخدم rawValue
             if (code != null && qrCodeResult != code) {
               setState(() {
                 qrCodeResult = code;

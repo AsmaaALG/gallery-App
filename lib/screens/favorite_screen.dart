@@ -1,6 +1,8 @@
+import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/gallery_services.dart';
+import 'package:final_project/services/users_services.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/constants.dart';
-import 'package:final_project/services/firestore_service.dart';
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/widgets/gallery_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +13,8 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FavoriteServices _favoriteServices = FavoriteServices();
+
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   late TextEditingController _searchController;
   late BuildContext _savedContext;
@@ -84,7 +87,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     );
 
     if (confirmed == true && mounted) {
-      await _firestoreService.clearAllFavorites(_userId!);
+      await _favoriteServices.clearAllFavorites(_userId!);
       if (mounted) {
         ScaffoldMessenger.of(_savedContext).showSnackBar(
           SnackBar(
@@ -187,7 +190,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           // عرض قائمة المعارض المفضلة
           Expanded(
             child: StreamBuilder<List<String>>(
-              stream: _firestoreService.getUserFavorites(_userId!),
+              stream: _favoriteServices.getUserFavorites(_userId!),
               builder: (context, favoriteSnapshot) {
                 if (favoriteSnapshot.hasError) {
                   return Center(
@@ -212,7 +215,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 }
 
                 return StreamBuilder<List<GalleryModel>>(
-                  stream: _firestoreService.getItems(),
+                  stream: GalleryServices().getItems(),
                   builder: (context, gallerySnapshot) {
                     if (gallerySnapshot.hasError) {
                       return Center(
@@ -250,7 +253,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       itemBuilder: (context, index) {
                         final gallery = favoriteGalleries[index];
                         return FutureBuilder<double>(
-                          future: _firestoreService
+                          future: UsersServices()
                               .calculateRating(gallery.id.toString()),
                           builder: (context, ratingSnapshot) {
                             double rating = ratingSnapshot.data ?? 0.0;

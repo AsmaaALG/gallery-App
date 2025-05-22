@@ -1,9 +1,11 @@
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/screens/gallery_screen.dart';
+import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/users_services.dart';
+import 'package:final_project/services/visit_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:final_project/constants.dart';
-import 'package:final_project/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class GalleryCard extends StatefulWidget {
@@ -24,11 +26,11 @@ class GalleryCard extends StatefulWidget {
   _GalleryCardState createState() => _GalleryCardState();
 }
 
-final FirestoreService _firestoreService = FirestoreService();
+final FavoriteServices _favoriteServices = FavoriteServices();
 
 FutureBuilder<double> numberOfStars(String id) {
   return FutureBuilder<double>(
-    future: _firestoreService.calculateRating(id),
+    future: UsersServices().calculateRating(id),
     builder: (context, snapshot) {
       if (snapshot.hasError) {
         return Text('');
@@ -60,7 +62,7 @@ class _GalleryCardState extends State<GalleryCard> {
     super.initState();
     isFavorite = widget.isInitiallyFavorite;
     if (_userId != null && widget.gallery.id.isNotEmpty) {
-      _firestoreService
+      _favoriteServices
           .isFavorite(_userId!, widget.gallery.id)
           .listen((favorite) {
         if (mounted) {
@@ -75,7 +77,9 @@ class _GalleryCardState extends State<GalleryCard> {
   bool isClosed() {
     try {
       final endDate = DateFormat('dd-MM-yyyy').parse(widget.gallery.endDate);
-      return DateTime.now().isAfter(endDate);
+      final adjustedEndDate =
+          endDate.add(const Duration(days: 1)); // نحسب اليوم الحالي
+      return DateTime.now().isAfter(adjustedEndDate);
     } catch (e) {
       return false;
     }
@@ -90,9 +94,9 @@ class _GalleryCardState extends State<GalleryCard> {
 
     try {
       if (isFavorite) {
-        await _firestoreService.addToFavorite(_userId!, widget.gallery.id);
+        await _favoriteServices.addToFavorite(_userId!, widget.gallery.id);
       } else {
-        await _firestoreService.removeFromFavorite(_userId!, widget.gallery.id);
+        await _favoriteServices.removeFromFavorite(_userId!, widget.gallery.id);
       }
     } catch (e) {
       setState(() {
@@ -106,7 +110,7 @@ class _GalleryCardState extends State<GalleryCard> {
 
   Future<int> getVisitorCount() async {
     try {
-      return await _firestoreService.getVisitorCount(widget.gallery.id);
+      return await VisitServices().getVisitorCount(widget.gallery.id);
     } catch (e) {
       print('Error fetching visitor count: $e');
       return 0; // ارجع صفر في حالة حدوث خطأ

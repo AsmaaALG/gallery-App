@@ -1,11 +1,11 @@
 import 'package:final_project/constants.dart';
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
+import '../services/ads_services.dart';
 import '../widgets/ad_card.dart';
 import '../models/ad_model.dart';
 
 class AdsScreen extends StatelessWidget {
-  final FirestoreService firestoreService = FirestoreService();
+  final AdsServices adsServices = AdsServices();
 
   // دالة لتحويل تاريخ String إلى DateTime
   DateTime _parseDate(String dateStr) {
@@ -27,7 +27,7 @@ class AdsScreen extends StatelessWidget {
       final startAd = _parseDate(ad.startDate);
       if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
         // نقل الإعلان إلى المجموعة 2 مع الحفاظ على التاريخ بنفس الصيغة
-        firestoreService.moveAdToCollection(ad, '2', ad.startDate);
+        adsServices.moveAdToCollection(ad, '2', ad.startDate);
       }
     });
 
@@ -50,7 +50,7 @@ class AdsScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 25.0),
         child: FutureBuilder<List<AdModel>>(
-          future: firestoreService.getAds(),
+          future: adsServices.getAds(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());

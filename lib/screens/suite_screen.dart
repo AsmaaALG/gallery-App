@@ -1,13 +1,13 @@
 import 'package:final_project/constants.dart';
-import 'package:final_project/models/suite.dart';
-import 'package:final_project/models/suite_image.dart';
-import 'package:final_project/services/firestore_service.dart';
+import 'package:final_project/models/suite_image_model.dart';
+import 'package:final_project/models/suite_model.dart';
+import 'package:final_project/services/suit_services.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class SuiteScreen extends StatefulWidget {
-  final Suite suite;
+  final SuiteModel suite;
 
   const SuiteScreen({
     super.key,
@@ -19,9 +19,10 @@ class SuiteScreen extends StatefulWidget {
 }
 
 class _SuiteScreenState extends State<SuiteScreen> {
-  List<SuiteImage> suiteImages = []; // قائمة صور الأجنحة
+  List<SuiteImageModel> suiteImages = []; // قائمة صور الأجنحة
   bool isLoading = true;
   bool isExpanded = false; // حالة وصف الجناح
+  final SuiteServices _suiteServices = SuiteServices();
 
   @override
   void initState() {
@@ -31,8 +32,8 @@ class _SuiteScreenState extends State<SuiteScreen> {
 
   Future<void> fetchSuiteImages() async {
     try {
-      List<SuiteImage> fetchedImages =
-          await FirestoreService().getSuiteImages(widget.suite.id);
+      List<SuiteImageModel> fetchedImages =
+          await _suiteServices.getSuiteImages(widget.suite.id);
       setState(() {
         suiteImages = fetchedImages; // تحديث حالة الصور
         isLoading = false; // انتهاء التحميل
@@ -66,8 +67,8 @@ class _SuiteScreenState extends State<SuiteScreen> {
       maxLines: 3,
       textDirection: TextDirection.rtl,
     )..layout(
-        maxWidth: MediaQuery.of(context).size.width -
-            40); // الحساب بناءً على عرض الشاشة
+        maxWidth: MediaQuery.of(context).size.width - 40,
+      );
 
     return textPainter
         .didExceedMaxLines; // تحقق مما إذا كان النص يتجاوز ثلاث أسطر
@@ -252,7 +253,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
 
 // صفحة عرض الصور باستخدام PhotoViewGallery
 class PhotoViewGalleryScreen extends StatelessWidget {
-  final List<SuiteImage> images;
+  final List<SuiteImageModel> images;
   final int initialIndex;
 
   const PhotoViewGalleryScreen(

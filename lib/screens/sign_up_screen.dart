@@ -1,8 +1,9 @@
 import 'package:final_project/services/auth.dart';
+import 'package:final_project/services/gallery_services.dart';
+import 'package:final_project/services/users_services.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/widgets/custom_text_field.dart';
-import 'package:final_project/services/firestore_service.dart';
 import 'mainScreen.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -57,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    bool emailExists = await FirestoreService().isEmailAlreadyExists(email);
+    bool emailExists = await GalleryServices().isEmailAlreadyExists(email);
     if (emailExists) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('البريد الإلكتروني مستخدم مسبقًا')),
@@ -67,7 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       return;
     } else {
-      created = await FirestoreService().createUser(
+      created = await UsersServices().createUser(
         firstName: firstName,
         lastName: lastName,
         email: email,

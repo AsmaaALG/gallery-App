@@ -1,11 +1,14 @@
 import 'package:final_project/constants.dart';
+import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/gallery_services.dart';
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
 import '../widgets/gallery_card.dart';
 import '../models/gallery_model.dart';
 import '../models/category_model.dart';
 import '../widgets/category_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+final FavoriteServices _favoriteServices = FavoriteServices();
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -128,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: StreamBuilder<List<CategoryModel>>(
-              stream: FirestoreService().getCategories(),
+              stream: GalleryServices().getCategories(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -174,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // عرض قائمة المعارض
           Expanded(
             child: StreamBuilder<List<GalleryModel>>(
-              stream: FirestoreService().getItems(),
+              stream: GalleryServices().getItems(),
               builder: (context, gallerySnapshot) {
                 if (gallerySnapshot.hasError) {
                   return Center(child: Text('Error: ${gallerySnapshot.error}'));
@@ -209,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // إذا كان المستخدم مسجل دخول، جلب المفضلة
                 return _userId != null
                     ? StreamBuilder<List<String>>(
-                        stream: FirestoreService().getUserFavorites(_userId!),
+                        stream: FavoriteServices().getUserFavorites(_userId!),
                         builder: (context, favoriteSnapshot) {
                           if (favoriteSnapshot.hasError) {
                             return Center(

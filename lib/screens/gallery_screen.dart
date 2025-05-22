@@ -1,12 +1,15 @@
 import 'package:final_project/constants.dart';
 import 'package:final_project/models/gallery_model.dart';
-import 'package:final_project/models/partner.dart';
-import 'package:final_project/models/reviews.dart';
-import 'package:final_project/models/suite.dart';
+import 'package:final_project/models/partner_model.dart';
+import 'package:final_project/models/reviews_model.dart';
+import 'package:final_project/models/suite_model.dart';
 import 'package:final_project/screens/QR_code_screen.dart';
 import 'package:final_project/screens/image_screen.dart';
 import 'package:final_project/screens/suite_screen.dart';
-import 'package:final_project/services/firestore_service.dart';
+import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/suit_services.dart';
+import 'package:final_project/services/users_services.dart';
+import 'package:final_project/services/visit_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,13 +30,15 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
-  List<Suite> suites = [];
-  List<Review> reviews = [];
-  List<Partner> partners = [];
+  List<SuiteModel> suites = [];
+  List<ReviewsModel> reviews = [];
+  List<PartnerModel> partners = [];
   bool isExpanded = false;
   bool isLoading = true;
   bool isFavorite = false;
-  final FirestoreService _firestoreService = FirestoreService();
+
+  final SuiteServices _suiteServices = SuiteServices();
+  final FavoriteServices _favoriteServices = FavoriteServices();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
@@ -48,7 +53,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Future<void> _checkFavoriteStatus() async {
     if (_userId == null) return;
     try {
-      bool favorite = await _firestoreService.isGalleryFavorite(
+      bool favorite = await _favoriteServices.isGalleryFavorite(
           _userId!, widget.galleryModel.id);
       if (mounted) {
         setState(() {
@@ -87,9 +92,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
     try {
       if (isFavorite) {
-        await _firestoreService.addToFavorite(_userId!, widget.galleryModel.id);
+        await _favoriteServices.addToFavorite(_userId!, widget.galleryModel.id);
       } else {
-        await _firestoreService.removeFromFavorite(
+        await _favoriteServices.removeFromFavorite(
             _userId!, widget.galleryModel.id);
       }
     } catch (e) {
@@ -104,8 +109,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   Future<void> fetchReviews() async {
     try {
-      List<Review> fetchedReviews =
-          await FirestoreService().getReviews(widget.galleryModel.id);
+      List<ReviewsModel> fetchedReviews =
+          await SuiteServices().getReviews(widget.galleryModel.id);
       setState(() {
         reviews = fetchedReviews;
       });
@@ -116,8 +121,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   Future<void> fetchPartners() async {
     try {
-      List<Partner> fetchedPartners =
-          await FirestoreService().getPartners(widget.galleryModel.id);
+      List<PartnerModel> fetchedPartners =
+          await SuiteServices().getPartners(widget.galleryModel.id);
       setState(() {
         partners = fetchedPartners;
       });
@@ -130,7 +135,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
     try {
       final endDate =
           intl.DateFormat('dd-MM-yyyy').parse(widget.galleryModel.endDate);
-      return DateTime.now().isAfter(endDate);
+      // التحقق ما إذا كان التاريخ اليوم بعد تاريخ النهاية
+      return DateTime.now().isAfter(endDate.add(Duration(days: 1)));
     } catch (e) {
       print('Error parsing date: $e');
       print('end date value: ${widget.galleryModel.endDate}');
@@ -147,8 +153,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
 
     try {
-      bool alreadyRegistered = await _firestoreService.isVisitorRegistered(
-          _userId!, widget.galleryModel.id);
+      bool alreadyRegistered = await VisitServices()
+          .isVisitorRegistered(_userId!, widget.galleryModel.id);
 
       if (alreadyRegistered) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -157,7 +163,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         return;
       }
 
-      await _firestoreService.registerVisitor(_userId!, widget.galleryModel.id);
+      await VisitServices().registerVisitor(_userId!, widget.galleryModel.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تم تسجيل زيارتك بنجاح!')),
       );
@@ -373,7 +379,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     children: [
                       Icon(Icons.star_border_rounded, size: 20),
                       FutureBuilder<double>(
-                        future: FirestoreService()
+                        future: UsersServices()
                             .calculateRating(widget.galleryModel.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
@@ -804,8 +810,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   Future<void> fetchSuites() async {
     try {
-      List<Suite> fetchedSuites =
-          await FirestoreService().getSuites(widget.galleryModel.id);
+      List<SuiteModel> fetchedSuites =
+          await SuiteServices().getSuites(widget.galleryModel.id);
       setState(() {
         suites = fetchedSuites;
         isLoading = false;

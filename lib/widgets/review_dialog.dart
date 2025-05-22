@@ -1,5 +1,5 @@
+import 'package:final_project/models/reviews_model.dart';
 import 'package:flutter/material.dart';
-import 'package:final_project/models/reviews.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
 
@@ -58,7 +58,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
 
     setState(() => isSubmitting = true);
 
-    final reviewData = Review(
+    final reviewData = ReviewsModel(
       id: existingReviewId ?? '',
       galleryId: widget.galleryId,
       rating: rating,

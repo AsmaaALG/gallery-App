@@ -1,7 +1,7 @@
 import 'package:final_project/constants.dart';
+import 'package:final_project/services/users_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,90 +11,85 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // متحكمات حقول النص لإدخال البيانات
-  final _firstNameController = TextEditingController(); // للاسم الأول
-  final _lastNameController = TextEditingController(); // للاسم الأخير
-  final _emailController = TextEditingController(); // للاسم الأخير
-  final _passwordController = TextEditingController(); // لكلمة المرور
-  final _confirmPasswordController =
-      TextEditingController(); // لتأكيد كلمة المرور
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  // متغيرات اتصال بفيربيس وحالة التطبيق
-  final user = FirebaseAuth.instance.currentUser; // المستخدم الحالي
-  bool _isLoading = true; // حالة التحميل
-  bool _obscurePassword = true; // إخفاء/إظهار كلمة المرور
-  String? userDocId; // معرّف مستند المستخدم
-  final FirestoreService _firestoreService =
-      FirestoreService(); // خدمة فايرستور
+  final user = FirebaseAuth.instance.currentUser;
+  bool _isLoading = true;
+  bool _obscurePassword1 = true;
+  bool _obscurePassword2 = true;
+  String? userDocId;
+  final UsersServices _usersServices = UsersServices();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // تحميل بيانات المستخدم عند بدء الشاشة
+    _loadUserData();
   }
 
-  // دالة لتحميل بيانات المستخدم من فايرستور
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadUserData() async {
     if (user != null) {
       try {
-        final userData = await _firestoreService.getUserData(user!.uid);
-
+        final userData = await _usersServices.getUserData(user!.uid);
         if (userData != null) {
-          userDocId = userData['docId']; // حفظ معرّف المستند
-          // تعبئة الحقول بالبيانات الموجودة
+          userDocId = userData['docId'];
           _firstNameController.text = userData['data']['first_name'] ?? '';
           _lastNameController.text = userData['data']['last_name'] ?? '';
           _emailController.text = userData['data']['email'] ?? '';
-          _passwordController.text = userData['data']['password'] ?? '';
-          _confirmPasswordController.text = userData['data']['password'] ?? '';
         }
       } catch (e) {
-        // عرض رسالة خطأ في حالة الفشل
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('حدث خطأ في جلب البيانات: $e')),
         );
       } finally {
-        setState(() => _isLoading = false); // إنهاء التحميل
+        setState(() => _isLoading = false);
       }
     }
   }
 
-  // دالة لعرض نافذة تأكيد قبل الحفظ
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
   Future<void> _confirmAndSave() async {
-    if (!_emailController.text.contains('@')) {
+    if (!isValidEmail(_emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('البريد الإلكتروني غير صالح')),
+        const SnackBar(content: Text('البريد الإلكتروني غير صالح')),
       );
       return;
     }
+
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Center(
-          child: Text(
-            'تأكيد الحفظ',
-            style: TextStyle(fontFamily: mainFont),
-          ),
+          child: Text('تأكيد الحفظ', style: TextStyle(fontFamily: mainFont)),
         ),
         content: const Text(
           'هل أنت متأكد من حفظ التغييرات؟',
           style: TextStyle(fontFamily: mainFont),
         ),
         actions: [
-          // زر الإلغاء
           TextButton(
-            child: const Text(
-              'إلغاء',
-              style: TextStyle(fontFamily: mainFont),
-            ),
+            child: const Text('إلغاء', style: TextStyle(fontFamily: mainFont)),
             onPressed: () => Navigator.pop(context, false),
           ),
-          // زر الحفظ
           ElevatedButton(
-            child: const Text(
-              'نعم، احفظ',
-              style: TextStyle(fontFamily: mainFont),
-            ),
+            child:
+                const Text('نعم، احفظ', style: TextStyle(fontFamily: mainFont)),
             onPressed: () => Navigator.pop(context, true),
           ),
         ],
@@ -102,57 +97,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     if (shouldSave == true) {
-      await _saveChanges(); // حفظ التغييرات إذا وافق المستخدم
+      await _saveChanges();
     }
   }
 
-  // دالة لحفظ التغييرات في فايرستور وفيربيس أوث
   Future<void> _saveChanges() async {
-    // التحقق من تطابق كلمتي المرور
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'كلمتا المرور غير متطابقتين',
-            style: TextStyle(fontFamily: mainFont),
-          ),
-        ),
+        const SnackBar(content: Text('كلمتا المرور غير متطابقتين')),
       );
       return;
     }
 
     try {
       if (userDocId != null) {
-        // تحديث بيانات المستخدم في فايرستور
-        await _firestoreService.updateUserData(userDocId!, {
+        await _usersServices.updateUserData(userDocId!, {
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
-          'email': _emailController,
-          'password': _passwordController.text,
+          'email': _emailController.text,
         });
       }
 
-      // تحديث كلمة المرور في فيربيس أوث
       await user?.updatePassword(_passwordController.text);
       await user?.updateEmail(_emailController.text);
 
-      // عرض رسالة نجاح
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'تم تحديث بياناتك بنجاح، ${_firstNameController.text} 🎉',
-            style: TextStyle(fontFamily: mainFont),
+            style: const TextStyle(fontFamily: mainFont),
           ),
         ),
       );
     } catch (e) {
-      // عرض رسالة خطأ في حالة الفشل
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'حدث خطأ: $e',
-            style: TextStyle(fontFamily: mainFont),
-          ),
+          content:
+              Text('حدث خطأ: $e', style: const TextStyle(fontFamily: mainFont)),
         ),
       );
     }
@@ -161,31 +142,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl, // اتجاه النص من اليمين لليسار
+      textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white, // خلفية بيضاء للشاشة
+        backgroundColor: Colors.white,
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.white, // خلفية بيضاء لشريط التطبيق
-            elevation: 0, // إزالة الظل
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.arrow_forward), // زر الرجوع
-                onPressed: () => Navigator.pop(context),
-                color: primaryColor, // لون أسود لزر الرجوع
-              ),
-            ]),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.arrow_forward),
+              tooltip: 'رجوع',
+              onPressed: () => Navigator.pop(context),
+              color: primaryColor,
+            ),
+          ],
+        ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator()) // عرض مؤشر تحميل
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 35.0,
-                  vertical: 16.0,
-                ),
+                    horizontal: 35.0, vertical: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // قسم العنوان والوصف
                     const Padding(
                       padding: EdgeInsets.only(bottom: 24.0),
                       child: Column(
@@ -213,139 +193,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // حاوية النموذج
                     Container(
                       padding: const EdgeInsets.all(24.0),
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white, // لون الحدود
-                          width: 1.5, // سمك الحدود
-                        ),
-                        borderRadius: BorderRadius.circular(20), // زوايا دائرية
-                        color: Colors.white, // خلفية بيضاء
+                        border: Border.all(color: Colors.white, width: 1.5),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
                         boxShadow: [
                           BoxShadow(
                             color: const Color.fromARGB(255, 198, 181, 181)
-                                .withOpacity(0.3), // لون الظل
-                            spreadRadius: 4, // مدى انتشار الظل
-                            blurRadius: 11, // درجة ضبابية الظل
-                            offset: Offset(0, 2), // اتجاه الظل
+                                .withOpacity(0.3),
+                            spreadRadius: 4,
+                            blurRadius: 11,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
-                          // حقل الاسم الأول
-                          TextField(
-                            controller: _firstNameController,
-                            decoration: InputDecoration(
-                              labelText: 'الاسم الأول',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                            onChanged: (_) => setState(() {}),
+                          buildTextField(_firstNameController, 'الاسم الأول'),
+                          const SizedBox(height: 16),
+                          buildTextField(_lastNameController, 'الاسم الأخير'),
+                          const SizedBox(height: 16),
+                          buildTextField(_emailController, 'البريد الإلكتروني'),
+                          const SizedBox(height: 16),
+                          buildPasswordField(
+                            _passwordController,
+                            'كلمة المرور',
+                            _obscurePassword1,
+                            () => setState(
+                                () => _obscurePassword1 = !_obscurePassword1),
                           ),
                           const SizedBox(height: 16),
-
-                          // حقل الاسم الأخير
-                          TextField(
-                            controller: _lastNameController,
-                            decoration: InputDecoration(
-                              labelText: 'الاسم الأخير',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                            onChanged: (_) => setState(() {}),
-                          ),
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'البريد الإلكتروني',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                            onChanged: (_) => setState(() {}),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // حقل كلمة المرور
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              labelText: 'كلمة المرور',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() =>
-                                      _obscurePassword = !_obscurePassword);
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // حقل تأكيد كلمة المرور
-                          TextField(
-                            controller: _confirmPasswordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              labelText: 'تأكيد كلمة المرور',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
+                          buildPasswordField(
+                            _confirmPasswordController,
+                            'تأكيد كلمة المرور',
+                            _obscurePassword2,
+                            () => setState(
+                                () => _obscurePassword2 = !_obscurePassword2),
                           ),
                           const SizedBox(height: 24),
-
-                          // زر الحفظ
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -362,9 +249,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               child: const Text(
                                 'حفظ الإعدادات',
                                 style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: mainFont,
-                                    color: Color.fromARGB(128, 14, 13, 13)),
+                                  fontSize: 14,
+                                  fontFamily: mainFont,
+                                  color: Color.fromARGB(128, 14, 13, 13),
+                                ),
                               ),
                             ),
                           ),
@@ -374,6 +262,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+    );
+  }
+
+  Widget buildPasswordField(TextEditingController controller, String label,
+      bool obscure, VoidCallback toggleVisibility) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        suffixIcon: IconButton(
+          icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+          onPressed: toggleVisibility,
+        ),
       ),
     );
   }
