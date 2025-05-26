@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/screens/signIn_screen.dart';

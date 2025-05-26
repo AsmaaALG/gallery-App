@@ -34,10 +34,12 @@ class VisitServices {
   }
 
 // تسجل زيارة جديدة للمعرض من قبل المستخدم.
-  Future<void> registerVisitor(String userId, String galleryId) async {
+  Future<void> registerVisitor(
+      String userId, String galleryId, DateTime createdAt) async {
     await _firestore.collection('visit').add({
       'userId': userId,
       'galleryId': galleryId,
+      'createdAt': createdAt,
     });
   }
 

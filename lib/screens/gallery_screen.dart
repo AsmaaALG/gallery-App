@@ -163,7 +163,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
         return;
       }
 
-      await VisitServices().registerVisitor(_userId!, widget.galleryModel.id);
+      await VisitServices().registerVisitor(
+        _userId!,
+        widget.galleryModel.id,
+        DateTime.now(), // أضفنا التاريخ الحالي كوسيط ثالث
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تم تسجيل زيارتك بنجاح!')),
       );

@@ -13,8 +13,7 @@ class GalleryServices {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return GalleryModel.fromJson(
-            doc.data() as Map<String, dynamic>, doc.id);
+        return GalleryModel.fromJson(doc.data(), doc.id);
       }).toList();
     });
   }
