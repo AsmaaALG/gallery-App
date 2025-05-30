@@ -93,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.search),
+            leading: Icon(Icons.notifications_active),
             title: Text(
               'الاشعارات',
               style: TextStyle(fontFamily: mainFont),

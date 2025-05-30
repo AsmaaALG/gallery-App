@@ -17,14 +17,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategoryId = 'all';
+  String? selectedLocation;
   TextEditingController _searchController = TextEditingController();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   String _searchQuery = '';
+  bool _showLocationsList = false;
+  List<String> _uniqueLocations = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _fetchUniqueLocations();
   }
 
   @override
@@ -37,6 +41,27 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase();
+    });
+  }
+
+  Future<void> _fetchUniqueLocations() async {
+    final items = await GalleryServices().getItems().first;
+    final locations = items.map((e) => e.location).toSet().toList();
+    setState(() {
+      _uniqueLocations = locations;
+    });
+  }
+
+  void _toggleLocationsList() {
+    setState(() {
+      _showLocationsList = !_showLocationsList;
+    });
+  }
+
+  void _selectLocation(String? location) {
+    setState(() {
+      selectedLocation = location;
+      _showLocationsList = false;
     });
   }
 
@@ -69,63 +94,139 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.black,
                         fontSize: 16,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
           ),
 
-          // حقل البحث
+          // صف البحث وتصنيف المواقع
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: SizedBox(
-                height: 40,
-                width: 250,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'ابحث باسم المعرض',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
-                      fontFamily: mainFont,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // زر تصنيف المواقع
+                GestureDetector(
+                  onTap: _toggleLocationsList,
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    prefixIcon: Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Icon(
-                        Icons.search,
-                        color: Colors.grey[500],
-                        size: 18,
+                    child: Icon(
+                      Icons.location_on,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+
+                // حقل البحث
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: SizedBox(
+                    height: 40,
+                    width: 200,
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'ابحث باسم المعرض',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 12,
+                          fontFamily: mainFont,
+                        ),
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Icon(
+                            Icons.search,
+                            color: Colors.grey[500],
+                            size: 18,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 10,
+                        ),
+                        isDense: true,
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: mainFont,
                       ),
                     ),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 10,
-                    ),
-                    isDense: true,
                   ),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: mainFont,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value.toLowerCase();
-                    });
-                  },
                 ),
-              ),
+              ],
             ),
           ),
+
+          // قائمة المواقع (تظهر عند الضغط على أيقونة الموقع)
+          if (_showLocationsList)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      'الكل',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontFamily: mainFont,
+                        color: selectedLocation == null
+                            ? primaryColor
+                            : Colors.black,
+                      ),
+                    ),
+                    onTap: () => _selectLocation(null),
+                  ),
+                  Divider(height: 1),
+                  ..._uniqueLocations
+                      .map((location) => Column(
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  location,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontFamily: mainFont,
+                                    color: selectedLocation == location
+                                        ? primaryColor
+                                        : Colors.black,
+                                  ),
+                                ),
+                                onTap: () => _selectLocation(location),
+                              ),
+                              Divider(height: 1),
+                            ],
+                          ))
+                      .toList(),
+                ],
+              ),
+            ),
 
           // أزرار التصنيفات
           Padding(
@@ -192,14 +293,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       item.title.toLowerCase().contains(_searchQuery);
                   final matchesCategory = selectedCategoryId == 'all' ||
                       item.classificationId == selectedCategoryId;
-                  return matchesSearch && matchesCategory;
+                  final matchesLocation = selectedLocation == null ||
+                      item.location == selectedLocation;
+                  return matchesSearch && matchesCategory && matchesLocation;
                 }).toList();
 
                 // إذا لم توجد نتائج للبحث
-                if (filteredItems.isEmpty && _searchQuery.isNotEmpty) {
+                if (filteredItems.isEmpty) {
                   return Center(
                     child: Text(
-                      'لا توجد نتائج بحث',
+                      _searchQuery.isNotEmpty || selectedLocation != null
+                          ? 'لا توجد نتائج بحث'
+                          : 'لا توجد معارض متاحة حالياً',
                       style: TextStyle(
                         fontFamily: mainFont,
                         fontSize: 16,
@@ -223,25 +328,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           final favoriteIds = favoriteSnapshot.data ?? [];
 
                           return ListView.builder(
-                            // أضفنا padding في الأسفل لإعطاء مسافة بعد آخر معرض
                             padding: EdgeInsets.only(top: 10, bottom: 60),
                             itemCount: filteredItems.length,
                             itemBuilder: (context, index) {
                               final item = filteredItems[index];
                               final isFavorite =
                                   favoriteIds.contains(item.id.toString());
-                              GalleryModel gallery = new GalleryModel(
-                                  qrCode: item.qrCode,
-                                  classificationId: item.classificationId,
-                                  imageURL: item.imageURL,
-                                  description: item.description,
-                                  endDate: item.endDate,
-                                  id: item.id,
-                                  location: item.location,
-                                  phone: item.phone,
-                                  startDate: item.startDate,
-                                  title: item.title,
-                                  map: item.map);
                               return Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 8),
@@ -257,33 +349,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       )
-
                     // إذا لم يكن المستخدم مسجل دخول
                     : ListView.builder(
-                        // أضفنا padding في الأسفل لإعطاء مسافة بعد آخر معرض
                         padding: EdgeInsets.only(top: 10, bottom: 20),
                         itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
                           final item = filteredItems[index];
-                          GalleryModel gallery = new GalleryModel(
-                              qrCode: item.qrCode,
-                              classificationId: item.classificationId,
-                              imageURL: item.imageURL,
-                              description: item.description,
-                              endDate: item.endDate,
-                              id: item.id,
-                              location: item.location,
-                              phone: item.phone,
-                              startDate: item.startDate,
-                              title: item.title,
-                              map: item.map);
-
                           return Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 8),
                             child: GalleryCard(
                               key: ValueKey(item.id),
-                              gallery: gallery,
+                              gallery: item,
                               isInitiallyFavorite: false,
                               showRemainingDays: false,
                               isActiveScreen: false,

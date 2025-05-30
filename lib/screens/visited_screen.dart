@@ -100,48 +100,49 @@ class _VisitedScreenState extends State<VisitedScreen> {
                     ),
                     itemBuilder: (context, index) {
                       final gallery = galleries[index];
-                      return Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 253, 245, 245),
-                              borderRadius: BorderRadius.circular(35),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color.fromARGB(255, 13, 3, 3)
-                                      .withOpacity(0.15),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 17),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 35,
-                                    backgroundImage: NetworkImage(
-                                      'https://drive.google.com/uc?id=${gallery.imageURL}',
+                      return SizedBox(
+                        height: 260,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 253, 245, 245),
+                            borderRadius: BorderRadius.circular(35),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color.fromARGB(255, 13, 3, 3)
+                                    .withOpacity(0.15),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 17),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 35,
+                                      backgroundImage: NetworkImage(
+                                        'https://drive.google.com/uc?id=${gallery.imageURL}',
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    gallery.title,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: primaryColor,
-                                      fontFamily: mainFont,
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      gallery.title,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: primaryColor,
+                                        fontFamily: mainFont,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Expanded(
-                                    child: Text(
+                                    const SizedBox(height: 6),
+                                    Text(
                                       gallery.description,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -153,44 +154,43 @@ class _VisitedScreenState extends State<VisitedScreen> {
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  SizedBox(
-                                    height: 30,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => ReviewDialog(
-                                            galleryId: gallery.id,
-                                            userId: widget.currentUserId,
-                                          ),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: secondaryColor,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 11, vertical: 5),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(17.5),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => ReviewDialog(
+                                          galleryId: gallery.id,
+                                          userId: widget.currentUserId,
                                         ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: secondaryColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 11, vertical: 5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(17.5),
                                       ),
-                                      child: const Text(
-                                        'قيم المعرض',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontFamily: mainFont,
-                                          color: Colors.black,
-                                        ),
+                                    ),
+                                    child: const Text(
+                                      'قيم المعرض',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: mainFont,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       );
                     },
                   ),

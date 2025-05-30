@@ -140,7 +140,8 @@ class _GalleryCardState extends State<GalleryCard> {
       },
       child: Card(
         color: cardBackground,
-        elevation: 3,
+        elevation: 6,
+        shadowColor: const Color.fromARGB(255, 255, 255, 255), // <-- لون الظل
         margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
