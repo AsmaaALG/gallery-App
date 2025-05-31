@@ -164,7 +164,7 @@ class _GalleryCardState extends State<GalleryCard> {
               ),
               Center(
                 child: Image.network(
-                  'https://drive.google.com/uc?id=${widget.gallery.imageURL}',
+                  widget.gallery.imageURL,
                   fit: BoxFit.cover,
                   height: 120,
                   width: double.infinity,

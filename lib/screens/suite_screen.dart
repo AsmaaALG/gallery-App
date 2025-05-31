@@ -229,7 +229,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.0),
                                 child: Image.network(
-                                  'https://drive.google.com/uc?id=${suiteImage.imageUrl}',
+                                  suiteImage.imageUrl,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
@@ -267,8 +267,7 @@ class PhotoViewGalleryScreen extends StatelessWidget {
         itemCount: images.length,
         builder: (context, index) {
           return PhotoViewGalleryPageOptions(
-            imageProvider: NetworkImage(
-                'https://drive.google.com/uc?id=${images[index].imageUrl}'),
+            imageProvider: NetworkImage(images[index].imageUrl),
             minScale: PhotoViewComputedScale.contained,
             maxScale: PhotoViewComputedScale.covered * 2,
           );

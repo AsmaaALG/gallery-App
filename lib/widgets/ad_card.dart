@@ -11,7 +11,7 @@ class AdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String imageUrl = ad.imageUrl.isNotEmpty
-        ? 'https://drive.google.com/uc?id=${ad.imageUrl}' //   لاستخدام Google Drive
+        ? ad.imageUrl //   لاستخدام Google Drive
         : 'https://via.placeholder.com/300x200.png?text=No+Image';
 
     return Container(
@@ -58,8 +58,6 @@ class AdCard extends StatelessWidget {
           // الجزء النصي
           Container(
             width: 150,
-            // child: Padding(
-            //   padding: const EdgeInsets.only(right: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,7 +72,6 @@ class AdCard extends StatelessWidget {
                     fontFamily: mainFont,
                   ),
                 ),
-                // const SizedBox(height: 8),
                 Text(
                   ad.description,
                   style: TextStyle(
@@ -85,7 +82,6 @@ class AdCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton(

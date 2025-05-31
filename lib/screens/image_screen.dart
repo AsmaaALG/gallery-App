@@ -11,7 +11,7 @@ class ImageScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: PhotoView(
-        imageProvider: NetworkImage('https://drive.google.com/uc?id=$imageUrl'),
+        imageProvider: NetworkImage(imageUrl),
         minScale: PhotoViewComputedScale.contained,
         maxScale: PhotoViewComputedScale.covered * 2,
         heroAttributes: const PhotoViewHeroAttributes(tag: 'imageHero'),

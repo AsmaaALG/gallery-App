@@ -13,7 +13,6 @@ import 'package:final_project/services/visit_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:photo_view/photo_view.dart';
 
 class GalleryScreen extends StatefulWidget {
   final GalleryModel galleryModel;
@@ -206,7 +205,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           height: 200,
           width: double.infinity,
           child: Image.network(
-            'https://drive.google.com/uc?id=${widget.galleryModel.imageURL}',
+            widget.galleryModel.imageURL,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
@@ -509,7 +508,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: Image.network(
-                        'https://drive.google.com/uc?id=${suite.imageUrl}',
+                        suite.imageUrl,
                         fit: BoxFit.cover,
                         height: 100,
                         width: 100,
@@ -776,7 +775,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(50.0),
                       child: Image.network(
-                        'https://drive.google.com/uc?id=${partner.image}',
+                        partner.image,
                         fit: BoxFit.cover,
                         height: 100,
                         width: 100,

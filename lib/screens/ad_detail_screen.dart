@@ -51,7 +51,7 @@ class AdDetailScreen extends StatelessWidget {
                 child: ClipOval(
                   child: Image.network(
                     ad.imageUrl.isNotEmpty
-                        ? 'https://drive.google.com/uc?id=${ad.imageUrl}' // التعديل هنا
+                        ? ad.imageUrl // التعديل هنا
                         : 'https://via.placeholder.com/300x200.png?text=No+Image',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
