@@ -13,7 +13,7 @@ class UsersServices {
     try {
       final docRef = _firestore.collection('users').doc();
       await docRef.set({
-        'id': docRef.id,
+        'userId': docRef.id,
         'first_name': firstName,
         'last_name': lastName,
         'email': email,

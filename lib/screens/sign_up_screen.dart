@@ -68,23 +68,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       return;
     } else {
-      created = await UsersServices().createUser(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: password,
-      );
-      Auth().signUp(emailController, passwordController);
+      if (await Auth().signUp(emailController, passwordController)) {
+        Auth().signIn(emailController, passwordController);
+        created = await UsersServices().createUser(
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+          
+        );
+      }
     }
     if (created) {
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),
+        (Route<dynamic> route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('حدث خطأ أثناء إنشاء الحساب')),
       );
+      setState(() {
+        showSpinner = false;
+      });
+      return;
     }
   }
 

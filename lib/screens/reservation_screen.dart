@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReservationScreen extends StatefulWidget {
   final String adId; // معرف الإعلان
@@ -13,10 +14,9 @@ class ReservationScreen extends StatefulWidget {
 
 class _ReservationScreenState extends State<ReservationScreen> {
   final _formKey = GlobalKey<FormState>(); // للتحقق من الصحة
-  final _firestore =
-      FirebaseFirestore.instance; // الاتصال بقاعدة بيانات Firestore
+  final _firestore = FirebaseFirestore.instance;
+  final Uri imgurUrl = Uri.parse('https://imgur.com/upload');
 
-  // وحدات التحكم لحقول الإدخال
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -80,6 +80,37 @@ class _ReservationScreenState extends State<ReservationScreen> {
                     isRequired: true),
                 _buildTextField('صورة الجناح...', _wingImageController,
                     isRequired: true),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (await canLaunchUrl(imgurUrl)) {
+                        await launchUrl(imgurUrl,
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      side: const BorderSide(
+                          color: const Color.fromARGB(255, 251, 207, 207)),
+                      backgroundColor: Colors.white,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'افتح Imgur لرفع صورة ثم قم بجلب رابط الصورة',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontFamily: mainFont, fontSize: 10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 _buildTextField(
                     'المؤسسة المسؤولة عن الجناح...', _organizationController,
                     isRequired: true),

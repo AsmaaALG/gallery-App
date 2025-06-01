@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/screens/signInUp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:final_project/constants.dart';
@@ -53,7 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (querySnapshot.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('البريد الإلكتروني ليس مسجلاً كمسؤول')),
+          SnackBar(content: Text('البريد الإلكتروني غير صحيح')),
         );
         setState(() {
           showSpinner = false;
@@ -62,9 +63,10 @@ class _SignInScreenState extends State<SignInScreen> {
       }
 
       // إذا كان كل شيء صحيح، انتقل إلى MainScreen
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),
+        (Route<dynamic> route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,9 +112,10 @@ class _SignInScreenState extends State<SignInScreen> {
         }
 
         //  الانتقال للصفحة الرئيسية
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
+          (Route<dynamic> route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -157,7 +160,12 @@ class _SignInScreenState extends State<SignInScreen> {
                   IconButton(
                     icon: Icon(Icons.arrow_back, color: Colors.black, size: 28),
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SignInUpScreen()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                   ),
                 ],
@@ -207,20 +215,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         hintText: "كلمة المرور",
                         obscureText: true,
                         controller: passwordController,
-                      ),
-                      SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            "هل نسيت كلمة المرور؟",
-                            style: TextStyle(
-                                fontFamily: mainFont,
-                                color: primaryColor,
-                                fontSize: 14),
-                          ),
-                        ),
                       ),
                       SizedBox(height: 10),
                       ElevatedButton(

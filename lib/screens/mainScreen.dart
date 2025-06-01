@@ -136,11 +136,10 @@ class _MainScreenState extends State<MainScreen> {
             ),
             onTap: () {
               Auth().signOut(context);
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SignInScreen()), // تأكد من توجيه المستخدم إلى شاشة تسجيل الدخول
+                MaterialPageRoute(builder: (context) => SignInScreen()),
+                (Route<dynamic> route) => false,
               );
             },
           ),

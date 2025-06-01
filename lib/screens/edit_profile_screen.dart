@@ -16,11 +16,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _currentPasswordController = TextEditingController();
 
   final user = FirebaseAuth.instance.currentUser;
   bool _isLoading = true;
   bool _obscurePassword1 = true;
   bool _obscurePassword2 = true;
+  bool _obscureCurrentPassword = true;
   String? userDocId;
   final UsersServices _usersServices = UsersServices();
 
@@ -37,6 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _currentPasswordController.dispose();
     super.dispose();
   }
 
@@ -60,18 +63,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  bool isValidEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
-  }
-
   Future<void> _confirmAndSave() async {
-    if (!isValidEmail(_emailController.text)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('البريد الإلكتروني غير صالح')),
-      );
-      return;
-    }
-
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -102,39 +94,77 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveChanges() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('كلمتا المرور غير متطابقتين')),
-      );
-      return;
-    }
-
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+            code: 'no-user', message: 'المستخدم غير مسجل الدخول');
+      }
+
+      // تحديث الاسم الأول والأخير في Firestore (بدون تحقق)
       if (userDocId != null) {
         await _usersServices.updateUserData(userDocId!, {
-          'first_name': _firstNameController.text,
-          'last_name': _lastNameController.text,
-          'email': _emailController.text,
+          'first_name': _firstNameController.text.trim(),
+          'last_name': _lastNameController.text.trim(),
+          'email': _emailController.text.trim(), // للعرض فقط
         });
       }
 
-      await user?.updatePassword(_passwordController.text);
-      await user?.updateEmail(_emailController.text);
+      // محاولة تحديث كلمة المرور فقط إذا تم إدخال كلمة مرور جديدة
+      if (_passwordController.text.isNotEmpty ||
+          _confirmPasswordController.text.isNotEmpty) {
+        if (_passwordController.text != _confirmPasswordController.text) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('كلمتا المرور غير متطابقتين')),
+          );
+          return;
+        }
+
+        if (_currentPasswordController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content:
+                    Text('يرجى إدخال كلمة المرور الحالية لتحديث كلمة المرور')),
+          );
+          return;
+        }
+
+        try {
+          // التحقق من صحة كلمة المرور الحالية
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: _currentPasswordController.text.trim(),
+          );
+
+          await user.reauthenticateWithCredential(credential);
+
+          // التحديث بعد التحقق
+          await user.updatePassword(_passwordController.text.trim());
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم تحديث كلمة المرور بنجاح ✅')),
+          );
+        } on FirebaseAuthException catch (e) {
+          String message = switch (e.code) {
+            'wrong-password' => 'كلمة المرور الحالية غير صحيحة.',
+            'requires-recent-login' => 'يرجى تسجيل الدخول من جديد.',
+            'invalid-credential' => 'بيانات الدخول غير صحيحة.',
+            _ => 'خطأ: ${e.message}',
+          };
+
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(message)));
+          return;
+        }
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'تم تحديث بياناتك بنجاح، ${_firstNameController.text} 🎉',
-            style: const TextStyle(fontFamily: mainFont),
-          ),
-        ),
+        const SnackBar(content: Text('تم حفظ التغييرات بنجاح ✅')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text('حدث خطأ: $e', style: const TextStyle(fontFamily: mainFont)),
-        ),
+        SnackBar(content: Text('حدث خطأ غير متوقع: $e')),
       );
     }
   }
@@ -215,11 +245,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           const SizedBox(height: 16),
                           buildTextField(_lastNameController, 'الاسم الأخير'),
                           const SizedBox(height: 16),
-                          buildTextField(_emailController, 'البريد الإلكتروني'),
+                          buildTextField(_emailController, 'البريد الإلكتروني',
+                              readOnly: true),
+                          const SizedBox(height: 16),
+                          buildPasswordField(
+                            _currentPasswordController,
+                            'كلمة المرور الحالية',
+                            _obscureCurrentPassword,
+                            () => setState(() => _obscureCurrentPassword =
+                                !_obscureCurrentPassword),
+                          ),
                           const SizedBox(height: 16),
                           buildPasswordField(
                             _passwordController,
-                            'كلمة المرور',
+                            'كلمة المرور الجديدة',
                             _obscurePassword1,
                             () => setState(
                                 () => _obscurePassword1 = !_obscurePassword1),
@@ -227,7 +266,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           const SizedBox(height: 16),
                           buildPasswordField(
                             _confirmPasswordController,
-                            'تأكيد كلمة المرور',
+                            'تأكيد كلمة المرور الجديدة',
                             _obscurePassword2,
                             () => setState(
                                 () => _obscurePassword2 = !_obscurePassword2),
@@ -266,11 +305,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String label) {
+  Widget buildTextField(TextEditingController controller, String label,
+      {bool readOnly = false}) {
     return TextField(
       controller: controller,
+      readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
+        filled: readOnly,
+        fillColor: readOnly ? Colors.grey.shade100 : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
           borderSide: BorderSide(color: Colors.grey.shade400),
