@@ -88,14 +88,14 @@ class _VisitedScreenState extends State<VisitedScreen> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(25.0),
+                  padding: const EdgeInsets.all(17.0),
                   child: GridView.builder(
                     itemCount: galleries.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 15,
+                      crossAxisSpacing: 15,
                       childAspectRatio: 0.68,
                     ),
                     itemBuilder: (context, index) {
@@ -127,7 +127,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
                                     CircleAvatar(
                                       radius: 35,
                                       backgroundImage: NetworkImage(
-                                        'https://drive.google.com/uc?id=${gallery.imageURL}',
+                                        gallery.imageURL,
                                       ),
                                     ),
                                     const SizedBox(height: 10),
