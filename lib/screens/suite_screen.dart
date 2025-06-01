@@ -104,7 +104,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(60.0),
                     child: Image.network(
-                      'https://drive.google.com/uc?id=${widget.suite.imageUrl}',
+                     widget.suite.imageUrl,
                       fit: BoxFit.cover,
                       height: 120,
                       width: 120,
