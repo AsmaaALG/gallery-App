@@ -167,9 +167,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
           if (isEmail && !_isValidEmail(value!)) {
             return 'البريد الإلكتروني غير صالح';
           }
-          if (isPhone && !_isValidPhone(value!)) {
-            return 'رقم الهاتف يجب أن يكون أرقام فقط';
+          if (isPhone) {
+            if (!RegExp(r'^\d+$').hasMatch(value!)) {
+              return 'رقم الهاتف يجب أن يحتوي على أرقام فقط';
+            } else if (value.length != 10) {
+              return 'يرجى إدخال رقم مكون من 10 أرقام فقط';
+            }
           }
+
           return null;
         },
         decoration: InputDecoration(

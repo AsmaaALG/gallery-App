@@ -64,6 +64,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _confirmAndSave() async {
+    // تحقق من تعبئة الاسم الأول والاسم الأخير
+    if (_firstNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى إدخال الاسم الأول')),
+      );
+      return;
+    }
+
+    if (_lastNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى إدخال الاسم الأخير')),
+      );
+      return;
+    }
+
+    // تابع الحفظ إذا كانت الحقول معبأة
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

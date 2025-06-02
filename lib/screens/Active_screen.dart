@@ -85,14 +85,22 @@ class ActiveScreen extends StatelessWidget {
                   try {
                     final endDate =
                         DateFormat('dd-MM-yyyy').parse(gallery.endDate);
-                    return endDate.isAfter(DateTime.now()) ||
-                        endDate.day == DateTime.now().day &&
-                            endDate.month == DateTime.now().month &&
-                            endDate.year == DateTime.now().year;
+                    final today = DateTime.now();
+                    return endDate.isAfter(today) ||
+                        (endDate.year == today.year &&
+                            endDate.month == today.month &&
+                            endDate.day == today.day);
                   } catch (e) {
                     return false;
                   }
                 }).toList();
+
+// ترتيب حسب الأقرب للانتهاء
+                activeGalleries.sort((a, b) {
+                  final daysA = calculateRemainingDays(a.endDate);
+                  final daysB = calculateRemainingDays(b.endDate);
+                  return daysA.compareTo(daysB);
+                });
 
                 if (activeGalleries.isEmpty) {
                   return Center(

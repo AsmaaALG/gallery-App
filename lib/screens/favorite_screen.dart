@@ -48,6 +48,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   // نافذة تأكيد لحذف جميع المعارض من المفضلة
   Future<void> _showDeleteAllDialog() async {
+    // نجيب قائمة المفضلة للمستخدم
+    final favorites = await _favoriteServices.getUserFavorites(_userId!).first;
+
+    if (favorites.isEmpty) {
+      // إذا مافيش ولا معرض => نعرض رسالة تنبيه فقط
+      if (mounted) {
+        ScaffoldMessenger.of(_savedContext).showSnackBar(
+          SnackBar(
+            content: Text(
+              'لا توجد معارض في المفضلة لحذفها',
+              style: TextStyle(fontFamily: mainFont),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // إذا في معارض => نظهر مربع التأكيد
     final confirmed = await showDialog<bool>(
       context: _savedContext,
       builder: (BuildContext context) {
@@ -69,8 +88,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: Text(
                 'إلغاء',
                 style: TextStyle(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                    fontFamily: mainFont),
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                  fontFamily: mainFont,
+                ),
               ),
               onPressed: () => Navigator.of(context).pop(false),
             ),

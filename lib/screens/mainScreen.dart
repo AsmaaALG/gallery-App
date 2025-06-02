@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/screens/home_screen.dart';
 import 'package:final_project/constants.dart';
+import 'package:final_project/screens/notifications_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -100,7 +101,10 @@ class _MainScreenState extends State<MainScreen> {
             ),
             onTap: () {
               Navigator.pop(context);
-              _onItemTapped(1);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => NotificationsScreen()),
+              );
             },
           ),
           ListTile(
