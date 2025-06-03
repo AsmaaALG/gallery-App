@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/constants.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -36,7 +37,7 @@ class NotificationsScreen extends StatelessWidget {
                     : null;
 
                 return ListTile(
-                  leading: Icon(Icons.notifications, color: Colors.red),
+                  leading: Icon(Icons.notifications, color: primaryColor),
                   title: Text(data['title'] ?? 'بدون عنوان'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
