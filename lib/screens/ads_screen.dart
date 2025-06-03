@@ -55,16 +55,41 @@ class AdsScreen extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Text('حدث خطأ أثناء تحميل البيانات');
+              return Center(
+                  child: Text(
+                'حدث خطأ أثناء تحميل البيانات',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: mainFont,
+                  fontWeight: FontWeight.w100,
+                ),
+              ));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text('لا توجد بيانات حالياً');
+              return Center(
+                  child: Text(
+                'لا توجد بيانات حالياً',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: mainFont,
+                  fontWeight: FontWeight.w100,
+                ),
+              ));
             }
 
             // تصفية وترتيب الإعلانات بحيث التاريخ الاقرب يكون هوا الاول
             final filteredAds = _filterAndSortAds(snapshot.data!);
 
             if (filteredAds.isEmpty) {
-              return Center(child: Text('لا توجد إعلانات فعالة حالياً'));
+              return Center(
+                  child: Text(
+                'لا توجد إعلانات فعالة حالياً',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: mainFont,
+                  fontWeight: FontWeight.w100,
+                ),
+                textAlign: TextAlign.center,
+              ));
             }
 
             return ListView(
