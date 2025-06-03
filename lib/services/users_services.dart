@@ -4,27 +4,25 @@ class UsersServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 // انشاء مستخدم جديد داخل كوليكشن users
-  Future<bool> createUser({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final docRef = _firestore.collection('users').doc();
-      await docRef.set({
-        'userId': docRef.id,
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'password': password,
-      });
-      return true;
-    } catch (e) {
-      print("خطأ أثناء إنشاء المستخدم: $e");
-      return false;
-    }
+ Future<bool> createUser({
+  required String uid,
+  required String firstName,
+  required String lastName,
+  required String email,
+}) async {
+  try {
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'userId': uid,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+    });
+    return true;
+  } catch (e) {
+    print("خطأ أثناء إنشاء المستخدم في Firestore: $e");
+    return false;
   }
+}
 
 // تحسب تقييم المعرض بناءً على عدد النجوم من التعليقات، وترجع متوسط التقييم كقيمة مزدوجة.
   Future<double> calculateRating(String galleryId) async {

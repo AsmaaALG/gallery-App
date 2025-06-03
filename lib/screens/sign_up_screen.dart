@@ -20,81 +20,87 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool showSpinner = false;
   Future<void> _signUp() async {
-    final firstName = firstNameController.text.trim();
-    final lastName = lastNameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    bool created = false;
-    if (firstName.isEmpty ||
-        lastName.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('يرجى ملء جميع الحقول')),
-      );
-      return;
-    }
-    setState(() {
-      showSpinner = true;
-    });
-    if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل')),
-      );
-      setState(() {
-        showSpinner = false;
-      });
-      return;
-    }
-    if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('البريد الإلكتروني غير صالح')),
-      );
-      setState(() {
-        showSpinner = false;
-      });
-      return;
-    }
+  final firstName = firstNameController.text.trim();
+  final lastName = lastNameController.text.trim();
+  final email = emailController.text.trim();
+  final password = passwordController.text.trim();
+  bool created = false;
 
-    bool emailExists = await GalleryServices().isEmailAlreadyExists(email);
-    if (emailExists) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('البريد الإلكتروني مستخدم مسبقًا')),
-      );
-      setState(() {
-        showSpinner = false;
-      });
-      return;
-    } else {
-      if (await Auth().signUp(emailController, passwordController)) {
-        Auth().signIn(emailController, passwordController);
-        created = await UsersServices().createUser(
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          password: password,
-          
-        );
-      }
-    }
-    if (created) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => MainScreen()),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء إنشاء الحساب')),
-      );
-      setState(() {
-        showSpinner = false;
-      });
-      return;
-    }
+  if (firstName.isEmpty ||
+      lastName.isEmpty ||
+      email.isEmpty ||
+      password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('يرجى ملء جميع الحقول')),
+    );
+    return;
   }
+
+  setState(() {
+    showSpinner = true;
+  });
+
+  if (password.length < 6) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content:
+              Text('كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل')),
+    );
+    setState(() {
+      showSpinner = false;
+    });
+    return;
+  }
+
+  if (!email.contains('@')) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('البريد الإلكتروني غير صالح')),
+    );
+    setState(() {
+      showSpinner = false;
+    });
+    return;
+  }
+
+  bool emailExists = await GalleryServices().isEmailAlreadyExists(email);
+  if (emailExists) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('البريد الإلكتروني مستخدم مسبقًا')),
+    );
+    setState(() {
+      showSpinner = false;
+    });
+    return;
+  }
+
+  final userCredential =
+      await Auth().signUp(emailController, passwordController);
+
+  if (userCredential != null) {
+    await Auth().signIn(emailController, passwordController);
+    created = await UsersServices().createUser(
+      uid: userCredential.user!.uid,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+    );
+  }
+
+  if (created) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => MainScreen()),
+      (Route<dynamic> route) => false,
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('حدث خطأ أثناء إنشاء الحساب')),
+    );
+    setState(() {
+      showSpinner = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {

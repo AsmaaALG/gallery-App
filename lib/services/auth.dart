@@ -16,18 +16,24 @@ class Auth {
     }
   }
 
-  Future<bool> signUp(emailController, passwordController) async {
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      return true; // إذا تم تسجيل الحساب بنجاح
-    } catch (e) {
-      print(e); // طباعة الخطأ في وحدة التحكم
-      return false; // إعادة false في حالة حدوث خطأ
-    }
+
+  Future<UserCredential?> signUp(
+  TextEditingController emailController,
+  TextEditingController passwordController,
+) async {
+  try {
+    final userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    );
+    return userCredential;
+  } catch (e) {
+    print("خطأ أثناء التسجيل: $e");
+    return null;
   }
+}
+
 
   Future<void> signOut(BuildContext context) async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
