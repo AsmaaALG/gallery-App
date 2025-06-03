@@ -30,6 +30,14 @@ class AdsServices {
       return;
     }
 
+    // التحقق من وجود المعرض في الكوليكشن 2
+    DocumentSnapshot newSnapshot =
+        await _firestore.collection(collectionName).doc(ad.id).get();
+    if (newSnapshot.exists) {
+      print('الإعلان موجود بالفعل في المجموعة $collectionName');
+      return;
+    }
+
     try {
       await _firestore.collection(collectionName).doc(ad.id).set({
         'title': ad.title,
@@ -42,6 +50,7 @@ class AdsServices {
         'phone': ad.phone,
         'classification id': ad.classificationId,
       });
+
       print('تم نقل الإعلان إلى المجموعة $collectionName بنجاح.');
     } catch (e) {
       print('حدث خطأ أثناء نقل الإعلان: $e');
