@@ -166,7 +166,7 @@ class _GalleryCardState extends State<GalleryCard> {
                 child: Image.network(
                   widget.gallery.imageURL,
                   fit: BoxFit.cover,
-                  height: 120,
+                  height: 150,
                   width: double.infinity,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

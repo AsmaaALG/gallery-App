@@ -17,7 +17,7 @@ class AdCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 30),
       padding: const EdgeInsets.all(12),
-      constraints: BoxConstraints(maxHeight: 150),
+      constraints: BoxConstraints(maxHeight: 170),
       decoration: BoxDecoration(
         color: Color(0xFFFBF3F3),
         borderRadius: BorderRadius.circular(20),
@@ -35,7 +35,7 @@ class AdCard extends StatelessWidget {
         children: [
           // الصورة
           Container(
-            width: 120,
+            width: 140,
             height: double.infinity,
             // margin: const EdgeInsets.only(right: 4),
             child: ClipRRect(

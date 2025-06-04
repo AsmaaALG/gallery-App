@@ -56,4 +56,36 @@ class AdsServices {
       print('حدث خطأ أثناء نقل الإعلان: $e');
     }
   }
+
+  // أضف هذه الدالة إلى class AdsServices
+  Future<void> deleteExpiredAds() async {
+    try {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final snapshot = await adsCollection.get();
+
+      for (final doc in snapshot.docs) {
+        final ad = AdModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        final stopAdDate = _parseDate(ad.stopAd);
+
+        if (stopAdDate.isBefore(today) || stopAdDate.isAtSameMomentAs(today)) {
+          await adsCollection.doc(ad.id).delete();
+          print('تم حذف الإعلان المنتهي (ID: ${ad.id})');
+        }
+      }
+    } catch (e) {
+      print('حدث خطأ أثناء حذف الإعلانات المنتهية: $e');
+    }
+  }
+
+// دالة مساعدة لتحويل التاريخ
+  DateTime _parseDate(String dateStr) {
+    final parts = dateStr.split('-');
+    if (parts.length != 3) return DateTime.now();
+    final day = int.tryParse(parts[0]) ?? 1;
+    final month = int.tryParse(parts[1]) ?? 1;
+    final year = int.tryParse(parts[2]) ?? DateTime.now().year;
+    return DateTime(year, month, day);
+  }
 }

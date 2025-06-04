@@ -17,30 +17,37 @@ class AdsScreen extends StatelessWidget {
     return DateTime(year, month, day);
   }
 
-  // دالة لترتيب وتصفية الإعلانات
-  List<AdModel> _filterAndSortAds(List<AdModel> ads) {
+  // دالة محسنة لترتيب وتصفية الإعلانات مع حذف المنتهية
+  Future<List<AdModel>> _filterAndSortAds(List<AdModel> ads) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
+    // حذف الإعلانات المنتهية
+    await adsServices.deleteExpiredAds();
+
     // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
-    ads.forEach((ad) {
+    for (final ad in ads) {
       final startAd = _parseDate(ad.startDate);
       if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
-        // نقل الإعلان إلى المجموعة 2 مع الحفاظ على التاريخ بنفس الصيغة
-        adsServices.moveAdToCollection(ad, '2', ad.startDate);
+        await adsServices.moveAdToCollection(ad, '2', ad.startDate);
       }
-    });
+    }
 
-    return ads.where((ad) {
+    // تصفية الإعلانات النشطة فقط
+    final filteredAds = ads.where((ad) {
       try {
         final stopAd = _parseDate(ad.stopAd);
         return stopAd.isAfter(today) || stopAd.isAtSameMomentAs(today);
       } catch (e) {
         return false;
       }
-    }).toList()
-      ..sort(
-          (a, b) => _parseDate(a.startDate).compareTo(_parseDate(b.startDate)));
+    }).toList();
+
+    // ترتيب الإعلانات حسب تاريخ البدء (الأقرب أولاً)
+    filteredAds.sort(
+        (a, b) => _parseDate(a.startDate).compareTo(_parseDate(b.startDate)));
+
+    return filteredAds;
   }
 
   @override
@@ -50,7 +57,7 @@ class AdsScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 25.0),
         child: FutureBuilder<List<AdModel>>(
-          future: adsServices.getAds(),
+          future: adsServices.getAds().then(_filterAndSortAds),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -67,30 +74,16 @@ class AdsScreen extends StatelessWidget {
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
                   child: Text(
-                'لا توجد بيانات حالياً',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontFamily: mainFont,
-                  fontWeight: FontWeight.w100,
-                ),
-              ));
-            }
-
-            // تصفية وترتيب الإعلانات بحيث التاريخ الاقرب يكون هوا الاول
-            final filteredAds = _filterAndSortAds(snapshot.data!);
-
-            if (filteredAds.isEmpty) {
-              return Center(
-                  child: Text(
                 'لا توجد إعلانات فعالة حالياً',
                 style: TextStyle(
                   fontSize: 13,
                   fontFamily: mainFont,
                   fontWeight: FontWeight.w100,
                 ),
-                textAlign: TextAlign.center,
               ));
             }
+
+            final activeAds = snapshot.data!;
 
             return ListView(
               children: [
@@ -173,7 +166,7 @@ class AdsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                ...filteredAds.map((ad) => AdCard(ad: ad)).toList(),
+                ...activeAds.map((ad) => AdCard(ad: ad)).toList(),
               ],
             );
           },
