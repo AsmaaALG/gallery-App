@@ -35,7 +35,7 @@ class AdCard extends StatelessWidget {
         children: [
           // الصورة
           Container(
-            width: 140,
+            width: 130,
             height: double.infinity,
             // margin: const EdgeInsets.only(right: 4),
             child: ClipRRect(
@@ -57,7 +57,7 @@ class AdCard extends StatelessWidget {
 
           // الجزء النصي
           Container(
-            width: 150,
+            width: 140,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -66,16 +66,18 @@ class AdCard extends StatelessWidget {
                 Text(
                   ad.title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: const Color.fromRGBO(166, 23, 28, 1),
                     fontFamily: mainFont,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   ad.description,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10,
                     color: Colors.grey[700],
                     fontFamily: mainFont,
                   ),
