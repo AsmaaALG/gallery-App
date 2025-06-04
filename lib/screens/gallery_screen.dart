@@ -266,15 +266,19 @@ class _GalleryScreenState extends State<GalleryScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.galleryModel.title,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: mainFont,
-                    color: primaryColor),
+              Container(
+                width: 250,
+                child: Text(
+                  softWrap: true,
+                  widget.galleryModel.title,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 5,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: mainFont,
+                      color: primaryColor),
+                ),
               ),
               Text(
                 isClosed() ? ' مغلق' : ' مفتوح',
