@@ -1,3 +1,4 @@
+import 'package:final_project/screens/gallery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/services/visit_services.dart';
@@ -100,6 +101,16 @@ class _VisitedScreenState extends State<VisitedScreen> {
                     ),
                     itemBuilder: (context, index) {
                       final gallery = galleries[index];
+                      Future<int> getVisitorCount() async {
+                        try {
+                          return await VisitServices()
+                              .getVisitorCount(gallery.id);
+                        } catch (e) {
+                          print('Error fetching visitor count: $e');
+                          return 0; // ارجع صفر في حالة حدوث خطأ
+                        }
+                      }
+
                       return SizedBox(
                         height: 260,
                         child: Container(
@@ -122,39 +133,62 @@ class _VisitedScreenState extends State<VisitedScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 35,
-                                      backgroundImage: NetworkImage(
-                                        gallery.imageURL,
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              FutureBuilder<int>(
+                                                future: getVisitorCount(),
+                                                builder: (context, snapshot) {
+                                                  int visitors =
+                                                      snapshot.data ?? 0;
+                                                  return GalleryScreen(
+                                                    galleryModel: gallery,
+                                                    visitors:
+                                                        visitors, // تمرير عدد الزوار
+                                                  );
+                                                },
+                                              )),
+                                    );
+                                  },
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 35,
+                                        backgroundImage: NetworkImage(
+                                          gallery.imageURL,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      gallery.title,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: primaryColor,
-                                        fontFamily: mainFont,
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        gallery.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: primaryColor,
+                                          fontFamily: mainFont,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      gallery.description,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black87,
-                                        fontFamily: mainFont,
-                                        height: 1.4,
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        gallery.description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.black87,
+                                          fontFamily: mainFont,
+                                          height: 1.4,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                                 SizedBox(
                                   height: 30,
