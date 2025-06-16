@@ -7,6 +7,8 @@ import '../models/ad_model.dart';
 class AdsScreen extends StatelessWidget {
   final AdsServices adsServices = AdsServices();
 
+  AdsScreen({super.key});
+
   // دالة لتحويل تاريخ String إلى DateTime
   DateTime _parseDate(String dateStr) {
     final parts = dateStr.split('-');

@@ -13,7 +13,7 @@ class AdModel {
   final DocumentReference? classificationId; //   يكون مرجع
   final String? phone;
 
-  var image;
+  // var image;
 
   AdModel({
     required this.id,

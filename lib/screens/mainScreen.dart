@@ -42,6 +42,16 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: IconThemeData(color: primaryColor),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Image.asset(
+                "images/logo.png",
+                height: 40,
+                width: 40,
+              ),
+            ),
+          ],
         ),
         drawer: buildDrawer(),
         body: getCurrentScreen(),

@@ -15,12 +15,12 @@ class GalleryCard extends StatefulWidget {
   final bool isActiveScreen;
 
   const GalleryCard({
-    Key? key,
+    super.key,
     required this.gallery,
     required this.isInitiallyFavorite,
     required this.showRemainingDays,
     required this.isActiveScreen,
-  }) : super(key: key);
+  });
 
   @override
   _GalleryCardState createState() => _GalleryCardState();

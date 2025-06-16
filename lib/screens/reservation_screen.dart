@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ReservationScreen extends StatefulWidget {
   final String adId; // معرف الإعلان
 
-  const ReservationScreen({Key? key, required this.adId}) : super(key: key);
+  const ReservationScreen({super.key, required this.adId});
 
   @override
   _ReservationScreenState createState() => _ReservationScreenState();
@@ -91,7 +91,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       side: const BorderSide(
-                          color: const Color.fromARGB(255, 251, 207, 207)),
+                          color:  Color.fromARGB(255, 251, 207, 207)),
                       backgroundColor: Colors.white,
                     ),
                     child: Padding(
@@ -224,10 +224,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
   }
 
   // دالة للتحقق من صحة رقم الهاتف
-  bool _isValidPhone(String phone) {
-    return RegExp(r'^\d+$')
-        .hasMatch(phone); // تحقق من أن الرقم يحتوي على أرقام فقط
-  }
+  // bool _isValidPhone(String phone) {
+  //   return RegExp(r'^\d+$')
+  //       .hasMatch(phone); // تحقق من أن الرقم يحتوي على أرقام فقط
+  // }
 
   // دالة لإرسال النموذج
   Future<void> _submitForm() async {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QRScannerScreen extends StatefulWidget {
-  const QRScannerScreen({Key? key}) : super(key: key); // إضافة const للمنشئ
+  const QRScannerScreen({super.key}); // إضافة const للمنشئ
 
   @override
   _QRScannerScreenState createState() => _QRScannerScreenState();

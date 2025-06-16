@@ -8,6 +8,8 @@ import 'package:final_project/widgets/gallery_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoriteScreen extends StatefulWidget {
+  const FavoriteScreen({super.key});
+
   @override
   _FavoriteScreenState createState() => _FavoriteScreenState();
 }
@@ -276,8 +278,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           future: UsersServices()
                               .calculateRating(gallery.id.toString()),
                           builder: (context, ratingSnapshot) {
-                            double rating = ratingSnapshot.data ?? 0.0;
-                            GalleryModel galleryModel = new GalleryModel(
+                            // double rating = ratingSnapshot.data ?? 0.0;
+                            GalleryModel galleryModel = GalleryModel(
                                 qrCode: gallery.qrCode,
                                 classificationId: gallery.classificationId,
                                 imageURL: gallery.imageURL,

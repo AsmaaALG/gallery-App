@@ -6,7 +6,7 @@ import 'package:final_project/constants.dart';
 class AdDetailScreen extends StatelessWidget {
   final AdModel ad;
 
-  const AdDetailScreen({Key? key, required this.ad}) : super(key: key);
+  const AdDetailScreen({super.key, required this.ad});
 
   @override
   Widget build(BuildContext context) {

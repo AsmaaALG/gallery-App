@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:final_project/constants.dart';
 import 'package:final_project/services/favorite_services.dart';
 import 'package:final_project/services/gallery_services.dart';
@@ -11,6 +12,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 final FavoriteServices _favoriteServices = FavoriteServices();
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -18,29 +21,36 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategoryId = 'all';
   String? selectedLocation;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   String _searchQuery = '';
   bool _showLocationsList = false;
   List<String> _uniqueLocations = [];
+  Timer? _debounce;
+  List<String> _favoriteIds = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _fetchUniqueLocations();
+    _loadFavorites();
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
   void _onSearchChanged() {
-    setState(() {
-      _searchQuery = _searchController.text.toLowerCase();
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
     });
   }
 
@@ -50,6 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _uniqueLocations = locations;
     });
+  }
+
+  void _loadFavorites() {
+    if (_userId != null) {
+      _favoriteServices.getUserFavorites(_userId!).listen((ids) {
+        setState(() {
+          _favoriteIds = ids;
+        });
+      });
+    }
   }
 
   void _toggleLocationsList() {
@@ -155,10 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 10,
-                        ),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                         isDense: true,
                       ),
                       style: TextStyle(
@@ -172,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // قائمة المواقع (تظهر عند الضغط على أيقونة الموقع)
+          // قائمة المواقع
           if (_showLocationsList)
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
@@ -204,26 +222,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _selectLocation(null),
                   ),
                   Divider(height: 1),
-                  ..._uniqueLocations
-                      .map((location) => Column(
-                            children: [
-                              ListTile(
-                                title: Text(
-                                  location,
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontFamily: mainFont,
-                                    color: selectedLocation == location
-                                        ? primaryColor
-                                        : Colors.black,
-                                  ),
-                                ),
-                                onTap: () => _selectLocation(location),
+                  ..._uniqueLocations.map((location) => Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              location,
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                color: selectedLocation == location
+                                    ? primaryColor
+                                    : Colors.black,
                               ),
-                              Divider(height: 1),
-                            ],
-                          ))
-                      .toList(),
+                            ),
+                            onTap: () => _selectLocation(location),
+                          ),
+                          Divider(height: 1),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -275,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // عرض قائمة المعارض
+          // قائمة المعارض
           Expanded(
             child: StreamBuilder<List<GalleryModel>>(
               stream: GalleryServices().getItems(),
@@ -298,7 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   return matchesSearch && matchesCategory && matchesLocation;
                 }).toList();
 
-                // إذا لم توجد نتائج للبحث
                 if (filteredItems.isEmpty) {
                   return Center(
                     child: Text(
@@ -314,60 +329,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // إذا كان المستخدم مسجل دخول، جلب المفضلة
-                return _userId != null
-                    ? StreamBuilder<List<String>>(
-                        stream: FavoriteServices().getUserFavorites(_userId!),
-                        builder: (context, favoriteSnapshot) {
-                          if (favoriteSnapshot.hasError) {
-                            return Center(
-                                child:
-                                    Text('Error: ${favoriteSnapshot.error}'));
-                          }
-
-                          final favoriteIds = favoriteSnapshot.data ?? [];
-
-                          return ListView.builder(
-                            padding: EdgeInsets.only(top: 10, bottom: 60),
-                            itemCount: filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final item = filteredItems[index];
-                              final isFavorite =
-                                  favoriteIds.contains(item.id.toString());
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 8),
-                                child: GalleryCard(
-                                  key: ValueKey(item.id),
-                                  gallery: item,
-                                  isInitiallyFavorite: isFavorite,
-                                  showRemainingDays: false,
-                                  isActiveScreen: false,
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      )
-                    // إذا لم يكن المستخدم مسجل دخول
-                    : ListView.builder(
-                        padding: EdgeInsets.only(top: 10, bottom: 20),
-                        itemCount: filteredItems.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredItems[index];
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
-                            child: GalleryCard(
-                              key: ValueKey(item.id),
-                              gallery: item,
-                              isInitiallyFavorite: false,
-                              showRemainingDays: false,
-                              isActiveScreen: false,
-                            ),
-                          );
-                        },
-                      );
+                return ListView.builder(
+                  padding: EdgeInsets.only(top: 10, bottom: 60),
+                  itemCount: filteredItems.length,
+                  itemBuilder: (context, index) {
+                    final item = filteredItems[index];
+                    final isFavorite =
+                        _favoriteIds.contains(item.id.toString());
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: GalleryCard(
+                        key: ValueKey(item.id),
+                        gallery: item,
+                        isInitiallyFavorite: isFavorite,
+                        showRemainingDays: false,
+                        isActiveScreen: false,
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ),

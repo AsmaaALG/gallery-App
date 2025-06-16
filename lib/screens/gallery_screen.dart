@@ -36,7 +36,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   bool isLoading = true;
   bool isFavorite = false;
 
-  final SuiteServices _suiteServices = SuiteServices();
+  // final SuiteServices _suiteServices = SuiteServices();
   final FavoriteServices _favoriteServices = FavoriteServices();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
