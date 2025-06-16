@@ -11,8 +11,25 @@ class NotificationsScreen extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('الإشعارات'),
-          backgroundColor: Color(0xFF82080E),
+          automaticallyImplyLeading: false,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'الإشعارات',
+                style: TextStyle(
+                    color: primaryColor, fontSize: 18, fontFamily: mainFont),
+              ),
+            ),
+            IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.arrow_forward,
+                  color: primaryColor,
+                )),
+          ],
           foregroundColor: Colors.white,
         ),
         body: StreamBuilder<QuerySnapshot>(
@@ -36,18 +53,51 @@ class NotificationsScreen extends StatelessWidget {
                         timestamp.millisecondsSinceEpoch)
                     : null;
 
-                return ListTile(
-                  leading: Icon(Icons.notifications, color: primaryColor),
-                  title: Text(data['title'] ?? 'بدون عنوان'),
-                  subtitle: Column(
+                return Container(
+                  margin:
+                      const EdgeInsets.only(bottom: 10, right: 15, left: 15),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    // color: primaryColor
+                    //     .withOpacity(0.1), // خلفية بلون خفيف من primary
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: primaryColor, width: 1),
+                  ),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data['body'] ?? 'لا يوجد محتوى'),
-                      if (date != null)
-                        Text(
-                          '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}',
-                          style: TextStyle(fontSize: 11, color: Colors.grey),
-                        )
+                      Icon(Icons.notifications, color: primaryColor),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data['title'] ?? 'بدون عنوان',
+                              style: TextStyle(
+                                // fontWeight: FontWeight.bold,
+                                color: primaryColor,
+                                fontFamily: mainFont,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              data['body'] ?? 'لا يوجد محتوى',
+                              style:
+                                  TextStyle(fontFamily: mainFont, fontSize: 12),
+                            ),
+                            if (date != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute.toString().padLeft(2, '0')}',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.grey),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 );

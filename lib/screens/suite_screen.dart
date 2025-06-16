@@ -157,11 +157,11 @@ class _SuiteScreenState extends State<SuiteScreen> {
                     ),
                     if (!isExpanded &&
                         _isMoreTextVisible(
-                            widget.suite.description)) // شرط لإظهار "المزيد"
+                            widget.suite.description)) 
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            isExpanded = true; // توسيع الوصف عند الضغط
+                            isExpanded = true; 
                           });
                         },
                         child: Text(
@@ -173,11 +173,11 @@ class _SuiteScreenState extends State<SuiteScreen> {
                           ),
                         ),
                       ),
-                    if (isExpanded) // زر "أقل" يظهر عند توسيع الوصف
+                    if (isExpanded) 
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            isExpanded = false; // تقليل الوصف عند الضغط
+                            isExpanded = false; 
                           });
                         },
                         child: Text(
