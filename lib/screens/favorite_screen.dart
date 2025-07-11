@@ -290,7 +290,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 phone: gallery.phone,
                                 startDate: gallery.startDate,
                                 title: gallery.title,
-                                map: gallery.map);
+                                map: gallery.map,
+                                company_id: gallery.company_id,
+                                city: gallery.city);
                             return Padding(
                               padding: EdgeInsets.symmetric(
                                   vertical: 5, horizontal: 20),

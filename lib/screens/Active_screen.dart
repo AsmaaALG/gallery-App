@@ -13,7 +13,6 @@ class ActiveScreen extends StatelessWidget {
       final now = DateTime.now();
       final end = DateFormat('dd-MM-yyyy').parse(endDate);
 
-      // حساب الفرق بالأيام مع تجاهل الوقت (نقارن فقط التواريخ)
       final normalizedNow = DateTime(now.year, now.month, now.day);
       final normalizedEnd = DateTime(end.year, end.month, end.day);
       final difference = normalizedEnd.difference(normalizedNow).inDays;
@@ -95,7 +94,6 @@ class ActiveScreen extends StatelessWidget {
                   }
                 }).toList();
 
-// ترتيب حسب الأقرب للانتهاء
                 activeGalleries.sort((a, b) {
                   final daysA = calculateRemainingDays(a.endDate);
                   final daysB = calculateRemainingDays(b.endDate);

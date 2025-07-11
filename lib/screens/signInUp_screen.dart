@@ -20,7 +20,7 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'images/logo.png', // استبدل بمسار الشعار الفعلي
+                  'images/logo.png',
                   height: 170,
                 ),
                 SizedBox(height: 10),
@@ -28,13 +28,12 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                   "مرحبًا بك في عالم المعارض",
                   style: TextStyle(
                     fontFamily: mainFont,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
               ],
             ),
           ),
-          // الجزء السفلي ذو التصميم المميز
           Container(
             height: MediaQuery.of(context).size.height * 0.4,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
@@ -54,7 +53,7 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                       "مرحبًا بك في تطبيق معرضي",
                       style: TextStyle(
                         fontFamily: mainFont,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -65,7 +64,7 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontFamily: mainFont,
-                          fontSize: 14,
+                          fontSize: 13,
                           color: Colors.black87),
                     ),
                   ],
@@ -93,7 +92,9 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                       ),
                       child: Text("تسجيل الدخول",
                           style: TextStyle(
-                              color: Colors.white, fontFamily: mainFont)),
+                              color: Colors.white,
+                              fontFamily: mainFont,
+                              fontSize: 12)),
                     ),
                     // SizedBox(width: 40),
                     OutlinedButton(
@@ -117,7 +118,9 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                       ),
                       child: Text("إنشاء حساب جديد",
                           style: TextStyle(
-                              color: primaryColor, fontFamily: mainFont)),
+                              color: primaryColor,
+                              fontFamily: mainFont,
+                              fontSize: 12)),
                     ),
                   ],
                 ),

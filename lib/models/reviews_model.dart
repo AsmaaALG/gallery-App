@@ -1,11 +1,11 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReviewsModel {
-  final String id; // معرف المراجعة
-  final String galleryId; // معرف المعرض المرتبط
-  final double rating; // عدد النجوم
-  final String userId; // معرف المستخدم
-  final DateTime date; // تاريخ المراجعة
+  final String id; 
+  final String galleryId; 
+  final double rating; 
+  final String userId;
+  final DateTime date; 
   final String comment;
   String userName;
 
@@ -28,19 +28,17 @@ class ReviewsModel {
       rating: (json['number of stars'] as num).toDouble(),
       userId: json['user id'] ?? '',
       date: DateTime.parse(
-          json['date'] ?? DateTime.now().toIso8601String()), // تعديل هنا
+          json['date'] ?? DateTime.now().toIso8601String()), 
       userName: '',
     );
   }
 
-  // دالة لتحويل كائن Review إلى JSON
   Map<String, dynamic> toJson() {
     return {
       'gallery id': galleryId,
       'number of stars': rating,
       'user id': userId,
       'comment': comment,
-      // 'date': date.toIso8601String(),
     };
   }
 }

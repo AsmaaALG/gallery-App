@@ -1,12 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/screens/reservation_screen.dart';
+import 'package:final_project/services/ads_services.dart';
+import 'package:final_project/services/shared_sevices.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/models/ad_model.dart';
 import 'package:final_project/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdDetailScreen extends StatelessWidget {
   final AdModel ad;
+    final AdsServices _adsServices = AdsServices();
 
-  const AdDetailScreen({super.key, required this.ad});
+
+  AdDetailScreen({super.key, required this.ad});
+ 
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +121,7 @@ class AdDetailScreen extends StatelessWidget {
                         Text(
                           ad.endDate,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: mainFont,
                           ),
                         ),
@@ -120,7 +129,7 @@ class AdDetailScreen extends StatelessWidget {
                         Text(
                           'إلى',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: mainFont,
                             color: primaryColor,
                             // نفس لون الأيقونات
@@ -130,7 +139,7 @@ class AdDetailScreen extends StatelessWidget {
                         Text(
                           ad.startDate,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: mainFont,
                           ),
                         ),
@@ -141,13 +150,61 @@ class AdDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Divider(color: Colors.grey[300], height: 10),
-                  _buildInfoRow(Icons.location_on, ad.location),
+                  FutureBuilder<String>(
+                    future:  SharedSevices().fetchCityName(ad.city),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return _buildInfoRow(
+                            Icons.location_on, 'جاري التحميل...');
+                      } else if (snapshot.hasError) {
+                        return _buildInfoRow(
+                            Icons.location_on, 'خطأ في تحميل المدينة');
+                      } else {
+                        return _buildInfoRow(
+                            Icons.location_on, snapshot.data ?? '');
+                      }
+                    },
+                  ),
+                  Divider(color: Colors.grey[300], height: 10),
+
+                  FutureBuilder<String>(
+                    future:  SharedSevices().fetchCompanyName(ad.company_id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return _buildInfoRow(Icons.person, 'جاري التحميل...');
+                      } else if (snapshot.hasError) {
+                        return _buildInfoRow(
+                            Icons.person, 'خطأ في تحميل المنظم');
+                      } else {
+                        return _buildInfoRow(Icons.business_outlined,
+                            'المنظم : ${snapshot.data ?? ''}');
+                      }
+                    },
+                  ),
+                  Divider(color: Colors.grey[300], height: 10),
+                  GestureDetector(
+                    onTap: () => SharedSevices().launchMap(ad.location),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: const [
+                        Text(
+                          'اضغط للإنتقال للموقع',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: mainFont,
+                            color: primaryColor,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Icon(Icons.map, color: primaryColor),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 35),
 
-            // وصف المعرض (معدل للمنتصف)
             Directionality(
               textDirection: TextDirection.rtl,
               child: Container(
@@ -180,7 +237,7 @@ class AdDetailScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReservationScreen(adId: ad.id),
+                      builder: (context) => ReservationScreen(ad: ad),
                     ),
                   );
                 },
@@ -205,13 +262,21 @@ class AdDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end, // محاذاة لليمين
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 13,
-              fontFamily: mainFont,
+          Expanded(
+            // ✅ هذا يجعل النص يأخذ فقط ما يسمح به من المساحة
+            child: Text(
+              text,
+              softWrap: true,
+              maxLines: 3,
+              overflow: TextOverflow
+                  .ellipsis, // ✅ يمنع الخروج ويضع (...) إذا كان طويل
+              style: TextStyle(
+                fontSize: 13,
+                fontFamily: mainFont,
+              ),
+              textAlign: TextAlign.right,
             ),
           ),
           SizedBox(width: 5),

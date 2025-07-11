@@ -104,7 +104,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(60.0),
                     child: Image.network(
-                     widget.suite.imageUrl,
+                      widget.suite.main_image,
                       fit: BoxFit.cover,
                       height: 120,
                       width: 120,
@@ -156,12 +156,11 @@ class _SuiteScreenState extends State<SuiteScreen> {
                       ),
                     ),
                     if (!isExpanded &&
-                        _isMoreTextVisible(
-                            widget.suite.description)) 
+                        _isMoreTextVisible(widget.suite.description))
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            isExpanded = true; 
+                            isExpanded = true;
                           });
                         },
                         child: Text(
@@ -173,11 +172,11 @@ class _SuiteScreenState extends State<SuiteScreen> {
                           ),
                         ),
                       ),
-                    if (isExpanded) 
+                    if (isExpanded)
                       TextButton(
                         onPressed: () {
                           setState(() {
-                            isExpanded = false; 
+                            isExpanded = false;
                           });
                         },
                         child: Text(

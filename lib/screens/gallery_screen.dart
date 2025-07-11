@@ -7,6 +7,8 @@ import 'package:final_project/screens/QR_code_screen.dart';
 import 'package:final_project/screens/image_screen.dart';
 import 'package:final_project/screens/suite_screen.dart';
 import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/gallery_services.dart';
+import 'package:final_project/services/shared_sevices.dart';
 import 'package:final_project/services/suit_services.dart';
 import 'package:final_project/services/users_services.dart';
 import 'package:final_project/services/visit_services.dart';
@@ -35,9 +37,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
   bool isExpanded = false;
   bool isLoading = true;
   bool isFavorite = false;
+  // String? _cirty;
 
-  // final SuiteServices _suiteServices = SuiteServices();
   final FavoriteServices _favoriteServices = FavoriteServices();
+  // final GalleryServices _galleryServices = GalleryServices();
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
@@ -330,7 +333,31 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               ),
             ),
-          SizedBox(height: 20),
+          SizedBox(height: 15),
+          GestureDetector(
+            onTap: () =>
+                SharedSevices().launchMap(widget.galleryModel.location),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: const [
+                Icon(
+                  Icons.map,
+                  color: secondaryColor,
+                  size: 20,
+                ),
+                SizedBox(width: 5),
+                Text(
+                  'اضغط لرؤيةالموقع على google maps',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: mainFont,
+                    color: secondaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 15),
           Container(
             margin: EdgeInsets.all(10),
             height: 75,
@@ -373,12 +400,39 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Icon(Icons.location_on_outlined, size: 20),
-                      Text(
-                        widget.galleryModel.location,
-                        style: TextStyle(
-                          fontFamily: mainFont,
-                          fontSize: 10,
-                        ),
+                      FutureBuilder<String>(
+                        future: SharedSevices()
+                            .fetchCityName(widget.galleryModel.city),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Text(
+                              "تحميل...",
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                fontSize: 9,
+                                color: Colors.grey,
+                              ),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Text(
+                              "خطأ في تحميل المدينة",
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                fontSize: 9,
+                                color: Colors.red,
+                              ),
+                            );
+                          } else {
+                            return Text(
+                              "${snapshot.data}",
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                fontSize: 10,
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -512,7 +566,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: Image.network(
-                        suite.imageUrl,
+                        suite.main_image,
                         fit: BoxFit.cover,
                         height: 100,
                         width: 100,

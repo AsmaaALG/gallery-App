@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
 import 'package:flutter/material.dart';
+import 'ad_detail_screen.dart';
+import 'package:final_project/models/ad_model.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -22,13 +24,14 @@ class NotificationsScreen extends StatelessWidget {
               ),
             ),
             IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.arrow_forward,
-                  color: primaryColor,
-                )),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                Icons.arrow_forward,
+                color: primaryColor,
+              ),
+            ),
           ],
           foregroundColor: Colors.white,
         ),
@@ -47,58 +50,79 @@ class NotificationsScreen extends StatelessWidget {
             return ListView(
               children: snapshot.data!.docs.map((doc) {
                 final data = doc.data() as Map<String, dynamic>;
+                final adId = data['ad_id']; 
                 final timestamp = data['timestamp'] as Timestamp?;
                 final date = timestamp != null
                     ? DateTime.fromMillisecondsSinceEpoch(
                         timestamp.millisecondsSinceEpoch)
                     : null;
 
-                return Container(
-                  margin:
-                      const EdgeInsets.only(bottom: 10, right: 15, left: 15),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    // color: primaryColor
-                    //     .withOpacity(0.1), // خلفية بلون خفيف من primary
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: primaryColor, width: 1),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.notifications, color: primaryColor),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              data['title'] ?? 'بدون عنوان',
-                              style: TextStyle(
-                                // fontWeight: FontWeight.bold,
-                                color: primaryColor,
-                                fontFamily: mainFont,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              data['body'] ?? 'لا يوجد محتوى',
-                              style:
-                                  TextStyle(fontFamily: mainFont, fontSize: 12),
-                            ),
-                            if (date != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: Text(
-                                  '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute.toString().padLeft(2, '0')}',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.grey),
+                return InkWell(
+                  onTap: () async {
+                    if (adId != null && adId.toString().isNotEmpty) {
+                      final adSnapshot = await FirebaseFirestore.instance
+                          .collection('ads')
+                          .doc(adId)
+                          .get();
+
+                      if (adSnapshot.exists) {
+                        final adData = adSnapshot.data()!;
+                        final ad = AdModel.fromMap(
+                            adSnapshot.data() as Map<String, dynamic>,
+                            adSnapshot.id);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AdDetailScreen(ad: ad),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Container(
+                    margin:
+                        const EdgeInsets.only(bottom: 10, right: 15, left: 15),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: primaryColor, width: 1),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.notifications, color: primaryColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                data['title'] ?? 'بدون عنوان',
+                                style: TextStyle(
+                                  color: primaryColor,
+                                  fontFamily: mainFont,
                                 ),
                               ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                data['body'] ?? 'لا يوجد محتوى',
+                                style: TextStyle(
+                                    fontFamily: mainFont, fontSize: 12),
+                              ),
+                              if (date != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Text(
+                                    '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute.toString().padLeft(2, '0')}',
+                                    style: const TextStyle(
+                                        fontSize: 10, color: Colors.grey),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }).toList(),

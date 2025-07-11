@@ -2,6 +2,7 @@ import 'package:final_project/constants.dart';
 import 'package:flutter/material.dart';
 import '../models/ad_model.dart';
 import '../screens/ad_detail_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AdCard extends StatelessWidget {
   final AdModel ad;
@@ -11,7 +12,7 @@ class AdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String imageUrl = ad.imageUrl.isNotEmpty
-        ? ad.imageUrl //   لاستخدام Google Drive
+        ? ad.imageUrl
         : 'https://via.placeholder.com/300x200.png?text=No+Image';
 
     return Container(
@@ -40,17 +41,12 @@ class AdCard extends StatelessWidget {
             // margin: const EdgeInsets.only(right: 4),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: Image.network(
-                imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.broken_image,
-                        size: 30,
-                        color: const Color.fromARGB(255, 207, 202, 174)),
-                  );
-                },
+                placeholder: (context, url) =>
+                    Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.broken_image),
               ),
             ),
           ),

@@ -12,6 +12,8 @@ class GalleryModel {
   final String startDate;
   final String title;
   final String map;
+  final String company_id;
+  final String city;
 
   GalleryModel({
     required this.qrCode,
@@ -25,6 +27,8 @@ class GalleryModel {
     required this.startDate,
     required this.title,
     required this.map,
+    required this.company_id,
+    required this.city,
   });
 
   factory GalleryModel.fromJson(Map<String, dynamic> json, String id) {
@@ -41,7 +45,9 @@ class GalleryModel {
       phone: json['phone'] ?? '',
       startDate: json['start date'] ?? '',
       title: json['title'] ?? '',
-      map:json['map']??'',
+      map: json['map'] ?? '',
+      city: json['city'] ?? '',
+      company_id: json['company_id'] ?? '',
     );
   }
 }

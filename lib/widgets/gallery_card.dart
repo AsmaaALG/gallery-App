@@ -1,6 +1,8 @@
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/screens/gallery_screen.dart';
 import 'package:final_project/services/favorite_services.dart';
+import 'package:final_project/services/gallery_services.dart';
+import 'package:final_project/services/shared_sevices.dart';
 import 'package:final_project/services/users_services.dart';
 import 'package:final_project/services/visit_services.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +58,31 @@ FutureBuilder<double> numberOfStars(String id) {
 class _GalleryCardState extends State<GalleryCard> {
   late bool isFavorite;
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
+  GalleryServices _galleryServices = GalleryServices();
+  String? cityName;
+
+  bool isLoading = true;
+
+  Future<void> _loadCityName() async {
+    try {
+      final name = await  SharedSevices().fetchCityName(widget.gallery.city);
+      setState(() {
+        cityName = name;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        cityName = "خطأ في تحميل المدينة";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadCityName();
+
     isFavorite = widget.isInitiallyFavorite;
     if (_userId != null && widget.gallery.id.isNotEmpty) {
       _favoriteServices
@@ -207,14 +230,19 @@ class _GalleryCardState extends State<GalleryCard> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "الموقع: ${widget.gallery.location}",
+                          cityName == null
+                              ? "الموقع: " // لا شيء إلى أن تُحمّل
+                              : "الموقع: $cityName",
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: TextStyle(
-                              fontFamily: mainFont,
-                              fontSize: 9,
-                              color: Colors.grey),
-                        ),
+                            fontFamily: mainFont,
+                            fontSize: 9,
+                            color: cityName == "خطأ في تحميل المدينة"
+                                ? Colors.red
+                                : Colors.grey,
+                          ),
+                        )
                       ],
                     ),
                   ),

@@ -9,7 +9,7 @@ class GalleryServices {
   Stream<List<GalleryModel>> getItems() {
     return _firestore
         .collection('2')
-        .orderBy('end date', descending: true)
+        .orderBy('end date', descending: false)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {

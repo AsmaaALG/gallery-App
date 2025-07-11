@@ -32,7 +32,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
     if (email.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور')),
+        SnackBar(
+            content: Text(
+                textAlign: TextAlign.right,
+                'يرجى إدخال البريد الإلكتروني وكلمة المرور')),
       );
       setState(() {
         showSpinner = false;
@@ -54,7 +57,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (querySnapshot.docs.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('البريد الإلكتروني غير صحيح')),
+          SnackBar(
+              content: Text(
+                  textAlign: TextAlign.right, 'البريد الإلكتروني غير صحيح')),
         );
         setState(() {
           showSpinner = false;
@@ -70,7 +75,10 @@ class _SignInScreenState extends State<SignInScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('البريد الإلكتروني أو كلمة المرور غير صحيحة')),
+        SnackBar(
+            content: Text(
+                textAlign: TextAlign.right,
+                'البريد الإلكتروني أو كلمة المرور غير صحيحة')),
       );
     }
 
@@ -119,13 +127,18 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('فشل تسجيل الدخول باستخدام جوجل')),
+          SnackBar(
+              content: Text(
+                  textAlign: TextAlign.right,
+                  'فشل تسجيل الدخول باستخدام جوجل')),
         );
       }
     } catch (e) {
       print("خطأ في تسجيل الدخول باستخدام جوجل: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء تسجيل الدخول: $e')),
+        SnackBar(
+            content: Text(
+                textAlign: TextAlign.right, 'حدث خطأ أثناء تسجيل الدخول: $e')),
       );
     }
   }
@@ -177,14 +190,14 @@ class _SignInScreenState extends State<SignInScreen> {
                   "مرحبًا بك مجددًا",
                   style: TextStyle(
                     fontFamily: mainFont,
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "يمكنك التسجيل في التطبيق عبر تسجيل الدخول\nاو عن طريق حساب قوقل او حساب فيسبوك",
+                  "يمكنك التسجيل في التطبيق عبر تسجيل الدخول\nاو عن طريق حساب قوقل ",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontFamily: mainFont, fontSize: 14, color: Colors.black),
@@ -231,7 +244,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           style: TextStyle(
                               fontFamily: mainFont,
                               color: cardBackground,
-                              fontSize: 18),
+                              fontSize: 16),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -242,7 +255,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           Text(
                             "ليس لديك حساب؟ ",
                             style:
-                                TextStyle(fontFamily: mainFont, fontSize: 14),
+                                TextStyle(fontFamily: mainFont, fontSize: 12),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -256,7 +269,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               "سجل من هنا",
                               style: TextStyle(
                                 fontFamily: mainFont,
-                                fontSize: 14,
+                                fontSize: 12,
                                 color: primaryColor,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/services/favorite_services.dart';
 import 'package:final_project/services/gallery_services.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 import '../widgets/gallery_card.dart';
 import '../models/gallery_model.dart';
 import '../models/category_model.dart';
@@ -10,6 +12,13 @@ import '../widgets/category_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 final FavoriteServices _favoriteServices = FavoriteServices();
+
+class City {
+  final String id;
+  final String name;
+
+  City({required this.id, required this.name});
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   String _searchQuery = '';
   bool _showLocationsList = false;
-  List<String> _uniqueLocations = [];
+  List<City> _cities = [];
   Timer? _debounce;
   List<String> _favoriteIds = [];
 
@@ -33,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _fetchUniqueLocations();
+    _fetchCities();
     _loadFavorites();
   }
 
@@ -54,12 +63,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _fetchUniqueLocations() async {
-    final items = await GalleryServices().getItems().first;
-    final locations = items.map((e) => e.location).toSet().toList();
-    setState(() {
-      _uniqueLocations = locations;
-    });
+  Future<void> _fetchCities() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('city').get();
+      final cities = snapshot.docs
+          .map((doc) {
+            return City(
+              id: doc.id,
+              name: doc['name'] ?? '',
+            );
+          })
+          .where((c) => c.name.isNotEmpty)
+          .toList();
+
+      setState(() {
+        _cities = cities;
+      });
+    } catch (e) {
+      print('فشل في جلب المدن: $e');
+    }
   }
 
   void _loadFavorites() {
@@ -78,9 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _selectLocation(String? location) {
+  void _selectLocation(String? locationId) {
     setState(() {
-      selectedLocation = location;
+      selectedLocation = locationId;
       _showLocationsList = false;
     });
   }
@@ -91,7 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // عنوان الترحيب
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
@@ -120,14 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-          // صف البحث وتصنيف المواقع
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // زر تصنيف المواقع
                 GestureDetector(
                   onTap: _toggleLocationsList,
                   child: Container(
@@ -145,8 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(width: 10),
-
-                // حقل البحث
                 Directionality(
                   textDirection: TextDirection.rtl,
                   child: SizedBox(
@@ -189,8 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-
-          // قائمة المواقع
           if (_showLocationsList)
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
@@ -222,20 +237,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _selectLocation(null),
                   ),
                   Divider(height: 1),
-                  ..._uniqueLocations.map((location) => Column(
+                  ..._cities.map((city) => Column(
                         children: [
                           ListTile(
                             title: Text(
-                              location,
+                              city.name,
                               textAlign: TextAlign.right,
                               style: TextStyle(
                                 fontFamily: mainFont,
-                                color: selectedLocation == location
+                                color: selectedLocation == city.id
                                     ? primaryColor
                                     : Colors.black,
                               ),
                             ),
-                            onTap: () => _selectLocation(location),
+                            onTap: () => _selectLocation(city.id),
                           ),
                           Divider(height: 1),
                         ],
@@ -243,8 +258,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-          // أزرار التصنيفات
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: StreamBuilder<List<CategoryModel>>(
@@ -290,8 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-
-          // قائمة المعارض
           Expanded(
             child: StreamBuilder<List<GalleryModel>>(
               stream: GalleryServices().getItems(),
@@ -309,10 +320,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       item.title.toLowerCase().contains(_searchQuery);
                   final matchesCategory = selectedCategoryId == 'all' ||
                       item.classificationId == selectedCategoryId;
-                  final matchesLocation = selectedLocation == null ||
-                      item.location == selectedLocation;
+                  final matchesLocation =
+                      selectedLocation == null || item.city == selectedLocation;
+
                   return matchesSearch && matchesCategory && matchesLocation;
                 }).toList();
+                filteredItems.sort((a, b) {
+                  final aDate = intl.DateFormat('dd-MM-yyyy').parse(a.endDate);
+                  final bDate = intl.DateFormat('dd-MM-yyyy').parse(b.endDate);
+                  return bDate.compareTo(aDate);
+                });
 
                 if (filteredItems.isEmpty) {
                   return Center(

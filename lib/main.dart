@@ -5,21 +5,18 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:final_project/screens/notifications_screen.dart';
 import 'package:final_project/screens/splash_screen.dart';
-import 'package:flutter/services.dart'; // تم إضافته لإيقاف التدوير
+import 'package:flutter/services.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// إشعار محلي
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-/// معالجة الإشعار في الخلفية
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   await _saveNotificationToFirestore(message);
 }
 
-/// حفظ الإشعار في Firestore
 Future<void> _saveNotificationToFirestore(RemoteMessage message) async {
   final title = message.notification?.title ?? 'بدون عنوان';
   final body = message.notification?.body ?? 'لا يوجد محتوى';
@@ -31,7 +28,6 @@ Future<void> _saveNotificationToFirestore(RemoteMessage message) async {
   });
 }
 
-/// تهيئة الإشعارات المحلية
 Future<void> initializeLocalNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -49,7 +45,6 @@ Future<void> initializeLocalNotifications() async {
   );
 }
 
-/// عرض إشعار محلي
 Future<void> showLocalNotification(RemoteMessage message) async {
   const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
     'high_importance_channel', // يجب أن يتطابق مع ما حددته في Firebase Console
@@ -73,39 +68,47 @@ Future<void> showLocalNotification(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // لمنع التدوير وجعل التطبيق فقط في الوضع العمودي
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  await Firebase.initializeApp(); // تهيئة Firebase
-  // إشترك في topic لاستقبال الإشعارات الجماعية
-  await FirebaseMessaging.instance.subscribeToTopic("allUsers");
+  bool firebaseInitialized = false;
 
-  // طباعة التوكن (يمكن نسخه لاستخدامه في إرسال الإشعار من Firebase Console)
-  FirebaseMessaging.instance.getToken().then((token) {
-    print(" FCM Token: $token");
-  });
+  try {
+    await Firebase.initializeApp(); // محاولة التهيئة
+    firebaseInitialized = true;
+  } catch (e) {
+    print("خطأ أثناء تهيئة Firebase: $e");
+  }
 
-  // تهيئة الإشعارات المحلية
-  await initializeLocalNotifications();
+  if (firebaseInitialized) {
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic("allUsers");
 
-  // المعالج في الخلفية
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.instance.getToken().then((token) {
+        print("FCM Token: $token");
+      });
 
-  // الإشعار أثناء فتح التطبيق
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    await _saveNotificationToFirestore(message);
-    await showLocalNotification(message);
-  });
+      await initializeLocalNotifications();
 
-  // عند فتح التطبيق من الإشعار
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => NotificationsScreen()),
-    );
-  });
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        await _saveNotificationToFirestore(message);
+        await showLocalNotification(message);
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => NotificationsScreen()),
+        );
+      });
+    } catch (e) {
+      print("خطأ أثناء تهيئة خدمات الإشعارات: $e");
+    }
+  }
 
   runApp(MyApp());
 }

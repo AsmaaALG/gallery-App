@@ -25,15 +25,15 @@ class AdsScreen extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
 
     // حذف الإعلانات المنتهية
-    await adsServices.deleteExpiredAds();
+    // await adsServices.deleteExpiredAds();
 
     // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
-    for (final ad in ads) {
-      final startAd = _parseDate(ad.startDate);
-      if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
-        await adsServices.moveAdToCollection(ad, '2', ad.startDate);
-      }
-    }
+    // for (final ad in ads) {
+    //   final startAd = _parseDate(ad.startDate);
+    //   if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
+    //     await adsServices.moveAdToCollection(ad, '2', ad.startDate);
+    //   }
+    // }
 
     // تصفية الإعلانات النشطة فقط
     final filteredAds = ads.where((ad) {
@@ -59,7 +59,7 @@ class AdsScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 25.0),
         child: FutureBuilder<List<AdModel>>(
-          future: adsServices.getAds().then(_filterAndSortAds),
+          future: adsServices.getAds().then((ads) => _filterAndSortAds(ads)),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -102,7 +102,6 @@ class AdsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Container مع الظل والأيقونة
                 Stack(
                   children: [
                     Container(
@@ -141,7 +140,6 @@ class AdsScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    // أيقونة الجرس
                     Positioned(
                       top: 0,
                       right: 0,

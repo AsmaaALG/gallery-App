@@ -34,11 +34,15 @@ class SocialButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(icon, color: iconColor),
+            FaIcon(
+              icon,
+              color: iconColor,
+              size: 22,
+            ),
             SizedBox(width: 10),
             Text(
               text,
-              style: TextStyle(color: textColor, fontSize: 16),
+              style: TextStyle(color: textColor, fontSize: 14),
             ),
           ],
         ),

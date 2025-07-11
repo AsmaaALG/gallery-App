@@ -18,89 +18,113 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool _isValidEmail(String email) {
+    final RegExp regex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$");
+    final allowedDomains = [
+      'gmail.com',
+      'yahoo.com',
+      'hotmail.com',
+      'outlook.com',
+      'icloud.com'
+    ];
+    if (!regex.hasMatch(email)) return false;
+    final domain = email.split('@').last.toLowerCase();
+    return allowedDomains.contains(domain);
+  }
+
   bool showSpinner = false;
   Future<void> _signUp() async {
-  final firstName = firstNameController.text.trim();
-  final lastName = lastNameController.text.trim();
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
-  bool created = false;
+    final firstName = firstNameController.text.trim();
+    final lastName = lastNameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    bool created = false;
 
-  if (firstName.isEmpty ||
-      lastName.isEmpty ||
-      email.isEmpty ||
-      password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('يرجى ملء جميع الحقول')),
-    );
-    return;
-  }
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(textAlign: TextAlign.right, 'يرجى ملء جميع الحقول')),
+      );
+      return;
+    }
 
-  setState(() {
-    showSpinner = true;
-  });
-
-  if (password.length < 6) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content:
-              Text('كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل')),
-    );
     setState(() {
-      showSpinner = false;
+      showSpinner = true;
     });
-    return;
-  }
 
-  if (!email.contains('@')) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('البريد الإلكتروني غير صالح')),
-    );
-    setState(() {
-      showSpinner = false;
-    });
-    return;
-  }
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              textAlign: TextAlign.right,
+              'كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل'),
+        ),
+      );
+      setState(() {
+        showSpinner = false;
+      });
+      return;
+    }
 
-  bool emailExists = await GalleryServices().isEmailAlreadyExists(email);
-  if (emailExists) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('البريد الإلكتروني مستخدم مسبقًا')),
-    );
-    setState(() {
-      showSpinner = false;
-    });
-    return;
-  }
+    if (!_isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(textAlign: TextAlign.right, 'البريد الإلكتروني غير صالح')),
+      );
+      setState(() {
+        showSpinner = false;
+      });
+      return;
+    }
 
-  final userCredential =
-      await Auth().signUp(emailController, passwordController);
+    final emailUsed = await Auth().isEmailTaken(email);
+    if (emailUsed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                textAlign: TextAlign.right,
+                'هذا البريد الإلكتروني مستخدم مسبقًا')),
+      );
+      setState(() {
+        showSpinner = false;
+      });
+      return;
+    }
 
-  if (userCredential != null) {
-    await Auth().signIn(emailController, passwordController);
-    created = await UsersServices().createUser(
-      uid: userCredential.user!.uid,
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-    );
-  }
+    final userCredential =
+        await Auth().signUp(emailController, passwordController);
 
-  if (created) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => MainScreen()),
-      (Route<dynamic> route) => false,
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('حدث خطأ أثناء إنشاء الحساب')),
-    );
-    setState(() {
-      showSpinner = false;
-    });
+    if (userCredential != null) {
+      await Auth().signIn(emailController, passwordController);
+      created = await UsersServices().createUser(
+        uid: userCredential.user!.uid,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+      );
+    }
+
+    if (created) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+        (Route<dynamic> route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(textAlign: TextAlign.right, 'حدث خطأ أثناء إنشاء الحساب')),
+      );
+      setState(() {
+        showSpinner = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +156,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               "إنشاء حساب جديد",
               style: TextStyle(
                 fontFamily: mainFont,
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -194,7 +218,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                               fontFamily: mainFont,
                               color: cardBackground,
-                              fontSize: 18),
+                              fontSize: 14),
                         ),
                       ),
                     ],
