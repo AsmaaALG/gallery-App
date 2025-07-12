@@ -65,7 +65,7 @@ class _GalleryCardState extends State<GalleryCard> {
 
   Future<void> _loadCityName() async {
     try {
-      final name = await  SharedSevices().fetchCityName(widget.gallery.city);
+      final name = await SharedSevices().fetchCityName(widget.gallery.city);
       setState(() {
         cityName = name;
         isLoading = false;
@@ -99,10 +99,23 @@ class _GalleryCardState extends State<GalleryCard> {
 
   bool isClosed() {
     try {
+      final now = DateTime.now();
+      final startDate =
+          DateFormat('dd-MM-yyyy').parse(widget.gallery.startDate);
       final endDate = DateFormat('dd-MM-yyyy').parse(widget.gallery.endDate);
-      final adjustedEndDate =
-          endDate.add(const Duration(days: 1)); // نحسب اليوم الحالي
-      return DateTime.now().isAfter(adjustedEndDate);
+      final adjustedEndDate = endDate.add(const Duration(days: 1));
+
+      // إذا لم يصل تاريخ البداية بعد، يعتبر مغلق
+      if (now.isBefore(startDate)) {
+        return true;
+      }
+
+      // إذا تجاوزنا تاريخ الانتهاء، يعتبر مغلق
+      if (now.isAfter(adjustedEndDate)) {
+        return true;
+      }
+
+      return false; // يعني المعرض مفتوح حاليًا
     } catch (e) {
       return false;
     }
@@ -155,7 +168,7 @@ class _GalleryCardState extends State<GalleryCard> {
                       int visitors = snapshot.data ?? 0;
                       return GalleryScreen(
                         galleryModel: widget.gallery,
-                        visitors: visitors, // تمرير عدد الزوار
+                        visitors: visitors,
                       );
                     },
                   )),
@@ -164,7 +177,7 @@ class _GalleryCardState extends State<GalleryCard> {
       child: Card(
         color: cardBackground,
         elevation: 6,
-        shadowColor: const Color.fromARGB(255, 255, 255, 255), // <-- لون الظل
+        shadowColor: const Color.fromARGB(255, 255, 255, 255),
         margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -230,9 +243,7 @@ class _GalleryCardState extends State<GalleryCard> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          cityName == null
-                              ? "الموقع: " // لا شيء إلى أن تُحمّل
-                              : "الموقع: $cityName",
+                          cityName == null ? "الموقع: " : "الموقع: $cityName",
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: TextStyle(

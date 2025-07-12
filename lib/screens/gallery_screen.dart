@@ -135,13 +135,25 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   bool isClosed() {
     try {
+      final now = DateTime.now();
+      final startDate =
+          intl.DateFormat('dd-MM-yyyy').parse(widget.galleryModel.startDate);
       final endDate =
           intl.DateFormat('dd-MM-yyyy').parse(widget.galleryModel.endDate);
-      // التحقق ما إذا كان التاريخ اليوم بعد تاريخ النهاية
-      return DateTime.now().isAfter(endDate.add(Duration(days: 1)));
+      final adjustedEndDate = endDate.add(const Duration(days: 1));
+
+      // إذا لم يصل تاريخ البداية بعد، يعتبر مغلق
+      if (now.isBefore(startDate)) {
+        return true;
+      }
+
+      // إذا تجاوزنا تاريخ الانتهاء، يعتبر مغلق
+      if (now.isAfter(adjustedEndDate)) {
+        return true;
+      }
+
+      return false; // يعني المعرض مفتوح حاليًا
     } catch (e) {
-      print('Error parsing date: $e');
-      print('end date value: ${widget.galleryModel.endDate}');
       return false;
     }
   }

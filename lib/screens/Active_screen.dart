@@ -82,13 +82,18 @@ class ActiveScreen extends StatelessWidget {
 
                 final activeGalleries = snapshot.data!.where((gallery) {
                   try {
+                    final startDate =
+                        DateFormat('dd-MM-yyyy').parse(gallery.startDate);
                     final endDate =
                         DateFormat('dd-MM-yyyy').parse(gallery.endDate);
                     final today = DateTime.now();
-                    return endDate.isAfter(today) ||
-                        (endDate.year == today.year &&
-                            endDate.month == today.month &&
-                            endDate.day == today.day);
+                    final normalizedToday =
+                        DateTime(today.year, today.month, today.day);
+
+                    return (startDate.isBefore(normalizedToday) ||
+                            startDate.isAtSameMomentAs(normalizedToday)) &&
+                        (endDate.isAfter(normalizedToday) ||
+                            endDate.isAtSameMomentAs(normalizedToday));
                   } catch (e) {
                     return false;
                   }
