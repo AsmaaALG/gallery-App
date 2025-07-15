@@ -1,11 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'ad_detail_screen.dart';
 import 'package:final_project/models/ad_model.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  Future<void> markNotificationsAsSeen(String userId) async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('notifications').get();
+
+    for (final doc in snapshot.docs) {
+      final seenBy = List<String>.from(doc['seenBy'] ?? []);
+      if (!seenBy.contains(userId)) {
+        await doc.reference.update({
+          'seenBy': FieldValue.arrayUnion([userId]),
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    markNotificationsAsSeen(userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +77,7 @@ class NotificationsScreen extends StatelessWidget {
             return ListView(
               children: snapshot.data!.docs.map((doc) {
                 final data = doc.data() as Map<String, dynamic>;
-                final adId = data['ad_id']; 
+                final adId = data['ad_id'];
                 final timestamp = data['timestamp'] as Timestamp?;
                 final date = timestamp != null
                     ? DateTime.fromMillisecondsSinceEpoch(

@@ -2,6 +2,7 @@ import 'package:final_project/models/ad_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/constants.dart';
+import 'package:flutter/services.dart';
 
 class ReservationScreen extends StatefulWidget {
   final AdModel ad;
@@ -108,7 +109,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                 _buildTextField('المؤسسة المسؤولة...', _organizationController,
                     isRequired: true),
                 _buildTextField('الرقم التجاري...', _commercialNumberController,
-                    isRequired: true),
+                    isRequired: true, isNumber: true),
+
                 _buildTextField('اسم الجناح...', _wingNameController,
                     isRequired: true),
                 _buildTextField('وصف الجناح...', _descriptionController,
@@ -139,7 +141,9 @@ class _ReservationScreenState extends State<ReservationScreen> {
                   menuMaxHeight: 300,
                   value: _selectedSuite,
                   alignment: AlignmentDirectional.centerStart,
-                  decoration: _dropdownDecoration('اختر الجناح'),
+                  decoration: _suites.isEmpty
+                      ? _dropdownDecoration('لاتوجد أجنحة متاحة')
+                      : _dropdownDecoration('اختر الجناح'),
                   items: _suites.map((suite) {
                     final name = suite['name'] ?? 'جناح';
                     final area = suite['area'] ?? 'غير محدد';
@@ -239,12 +243,16 @@ class _ReservationScreenState extends State<ReservationScreen> {
       {bool isRequired = false,
       bool isEmail = false,
       bool isPhone = false,
+      bool isNumber = false,
       int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
         controller: controller,
         maxLines: maxLines,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        inputFormatters:
+            isNumber ? [FilteringTextInputFormatter.digitsOnly] : null,
         validator: (value) {
           if (isRequired && (value == null || value.isEmpty)) {
             return 'هذا الحقل مطلوب';
@@ -306,7 +314,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               textAlign: TextAlign.right,
-              'تم إرسال طلبك سيتم التواصل معك في حالة القبول',
+              'تم إرسال طلبك سيتم ارسال بريد لك في حالة القبول',
               style: TextStyle(fontFamily: mainFont, fontSize: 13)),
           backgroundColor: Color.fromARGB(255, 171, 170, 170),
         ));

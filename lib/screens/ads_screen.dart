@@ -20,37 +20,37 @@ class AdsScreen extends StatelessWidget {
   }
 
   // دالة محسنة لترتيب وتصفية الإعلانات مع حذف المنتهية
-  Future<List<AdModel>> _filterAndSortAds(List<AdModel> ads) async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+  // Future<List<AdModel>> _filterAndSortAds(List<AdModel> ads) async {
+  //   final now = DateTime.now();
+  //   final today = DateTime(now.year, now.month, now.day);
 
-    // حذف الإعلانات المنتهية
-    // await adsServices.deleteExpiredAds();
+  //   // حذف الإعلانات المنتهية
+  //   // await adsServices.deleteExpiredAds();
 
-    // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
-    // for (final ad in ads) {
-    //   final startAd = _parseDate(ad.startDate);
-    //   if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
-    //     await adsServices.moveAdToCollection(ad, '2', ad.startDate);
-    //   }
-    // }
+  //   // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
+  //   // for (final ad in ads) {
+  //   //   final startAd = _parseDate(ad.startDate);
+  //   //   if (startAd.isBefore(today) || startAd.isAtSameMomentAs(today)) {
+  //   //     await adsServices.moveAdToCollection(ad, '2', ad.startDate);
+  //   //   }
+  //   // }
 
-    // تصفية الإعلانات النشطة فقط
-    final filteredAds = ads.where((ad) {
-      try {
-        final stopAd = _parseDate(ad.stopAd);
-        return stopAd.isAfter(today) || stopAd.isAtSameMomentAs(today);
-      } catch (e) {
-        return false;
-      }
-    }).toList();
+  //   // تصفية الإعلانات النشطة فقط
+  //   final filteredAds = ads.where((ad) {
+  //     try {
+  //       final stopAd = _parseDate(ad.stopAd);
+  //       return stopAd.isAfter(today) || stopAd.isAtSameMomentAs(today);
+  //     } catch (e) {
+  //       return false;
+  //     }
+  //   }).toList();
 
-    // ترتيب الإعلانات حسب تاريخ البدء (الأقرب أولاً)
-    filteredAds.sort(
-        (a, b) => _parseDate(a.startDate).compareTo(_parseDate(b.startDate)));
+  //   // ترتيب الإعلانات حسب تاريخ البدء (الأقرب أولاً)
+  //   filteredAds.sort(
+  //       (a, b) => _parseDate(a.startDate).compareTo(_parseDate(b.startDate)));
 
-    return filteredAds;
-  }
+  //   return filteredAds;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class AdsScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 25.0),
         child: FutureBuilder<List<AdModel>>(
-          future: adsServices.getAds().then((ads) => _filterAndSortAds(ads)),
+          future: adsServices.getAds(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());

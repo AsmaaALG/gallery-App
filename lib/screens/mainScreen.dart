@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/screens/Active_screen.dart';
 import 'package:final_project/screens/about_screen.dart';
 import 'package:final_project/screens/ads_screen.dart';
@@ -32,6 +33,18 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  Stream<int> getUnreadCount(String userId) {
+    return FirebaseFirestore.instance
+        .collection('notifications')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.where((doc) {
+        final seenBy = List<String>.from(doc['seenBy'] ?? []);
+        return !seenBy.contains(userId);
+      }).length;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -41,7 +54,48 @@ class _MainScreenState extends State<MainScreen> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          iconTheme: IconThemeData(color: primaryColor),
+          automaticallyImplyLeading: false,
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Builder(
+              builder: (context) {
+                return StreamBuilder<int>(
+                  stream: getUnreadCount(_user!.uid),
+                  builder: (context, snapshot) {
+                    final count = snapshot.data ?? 0;
+
+                    return Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.menu,
+                            color: primaryColor,
+                            size: 30,
+                          ),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        ),
+                        if (count > 0)
+                          Positioned(
+                            right: 3,
+                            top: 12,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -103,17 +157,55 @@ class _MainScreenState extends State<MainScreen> {
               _onItemTapped(2);
             },
           ),
-          ListTile(
-            leading: Icon(Icons.notifications_active),
-            title: Text(
-              'الاشعارات',
-              style: TextStyle(fontFamily: mainFont),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => NotificationsScreen()),
+          StreamBuilder<int>(
+            stream: getUnreadCount(_user!.uid),
+            builder: (context, snapshot) {
+              final count = snapshot.data ?? 0;
+
+              return ListTile(
+                leading: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.notifications, size: 26),
+                      if (count > 0)
+                        Positioned(
+                          right: -2, // عدّل حسب احتياجك
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                                minWidth: 18, minHeight: 18),
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                title: const Text(
+                  'الإشعارات',
+                  style: TextStyle(fontFamily: mainFont),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => NotificationsScreen()),
+                  );
+                },
               );
             },
           ),

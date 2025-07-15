@@ -138,58 +138,82 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 15),
               // وصف الجناح
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.suite.description,
-                      textAlign: TextAlign.right,
-                      overflow: isExpanded ? null : TextOverflow.ellipsis,
-                      maxLines: isExpanded ? null : 3,
-                      style: TextStyle(
-                        fontFamily: mainFont,
-                        fontSize: 12,
-                      ),
+              Column(
+                children: [
+                  widget.suite.title_on_map.isEmpty
+                      ? SizedBox()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 5),
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: Text(
+                              'موقع الجناح على الخريطة :${widget.suite.title_on_map}',
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              style: TextStyle(
+                                fontFamily: mainFont,
+                                // color: primaryColor,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.suite.description,
+                          textAlign: TextAlign.right,
+                          overflow: isExpanded ? null : TextOverflow.ellipsis,
+                          maxLines: isExpanded ? null : 3,
+                          style: TextStyle(
+                            fontFamily: mainFont,
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (!isExpanded &&
+                            _isMoreTextVisible(widget.suite.description))
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                isExpanded = true;
+                              });
+                            },
+                            child: Text(
+                              "المزيد",
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontFamily: mainFont,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        if (isExpanded)
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                isExpanded = false;
+                              });
+                            },
+                            child: Text(
+                              "أقل",
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontFamily: mainFont,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    if (!isExpanded &&
-                        _isMoreTextVisible(widget.suite.description))
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            isExpanded = true;
-                          });
-                        },
-                        child: Text(
-                          "المزيد",
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontFamily: mainFont,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    if (isExpanded)
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            isExpanded = false;
-                          });
-                        },
-                        child: Text(
-                          "أقل",
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontFamily: mainFont,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               Divider(color: Colors.grey[400], thickness: 1),
               SizedBox(height: 10),

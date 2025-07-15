@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:final_project/constants.dart';
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/models/partner_model.dart';
@@ -7,7 +9,6 @@ import 'package:final_project/screens/QR_code_screen.dart';
 import 'package:final_project/screens/image_screen.dart';
 import 'package:final_project/screens/suite_screen.dart';
 import 'package:final_project/services/favorite_services.dart';
-import 'package:final_project/services/gallery_services.dart';
 import 'package:final_project/services/shared_sevices.dart';
 import 'package:final_project/services/suit_services.dart';
 import 'package:final_project/services/users_services.dart';
@@ -121,6 +122,22 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
+  Future<void> fetchSuites() async {
+    try {
+      List<SuiteModel> fetchedSuites =
+          await SuiteServices().getSuites(widget.galleryModel.id);
+      setState(() {
+        suites = fetchedSuites;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching suites: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   Future<void> fetchPartners() async {
     try {
       List<PartnerModel> fetchedPartners =
@@ -147,7 +164,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         return true;
       }
 
-      // إذا تجاوزنا تاريخ الانتهاء، يعتبر مغلق
+      //  تجاوزنا تاريخ الانتهاء، يعتبر مغلق
       if (now.isAfter(adjustedEndDate)) {
         return true;
       }
@@ -180,7 +197,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       await VisitServices().registerVisitor(
         _userId!,
         widget.galleryModel.id,
-        DateTime.now(), // أضفنا التاريخ الحالي كوسيط ثالث
+        DateTime.now(),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -880,22 +897,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ),
       ],
     );
-  }
-
-  Future<void> fetchSuites() async {
-    try {
-      List<SuiteModel> fetchedSuites =
-          await SuiteServices().getSuites(widget.galleryModel.id);
-      setState(() {
-        suites = fetchedSuites;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error fetching suites: $e');
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   @override

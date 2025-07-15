@@ -287,7 +287,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                                 endDate: gallery.endDate,
                                 id: gallery.id,
                                 location: gallery.location,
-                                phone: gallery.phone,
                                 startDate: gallery.startDate,
                                 title: gallery.title,
                                 map: gallery.map,

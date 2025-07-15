@@ -8,7 +8,7 @@ class SuiteModel {
   final String price;
   final String size;
   final String title_on_map;
-  final int status;
+  final int? status;
 
   SuiteModel(
       {required this.id,
@@ -20,7 +20,7 @@ class SuiteModel {
       required this.size,
       required this.title_on_map,
       required this.main_image,
-      required this.status});
+      this.status});
 
   factory SuiteModel.fromFirestore(Map<String, dynamic> data, String id) {
     return SuiteModel(
@@ -33,7 +33,7 @@ class SuiteModel {
       size: data['size'] ?? '',
       title_on_map: data['title_on_map'] ?? '',
       main_image: data['main image'] ?? '',
-      status: data['status'] ?? '',
+      status: data['status'] ?? 0,
     );
   }
 }

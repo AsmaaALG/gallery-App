@@ -8,7 +8,6 @@ class GalleryModel {
   final String endDate;
   final String id;
   final String location;
-  final String phone;
   final String startDate;
   final String title;
   final String map;
@@ -23,7 +22,6 @@ class GalleryModel {
     required this.endDate,
     required this.id,
     required this.location,
-    required this.phone,
     required this.startDate,
     required this.title,
     required this.map,
@@ -42,7 +40,6 @@ class GalleryModel {
       endDate: json['end date'] ?? '',
       imageURL: json['image url'] ?? '',
       location: json['location'] ?? '',
-      phone: json['phone'] ?? '',
       startDate: json['start date'] ?? '',
       title: json['title'] ?? '',
       map: json['map'] ?? '',

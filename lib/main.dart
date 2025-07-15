@@ -82,33 +82,33 @@ void main() async {
     print("خطأ أثناء تهيئة Firebase: $e");
   }
 
-  if (firebaseInitialized) {
-    try {
-      await FirebaseMessaging.instance.subscribeToTopic("allUsers");
+  // if (firebaseInitialized) {
+  //   try {
+  //     await FirebaseMessaging.instance.subscribeToTopic("allUsers");
 
-      FirebaseMessaging.instance.getToken().then((token) {
-        print("FCM Token: $token");
-      });
+  //     FirebaseMessaging.instance.getToken().then((token) {
+  //       print("FCM Token: $token");
+  //     });
 
-      await initializeLocalNotifications();
+  //     await initializeLocalNotifications();
 
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+  //     FirebaseMessaging.onBackgroundMessage(
+  //         _firebaseMessagingBackgroundHandler);
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-        await _saveNotificationToFirestore(message);
-        await showLocalNotification(message);
-      });
+  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+  //       await _saveNotificationToFirestore(message);
+  //       await showLocalNotification(message);
+  //     });
 
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (_) => NotificationsScreen()),
-        );
-      });
-    } catch (e) {
-      print("خطأ أثناء تهيئة خدمات الإشعارات: $e");
-    }
-  }
+  //     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(builder: (_) => NotificationsScreen()),
+  //       );
+  //     });
+  //   } catch (e) {
+  //     print("خطأ أثناء تهيئة خدمات الإشعارات: $e");
+  //   }
+  // }
 
   runApp(MyApp());
 }
