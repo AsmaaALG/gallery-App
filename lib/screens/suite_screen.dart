@@ -104,7 +104,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(60.0),
                     child: Image.network(
-                      widget.suite.main_image,
+                      widget.suite.main_image!,
                       fit: BoxFit.cover,
                       height: 120,
                       width: 120,

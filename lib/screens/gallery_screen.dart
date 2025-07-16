@@ -595,7 +595,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: Image.network(
-                        suite.main_image,
+                        suite.main_image!,
                         fit: BoxFit.cover,
                         height: 100,
                         width: 100,
