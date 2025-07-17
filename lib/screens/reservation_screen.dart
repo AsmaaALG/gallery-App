@@ -173,7 +173,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) =>
-                          MapViewerScreen(imageUrl: widget.ad.imageUrl),
+                          MapViewerScreen(imageUrl: widget.ad.map),
                     ));
                   },
                   style: ElevatedButton.styleFrom(
@@ -363,7 +363,7 @@ class MapViewerScreen extends StatelessWidget {
       body: InteractiveViewer(
         child: Center(
           child: Image.network(
-            imageUrl, // غيّر المسار إذا لزم
+            imageUrl,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
               return Container(
