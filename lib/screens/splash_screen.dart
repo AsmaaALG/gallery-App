@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:final_project/screens/mainScreen.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/screens/signInUp_screen.dart';
+import 'package:flutter/services.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -15,6 +16,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    // Timer(Duration(seconds: 1), () {
+    // SystemNavigator.pop(); 
+    // });
     Timer(Duration(seconds: 3), () {
       Navigator.of(context).pushReplacement(
         // MaterialPageRoute(builder: (_) => SignInUpScreen()),
