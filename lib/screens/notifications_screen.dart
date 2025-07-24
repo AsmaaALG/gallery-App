@@ -124,18 +124,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data['title'] ?? 'بدون عنوان',
+                                'اعلان جديد ',
                                 style: TextStyle(
                                   color: primaryColor,
                                   fontFamily: mainFont,
                                 ),
                               ),
-                              const SizedBox(height: 4),
                               Text(
-                                data['body'] ?? 'لا يوجد محتوى',
+                                data['title'] ?? 'بدون عنوان',
                                 style: TextStyle(
-                                    fontFamily: mainFont, fontSize: 12),
+                                  color: const Color.fromARGB(255, 8, 8, 8),
+                                  fontFamily: mainFont,
+                                ),
                               ),
+                              const SizedBox(height: 4),
+                              // Text(
+//   data['body'] ?? 'لا يوجد محتوى',
+//   style: TextStyle(
+//       fontFamily: mainFont, fontSize: 12),
+// ),
                               if (date != null)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6),
