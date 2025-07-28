@@ -9,8 +9,9 @@ import 'package:final_project/screens/sign_up_screen.dart';
 import 'package:final_project/screens/mainScreen.dart';
 import 'package:final_project/services/auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:google_sign_in/google_sign_in.dart'; //
-import 'package:firebase_auth/firebase_auth.dart'; //
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -22,10 +23,10 @@ class _SignInScreenState extends State<SignInScreen> {
   final passwordController = TextEditingController();
   bool showSpinner = false;
 
-  // دالة تسجيل الدخول
   Future<void> _signIn() async {
     final email = emailController.text.trim();
     final pass = passwordController.text.trim();
+
     setState(() {
       showSpinner = true;
     });
@@ -33,9 +34,11 @@ class _SignInScreenState extends State<SignInScreen> {
     if (email.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                textAlign: TextAlign.right,
-                'يرجى إدخال البريد الإلكتروني وكلمة المرور')),
+          content: Text(
+            textAlign: TextAlign.right,
+            'يرجى إدخال البريد الإلكتروني وكلمة المرور',
+          ),
+        ),
       );
       setState(() {
         showSpinner = false;
@@ -43,54 +46,87 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    // محاولة تسجيل الدخول
-    bool isValid = await Auth().signIn(emailController, passwordController);
+    try {
+      bool isValid = await Auth().signIn(emailController, passwordController);
 
-    if (isValid) {
-      // تحقق من وجود المستخدم في جدول user
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email',
-              isEqualTo: email) // نفترض أن هناك حقل 'email' في المستندات
-          .limit(1)
-          .get();
+      if (isValid) {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
 
-      if (querySnapshot.docs.isEmpty) {
+        if (querySnapshot.docs.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                textAlign: TextAlign.right,
+                'البريد الإلكتروني غير صحيح',
+              ),
+            ),
+          );
+          return;
+        }
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+          (Route<dynamic> route) => false,
+        );
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  textAlign: TextAlign.right, 'البريد الإلكتروني غير صحيح')),
+            content: Text(
+              textAlign: TextAlign.right,
+              'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            ),
+          ),
         );
-        setState(() {
-          showSpinner = false;
-        });
-        return;
       }
-
-      // إذا كان كل شيء صحيح، انتقل إلى MainScreen
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => MainScreen()),
-        (Route<dynamic> route) => false,
-      );
-    } else {
+    } on SocketException {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                textAlign: TextAlign.right,
-                'البريد الإلكتروني أو كلمة المرور غير صحيحة')),
+          content: Text(
+            textAlign: TextAlign.right,
+            'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة لاحقًا.',
+          ),
+        ),
       );
-    }
+    } catch (e) {
+      final errorText = e.toString().toLowerCase();
 
-    setState(() {
-      showSpinner = false;
-    });
+      if (errorText.contains('network') ||
+          errorText.contains('internet') ||
+          errorText.contains('unavailable') ||
+          errorText.contains('socket')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              textAlign: TextAlign.right,
+              'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة لاحقًا.',
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              textAlign: TextAlign.right,
+              'حدث خطأ أثناء تسجيل الدخول: $e',
+            ),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        showSpinner = false;
+      });
+    }
   }
 
   /////////
   Future<void> _signInWithGoogle() async {
     try {
-      //  تسجيل الخروج من أي جلسة سابقة
       await GoogleSignIn().signOut();
 
       final userCredential = await Auth().signInWithGoogle();
@@ -98,14 +134,12 @@ class _SignInScreenState extends State<SignInScreen> {
       if (userCredential != null) {
         final User user = userCredential.user!;
 
-        // تحقق هل المستخدم محفوظ مسبقاً في Firestore
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
 
         if (!userDoc.exists) {
-          // إذا لم يكن محفوظ، نضيفه
           await FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
@@ -119,7 +153,6 @@ class _SignInScreenState extends State<SignInScreen> {
           });
         }
 
-        //  الانتقال للصفحة الرئيسية
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
@@ -159,8 +192,7 @@ class _SignInScreenState extends State<SignInScreen> {
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgressIndicator(
-          valueColor:
-              AlwaysStoppedAnimation<Color>(primaryColor), // تغيير اللون هنا
+          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

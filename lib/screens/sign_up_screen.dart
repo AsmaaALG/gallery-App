@@ -1,6 +1,7 @@
 import 'package:final_project/services/auth.dart';
 import 'package:final_project/services/gallery_services.dart';
 import 'package:final_project/services/users_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/widgets/custom_text_field.dart';
@@ -33,6 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   bool showSpinner = false;
+
   Future<void> _signUp() async {
     final firstName = firstNameController.text.trim();
     final lastName = lastNameController.text.trim();
@@ -59,8 +61,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              textAlign: TextAlign.right,
-              'كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل'),
+            textAlign: TextAlign.right,
+            'كلمة المرور يجب ان تحتوي على 6 ارقام او حروف على الاقل',
+          ),
         ),
       );
       setState(() {
@@ -95,31 +98,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    final userCredential =
-        await Auth().signUp(emailController, passwordController);
+    try {
+      final userCredential =
+          await Auth().signUp(emailController, passwordController);
 
-    if (userCredential != null) {
-      await Auth().signIn(emailController, passwordController);
-      created = await UsersServices().createUser(
-        uid: userCredential.user!.uid,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-      );
-    }
+      if (userCredential != null) {
+        await Auth().signIn(emailController, passwordController);
+        created = await UsersServices().createUser(
+          uid: userCredential.user!.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+      if (e.code == 'network-request-failed') {
+        errorMessage = 'لا يوجد اتصال بالإنترنت';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'البريد الإلكتروني غير صالح';
+      } else if (e.code == 'email-already-in-use') {
+        errorMessage = 'البريد الإلكتروني مستخدم مسبقًا';
+      }
 
-    if (created) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => MainScreen()),
-        (Route<dynamic> route) => false,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(textAlign: TextAlign.right, errorMessage)),
       );
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-                Text(textAlign: TextAlign.right, 'حدث خطأ أثناء إنشاء الحساب')),
+                Text(textAlign: TextAlign.right, 'لا يوجد اتصال بالإنترنت')),
       );
+    } finally {
       setState(() {
         showSpinner = false;
       });

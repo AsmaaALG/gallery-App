@@ -1,44 +1,67 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class Auth {
-  Future<bool> signIn(emailController, passwordController) async {
+  Future<bool> signIn(
+      TextEditingController email, TextEditingController password) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        email: email.text.trim(),
+        password: password.text.trim(),
       );
       return true;
-    } catch (e) {
-      print(e);
-      return false;
-    }
-  }
+    } on FirebaseAuthException catch (e) {
+      final code = e.code;
 
-  Future<UserCredential?> signUp(
-    TextEditingController emailController,
-    TextEditingController passwordController,
-  ) async {
-    try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      return userCredential;
+      if (code == 'wrong-password' ||
+          code == 'user-not-found' ||
+          code == 'invalid-credential' ||
+          code == 'invalid-email') {
+        return false;
+      }
+
+      if (code == 'network-request-failed') {
+        throw SocketException('انقطاع في الشبكة');
+      }
+
+      throw Exception('خطأ Firebase: ${e.message}');
+    } on SocketException {
+      throw SocketException('انقطاع في الشبكة');
     } catch (e) {
-      print("خطأ أثناء التسجيل: $e");
-      return null;
+      throw Exception('حدث خطأ : $e');
     }
   }
+Future<UserCredential?> signUp(
+  TextEditingController emailController,
+  TextEditingController passwordController,
+) async {
+  try {
+    final userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    );
+    return userCredential;
+  } on FirebaseAuthException catch (e) {
+    rethrow;
+  } catch (e) {
+    // إعادة أي خطأ آخر لدالة _signUp
+    rethrow;
+  }
+}
+
+
 
   Future<void> signOut(BuildContext context) async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     await _auth.signOut();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(textAlign: TextAlign.right,'تم تسجيل الخروج بنجاح')),
+      SnackBar(
+          content: Text(textAlign: TextAlign.right, 'تم تسجيل الخروج بنجاح')),
     );
   }
 
@@ -46,7 +69,7 @@ class Auth {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      if (googleUser == null) return null; // المستخدم ألغى العملية
+      if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;

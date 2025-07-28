@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:final_project/models/ad_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +32,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   String? _selectedOrganizationType;
   Map<String, dynamic>? _selectedSuite;
   List<Map<String, dynamic>> _suites = [];
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -168,12 +171,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
                 const SizedBox(height: 15),
 
-                // زر خارطة المعرض
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) =>
-                          MapViewerScreen(imageUrl: widget.ad.map),
+                      builder: (_) => MapViewerScreen(imageUrl: widget.ad.map),
                     ));
                   },
                   style: ElevatedButton.styleFrom(
@@ -198,27 +199,30 @@ class _ReservationScreenState extends State<ReservationScreen> {
                 SizedBox(height: screenHeight * 0.04),
 
                 Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 241, 192, 69),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.2,
-                        vertical: screenHeight * 0.02,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                    onPressed: _submitForm,
-                    child: Text(
-                      'إرسال',
-                      style: TextStyle(
-                        color: const Color.fromARGB(255, 49, 45, 45),
-                        fontSize: isSmallScreen ? 16 : 18,
-                        fontFamily: mainFont,
-                      ),
-                    ),
-                  ),
+                  child: _isSubmitting
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 241, 192, 69),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.2,
+                              vertical: screenHeight * 0.02,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                          onPressed: _submitForm,
+                          child: Text(
+                            'إرسال',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 49, 45, 45),
+                              fontSize: isSmallScreen ? 16 : 18,
+                              fontFamily: mainFont,
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -295,6 +299,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() => _isSubmitting = true); // ⏳ بدء التحميل
       try {
         await _firestore.collection('space_form').add({
           'adId': widget.ad.id,
@@ -309,26 +314,51 @@ class _ReservationScreenState extends State<ReservationScreen> {
           'organizationType': _selectedOrganizationType,
           'selectedSuite': _selectedSuite,
           'timestamp': FieldValue.serverTimestamp(),
-        });
+        }).timeout(const Duration(seconds: 10));
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
-              textAlign: TextAlign.right,
-              'تم إرسال طلبك سيتم ارسال بريد لك في حالة القبول',
-              style: TextStyle(fontFamily: mainFont, fontSize: 13)),
+            textAlign: TextAlign.right,
+            'تم إرسال طلبك، سيتم إرسال بريد لك في حالة القبول',
+            style: TextStyle(fontFamily: mainFont, fontSize: 13),
+          ),
           backgroundColor: Color.fromARGB(255, 171, 170, 170),
         ));
 
         Future.delayed(
             const Duration(seconds: 1), () => Navigator.pop(context));
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      } on TimeoutException {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
+            textAlign: TextAlign.right,
+            'انتهت مهلة الاتصال، تحقق من الإنترنت وحاول مرة أخرى',
+            style: TextStyle(fontFamily: mainFont),
+          ),
+          backgroundColor: Colors.grey,
+        ));
+      } catch (e) {
+        if (e.toString().contains('network') ||
+            e.toString().contains('SocketException')) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              textAlign: TextAlign.right,
+              'لا يوجد اتصال بالإنترنت',
+              style: TextStyle(fontFamily: mainFont),
+            ),
+            backgroundColor: Colors.grey,
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
               textAlign: TextAlign.right,
               'خطأ أثناء الحفظ: $e',
-              style: const TextStyle(fontFamily: mainFont)),
-          backgroundColor: Colors.red,
-        ));
+              style: const TextStyle(fontFamily: mainFont),
+            ),
+            backgroundColor: Colors.grey,
+          ));
+        }
+      } finally {
+        setState(() => _isSubmitting = false); // ✅ إيقاف التحميل بعد الانتهاء
       }
     }
   }

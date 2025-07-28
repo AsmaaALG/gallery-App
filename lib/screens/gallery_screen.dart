@@ -420,7 +420,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         "${widget.galleryModel.startDate}\n${widget.galleryModel.endDate}",
                         style: TextStyle(
                           fontFamily: mainFont,
-                          fontSize: 10,
+                          fontSize: 8.5,
                         ),
                       ),
                     ],
