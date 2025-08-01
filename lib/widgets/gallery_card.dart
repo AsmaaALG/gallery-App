@@ -105,7 +105,7 @@ class _GalleryCardState extends State<GalleryCard> {
       final endDate = DateFormat('dd-MM-yyyy').parse(widget.gallery.endDate);
       final adjustedEndDate = endDate.add(const Duration(days: 1));
 
-      // إذا لم يصل تاريخ البداية بعد، يعتبر مغلق
+      // إذا لم يصل تاريخ البداية يعتبر مغلق
       if (now.isBefore(startDate)) {
         return true;
       }
@@ -149,7 +149,7 @@ class _GalleryCardState extends State<GalleryCard> {
       return await VisitServices().getVisitorCount(widget.gallery.id);
     } catch (e) {
       print('Error fetching visitor count: $e');
-      return 0; // ارجع صفر في حالة حدوث خطأ
+      return 0; 
     }
   }
 

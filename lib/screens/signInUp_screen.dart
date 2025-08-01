@@ -103,7 +103,7 @@ class _SignInUpScreenState extends State<SignInUpScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                SignUpScreen(), // التنقل إلى صفحة التسجيل
+                                SignUpScreen(), 
                           ),
                         );
                       },

@@ -1,7 +1,7 @@
 class SuiteImageModel {
-  final String id; // معرف الصورة
-  final String imageUrl; // رابط الصورة
-  final String suiteId; // معرف الجناح
+  final String id; 
+  final String imageUrl; 
+  final String suiteId;
 
   SuiteImageModel({
     required this.id,

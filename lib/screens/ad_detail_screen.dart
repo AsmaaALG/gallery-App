@@ -35,7 +35,6 @@ class AdDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // صورة المعرض (دائرية وفي المنتصف)
             Center(
               child: Container(
                 width: 200,
@@ -43,9 +42,8 @@ class AdDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    // إضافة border للصورة
-                    color: Color.fromARGB(255, 209, 180, 180), // لون البورد
-                    width: 1, // سماكة البورد
+                    color: Color.fromARGB(255, 209, 180, 180), 
+                    width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -60,7 +58,7 @@ class AdDetailScreen extends StatelessWidget {
                 child: ClipOval(
                   child: Image.network(
                     ad.imageUrl.isNotEmpty
-                        ? ad.imageUrl // التعديل هنا
+                        ? ad.imageUrl 
                         : 'https://via.placeholder.com/300x200.png?text=No+Image',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -79,7 +77,6 @@ class AdDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            // عنوان المعرض (في المنتصف)
             Center(
               child: Text(
                 ad.title,
@@ -93,7 +90,6 @@ class AdDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            // مربع معلومات التاريخ والموقع
             Container(
               margin: EdgeInsets.symmetric(vertical: 5),
               padding: EdgeInsets.all(15),
@@ -112,7 +108,6 @@ class AdDetailScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // صف التاريخ المعدل
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Row(
@@ -132,7 +127,6 @@ class AdDetailScreen extends StatelessWidget {
                             fontSize: 12,
                             fontFamily: mainFont,
                             color: primaryColor,
-                            // نفس لون الأيقونات
                           ),
                         ),
                         SizedBox(width: 5),
@@ -222,7 +216,6 @@ class AdDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 55),
 
-            // زر الحجز
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -265,13 +258,12 @@ class AdDetailScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Expanded(
-            // ✅ هذا يجعل النص يأخذ فقط ما يسمح به من المساحة
             child: Text(
               text,
               softWrap: true,
               maxLines: 3,
               overflow: TextOverflow
-                  .ellipsis, // ✅ يمنع الخروج ويضع (...) إذا كان طويل
+                  .ellipsis, 
               style: TextStyle(
                 fontSize: 13,
                 fontFamily: mainFont,

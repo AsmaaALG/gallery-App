@@ -179,7 +179,6 @@ class _SignInScreenState extends State<SignInScreen> {
   ///
 
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     emailController.dispose();
     passwordController.dispose();
@@ -197,7 +196,6 @@ class _SignInScreenState extends State<SignInScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -217,7 +215,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
             ),
             Column(
-              children: [
+              children: const [
                 Text(
                   "مرحبًا بك مجددًا",
                   style: TextStyle(

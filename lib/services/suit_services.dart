@@ -8,7 +8,6 @@ import '../models/partner_model.dart';
 class SuiteServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-// جلب كل الاجنحة الخاصة بالمعرض المحدد
   Future<List<SuiteModel>> getSuites(String galleryId) async {
     try {
       QuerySnapshot snapshot = await _firestore

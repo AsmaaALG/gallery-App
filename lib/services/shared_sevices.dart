@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/gallery_model.dart';
-import '../models/category_model.dart';
+
 
 class SharedSevices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

@@ -64,7 +64,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _confirmAndSave() async {
-    // تحقق من تعبئة الاسم الأول والاسم الأخير
     if (_firstNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('يرجى إدخال الاسم الأول')),
@@ -79,7 +78,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // تابع الحفظ إذا كانت الحقول معبأة
     final shouldSave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -118,16 +116,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             code: 'no-user', message: 'المستخدم غير مسجل الدخول');
       }
 
-      // تحديث الاسم الأول والأخير في Firestore (بدون تحقق)
       if (userDocId != null) {
         await _usersServices.updateUserData(userDocId!, {
           'first_name': _firstNameController.text.trim(),
           'last_name': _lastNameController.text.trim(),
-          'email': _emailController.text.trim(), // للعرض فقط
+          'email': _emailController.text.trim(), 
         });
       }
 
-      // محاولة تحديث كلمة المرور فقط إذا تم إدخال كلمة مرور جديدة
       if (_passwordController.text.isNotEmpty ||
           _confirmPasswordController.text.isNotEmpty) {
         if (_passwordController.text != _confirmPasswordController.text) {
@@ -155,7 +151,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
           await user.reauthenticateWithCredential(credential);
 
-          // التحديث بعد التحقق
           await user.updatePassword(_passwordController.text.trim());
 
           ScaffoldMessenger.of(context).showSnackBar(

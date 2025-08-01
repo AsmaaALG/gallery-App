@@ -49,7 +49,6 @@ Future<UserCredential?> signUp(
   } on FirebaseAuthException catch (e) {
     rethrow;
   } catch (e) {
-    // إعادة أي خطأ آخر لدالة _signUp
     rethrow;
   }
 }

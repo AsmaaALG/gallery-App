@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UsersServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-// انشاء مستخدم جديد داخل كوليكشن users
   Future<bool> createUser({
     required String uid,
     required String firstName,
@@ -25,7 +24,7 @@ class UsersServices {
     }
   }
 
-// تحسب تقييم المعرض بناءً على عدد النجوم من التعليقات، وترجع متوسط التقييم كقيمة مزدوجة.
+// تحسب تقييم المعرض بناءً على عدد النجوم من التعليقات، وترجع متوسط التقييم
   Future<double> calculateRating(String galleryId) async {
     final QuerySnapshot snapshot = await _firestore.collection('reviews').get();
 
@@ -52,7 +51,6 @@ class UsersServices {
     return ((totalStars / (count * 5)) * 5);
   }
 
-// جلب بيانات المستخدم من كوليكشن users
   Future<Map<String, dynamic>?> getUserData(String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -73,7 +71,6 @@ class UsersServices {
     }
   }
 
-// تعديل بيانات المستخدم
   Future<void> updateUserData(
       String docId, Map<String, dynamic> updatedData) async {
     try {

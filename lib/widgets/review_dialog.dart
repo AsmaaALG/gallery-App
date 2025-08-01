@@ -42,8 +42,8 @@ class _ReviewDialogState extends State<ReviewDialog> {
       setState(() {
         existingReviewId = query.docs.first.id;
         rating =
-            (data['number of stars'] ?? 0).toDouble(); // تحميل تقييم المستخدم
-        commentController.text = data['comment'] ?? ''; // تحميل التعليق
+            (data['number of stars'] ?? 0).toDouble(); 
+        commentController.text = data['comment'] ?? ''; 
       });
     }
   }
@@ -65,7 +65,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
       userId: widget.userId,
       date: DateTime.now(),
       comment: commentController.text.trim(),
-      userName: '', // عادي تخليه فاضي أو تضيف اسم المستخدم حسب مشروعك
+      userName: '', 
     ).toJson();
 
     if (existingReviewId != null) {

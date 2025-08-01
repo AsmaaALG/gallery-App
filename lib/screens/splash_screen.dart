@@ -16,9 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Timer(Duration(seconds: 1), () {
-    // SystemNavigator.pop(); 
-    // });
+    
     Timer(Duration(seconds: 3), () {
       Navigator.of(context).pushReplacement(
         // MaterialPageRoute(builder: (_) => SignInUpScreen()),
@@ -35,7 +33,6 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // التصميم الجانبي بالأصفر
           Positioned(
             top: -50,
             right: -50,
@@ -51,7 +48,6 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
 
-          // ربع دائرة في الزاوية السفلية اليسرى
           Positioned(
             bottom: -50,
             left: -50,
@@ -66,13 +62,12 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-          // الشعار والنص في المنتصف
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
-                  'images/logo.png', // استبدل بالمسار الصحيح لشعارك
+                  'images/logo.png', 
                   width: 200,
                 ),
                 SizedBox(height: 3),

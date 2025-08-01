@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:final_project/constants.dart';
 import 'package:final_project/models/gallery_model.dart';
 import 'package:final_project/models/partner_model.dart';
@@ -497,7 +495,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
               : GestureDetector(
                   child: Container(
                     width: double.infinity,
-                    // height: 50,
                     color: cardBackground,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -704,7 +701,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       );
     }
 
-    // عدد التعليقات المعروضة
     int displayCount =
         isExpanded ? reviews.length : (reviews.length < 3 ? reviews.length : 3);
 
@@ -794,7 +790,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           TextButton(
             onPressed: () {
               setState(() {
-                isExpanded = !isExpanded; // عكس حالة التوسع
+                isExpanded = !isExpanded; 
               });
             },
             child: Text(

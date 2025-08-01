@@ -5,7 +5,6 @@ import '../models/visit_model.dart';
 class VisitServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-// تعيد المعرض بناءً على معرفه، أو null إذا لم يوجد.
   Future<GalleryModel?> getGalleryById(String galleryId) async {
     try {
       final doc = await _firestore.collection('2').doc(galleryId).get();
@@ -20,7 +19,7 @@ class VisitServices {
     }
   }
 
-// ترجع قائمة الزيارات للمستخدم.
+//  قائمة الزيارات للمستخدم.
   Stream<List<VisitModel>> getUserVisit(String userId) {
     return _firestore
         .collection('visit')
@@ -33,7 +32,7 @@ class VisitServices {
     });
   }
 
-// تسجل زيارة جديدة للمعرض من قبل المستخدم.
+// تسجل زيارة جديدة للمعرض ى.
   Future<void> registerVisitor(
       String userId, String galleryId, DateTime createdAt) async {
     await _firestore.collection('visit').add({
@@ -43,7 +42,7 @@ class VisitServices {
     });
   }
 
-// دالة للتحقق من وجود تسجيل سابق للزائر
+// تحقق من وجود تسجيل سابق للزائر
   Future<bool> isVisitorRegistered(String userId, String galleryId) async {
     final snapshot = await _firestore
         .collection('visit')
@@ -62,7 +61,6 @@ class VisitServices {
     return snapshot.docs.length;
   }
 
-// تضيف معرضًا جديدًا إلى المجموعة 2 باستخدام البيانات المقدمة.
   Future<void> addGalleryToCollection2({
     required String qrCode,
     required String classificationId,

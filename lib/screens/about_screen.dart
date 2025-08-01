@@ -30,14 +30,12 @@ class AboutAppScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // شعار التطبيق
             Container(
                 margin: EdgeInsets.only(bottom: 5),
                 width: 220,
                 height: 220,
                 child: Image.asset('images/logo.png')),
 
-            // نص نبذة عن التطبيق
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12),
               child: Text(

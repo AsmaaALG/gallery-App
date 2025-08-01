@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GalleryModel {
   final String qrCode;
-  final String classificationId; // إضافة classificationId هنا
+  final String classificationId;
   final String imageURL;
   final String description;
   final String endDate;
@@ -16,7 +16,7 @@ class GalleryModel {
 
   GalleryModel({
     required this.qrCode,
-    required this.classificationId, // إضافة classificationId
+    required this.classificationId,
     required this.imageURL,
     required this.description,
     required this.endDate,
@@ -31,11 +31,11 @@ class GalleryModel {
 
   factory GalleryModel.fromJson(Map<String, dynamic> json, String id) {
     return GalleryModel(
-      id: id, // تعيين المعرف
+      id: id, 
       qrCode: json['QR code'] ?? '',
       classificationId: json['classification id'] != null
           ? (json['classification id'] as DocumentReference).id
-          : 'default_id', // أو يمكنك استخدام قيمة افتراضية
+          : 'default_id', 
       description: json['description'] ?? '',
       endDate: json['end date'] ?? '',
       imageURL: json['image url'] ?? '',

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FavoriteServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-//اضافة كارد المعرض الى المفضلة عند تزامن حالة القلب
   Future<void> addToFavorite(String userId, String galleryId) async {
     await _firestore.collection('favorite').add({
       'user_id': userId,
@@ -12,7 +11,6 @@ class FavoriteServices {
     });
   }
 
-//حذف المعرض من المفضلة
   Future<void> removeFromFavorite(String userId, String galleryId) async {
     final querySnapshot = await _firestore
         .collection('favorite')
@@ -25,7 +23,6 @@ class FavoriteServices {
     }
   }
 
-//جلب كل المفضلة للمستخدم الحالي
   Stream<List<String>> getUserFavorites(String userId) {
     return _firestore
         .collection('favorite')
@@ -36,7 +33,6 @@ class FavoriteServices {
     });
   }
 
-//حذف المفضلة بالكامل
   Future<void> clearAllFavorites(String userId) async {
     final querySnapshot = await _firestore
         .collection('favorite')
@@ -50,7 +46,6 @@ class FavoriteServices {
     await batch.commit();
   }
 
-// ترجع تدفق يشير إلى ما إذا كان المعرض مفضلًا للمستخدم المحدد.
   Stream<bool> isFavorite(String userId, String galleryId) {
     return _firestore
         .collection('favorite')
@@ -60,7 +55,6 @@ class FavoriteServices {
         .map((snapshot) => snapshot.docs.isNotEmpty);
   }
 
-// ترجع قيمة تشير إلى ما إذا كان المعرض مفضلًا للمستخدم المحدد.
   Future<bool> isGalleryFavorite(String userId, String galleryId) async {
     final snapshot = await _firestore
         .collection('favorite')

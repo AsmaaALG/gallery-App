@@ -19,15 +19,15 @@ class SuiteScreen extends StatefulWidget {
 }
 
 class _SuiteScreenState extends State<SuiteScreen> {
-  List<SuiteImageModel> suiteImages = []; // قائمة صور الأجنحة
+  List<SuiteImageModel> suiteImages = [];
   bool isLoading = true;
-  bool isExpanded = false; // حالة وصف الجناح
+  bool isExpanded = false; 
   final SuiteServices _suiteServices = SuiteServices();
 
   @override
   void initState() {
     super.initState();
-    fetchSuiteImages(); // جلب صور الأجنحة عند تحميل الشاشة
+    fetchSuiteImages(); 
   }
 
   Future<void> fetchSuiteImages() async {
@@ -248,7 +248,7 @@ class _SuiteScreenState extends State<SuiteScreen> {
                             final suiteImage = suiteImages[index];
                             return GestureDetector(
                               onTap: () => _openImage(
-                                  context, index), // فتح الصورة عند النقر
+                                  context, index), 
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.0),
                                 child: Image.network(
@@ -274,7 +274,6 @@ class _SuiteScreenState extends State<SuiteScreen> {
   }
 }
 
-// صفحة عرض الصور باستخدام PhotoViewGallery
 class PhotoViewGalleryScreen extends StatelessWidget {
   final List<SuiteImageModel> images;
   final int initialIndex;
@@ -298,7 +297,7 @@ class PhotoViewGalleryScreen extends StatelessWidget {
         scrollPhysics: BouncingScrollPhysics(),
         pageController: PageController(initialPage: initialIndex),
         backgroundDecoration: BoxDecoration(
-          color: Colors.white, // تعيين خلفية بيضاء
+          color: Colors.white, 
         ),
       ),
     );

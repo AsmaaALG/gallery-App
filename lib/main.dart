@@ -47,7 +47,7 @@ Future<void> initializeLocalNotifications() async {
 
 Future<void> showLocalNotification(RemoteMessage message) async {
   const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-    'high_importance_channel', // يجب أن يتطابق مع ما حددته في Firebase Console
+    'high_importance_channel', 
     'الإشعارات',
     importance: Importance.max,
     priority: Priority.high,
@@ -76,7 +76,7 @@ void main() async {
   bool firebaseInitialized = false;
 
   try {
-    await Firebase.initializeApp(); // محاولة التهيئة
+    await Firebase.initializeApp(); 
     firebaseInitialized = true;
   } catch (e) {
     print("خطأ أثناء تهيئة Firebase: $e");

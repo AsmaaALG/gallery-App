@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 const primaryColor = Color.fromRGBO(166, 23, 28, 1);
 const secondaryColor = Color.fromRGBO(241, 192, 69, 1);
 const cardBackground = Color.fromARGB(255, 253, 245, 245);
-//   final Color primaryColor = Color(0xFFF6C100); // اللون الأصفر الذهبي
+//   final Color primaryColor = Color(0xFFF6C100);
 
 //sizes
 const mainCardHeight = 90;

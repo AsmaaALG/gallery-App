@@ -48,9 +48,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     super.dispose();
   }
 
-  // نافذة تأكيد لحذف جميع المعارض من المفضلة
   Future<void> _showDeleteAllDialog() async {
-    // نجيب قائمة المفضلة للمستخدم
     final favorites = await _favoriteServices.getUserFavorites(_userId!).first;
 
     if (favorites.isEmpty) {
@@ -125,7 +123,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // في حال عدم تسجيل الدخول
     if (_userId == null) {
       return Center(
         child: Text(
@@ -209,7 +206,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
           ),
           SizedBox(height: 10),
-          // عرض قائمة المعارض المفضلة
           Expanded(
             child: StreamBuilder<List<String>>(
               stream: _favoriteServices.getUserFavorites(_userId!),
@@ -251,7 +247,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       return Center(child: CircularProgressIndicator());
                     }
 
-                    // فلترة المعارض حسب المفضلة والبحث
                     var favoriteGalleries = gallerySnapshot.data!
                         .where((gallery) =>
                             favoriteIds.contains(gallery.id.toString()))
@@ -269,7 +264,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     }
 
                     return ListView.builder(
-                      // أضفنا هنا مسافة إضافية في الأسفل بعد آخر معرض
                       padding: EdgeInsets.only(top: 10, bottom: 60),
                       itemCount: favoriteGalleries.length,
                       itemBuilder: (context, index) {

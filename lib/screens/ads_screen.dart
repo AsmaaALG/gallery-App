@@ -9,7 +9,6 @@ class AdsScreen extends StatelessWidget {
 
   AdsScreen({super.key});
 
-  // دالة لتحويل تاريخ String إلى DateTime
   DateTime _parseDate(String dateStr) {
     final parts = dateStr.split('-');
     if (parts.length != 3) return DateTime.now();
@@ -19,12 +18,10 @@ class AdsScreen extends StatelessWidget {
     return DateTime(year, month, day);
   }
 
-  // دالة محسنة لترتيب وتصفية الإعلانات مع حذف المنتهية
   // Future<List<AdModel>> _filterAndSortAds(List<AdModel> ads) async {
   //   final now = DateTime.now();
   //   final today = DateTime(now.year, now.month, now.day);
 
-  //   // حذف الإعلانات المنتهية
   //   // await adsServices.deleteExpiredAds();
 
   //   // نقل الإعلانات التي وصلت إلى تاريخ اليوم إلى مجموعة جديدة
@@ -35,7 +32,6 @@ class AdsScreen extends StatelessWidget {
   //   //   }
   //   // }
 
-  //   // تصفية الإعلانات النشطة فقط
   //   final filteredAds = ads.where((ad) {
   //     try {
   //       final stopAd = _parseDate(ad.stopAd);
@@ -45,7 +41,6 @@ class AdsScreen extends StatelessWidget {
   //     }
   //   }).toList();
 
-  //   // ترتيب الإعلانات حسب تاريخ البدء (الأقرب أولاً)
   //   filteredAds.sort(
   //       (a, b) => _parseDate(a.startDate).compareTo(_parseDate(b.startDate)));
 
@@ -89,7 +84,6 @@ class AdsScreen extends StatelessWidget {
 
             return ListView(
               children: [
-                // العنوان
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   child: Text(

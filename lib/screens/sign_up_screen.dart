@@ -1,11 +1,9 @@
 import 'package:final_project/services/auth.dart';
-import 'package:final_project/services/gallery_services.dart';
 import 'package:final_project/services/users_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/constants.dart';
 import 'package:final_project/widgets/custom_text_field.dart';
-import 'mainScreen.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -145,7 +143,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgressIndicator(
           valueColor:
-              AlwaysStoppedAnimation<Color>(primaryColor), // تغيير اللون هنا
+              AlwaysStoppedAnimation<Color>(primaryColor),
         ),
         child: Column(
           children: [

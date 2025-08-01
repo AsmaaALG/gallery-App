@@ -1,8 +1,8 @@
 class PartnerModel {
-  final String id; // معرف الشريك
-  final String galleryId; // معرف المعرض
-  final String image; // رابط الصورة
-  final String name; // اسم الشريك
+  final String id; 
+  final String galleryId;
+  final String image; 
+  final String name; 
 
   PartnerModel({
     required this.id,
@@ -16,7 +16,7 @@ class PartnerModel {
       id: id,
       galleryId: json['gallery id'] ?? '',
       image: json['image'] ?? '',
-      name: json['name'] ?? '', // تأكد من إضافة هذا الحقل إذا كان موجودًا
+      name: json['name'] ?? '', 
     );
   }
 
@@ -24,7 +24,7 @@ class PartnerModel {
     return {
       'gallery id': galleryId,
       'image': image,
-      'name': name, // تأكد من إضافة هذا الحقل إذا كان موجودًا
+      'name': name, 
     };
   }
 }

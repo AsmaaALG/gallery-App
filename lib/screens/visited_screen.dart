@@ -107,7 +107,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
                               .getVisitorCount(gallery.id);
                         } catch (e) {
                           print('Error fetching visitor count: $e');
-                          return 0; // ارجع صفر في حالة حدوث خطأ
+                          return 0; 
                         }
                       }
 
@@ -147,7 +147,7 @@ class _VisitedScreenState extends State<VisitedScreen> {
                                                   return GalleryScreen(
                                                     galleryModel: gallery,
                                                     visitors:
-                                                        visitors, // تمرير عدد الزوار
+                                                        visitors, 
                                                   );
                                                 },
                                               )),

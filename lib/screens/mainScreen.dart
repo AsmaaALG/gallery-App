@@ -172,7 +172,7 @@ class _MainScreenState extends State<MainScreen> {
                       const Icon(Icons.notifications, size: 26),
                       if (count > 0)
                         Positioned(
-                          right: -2, // عدّل حسب احتياجك
+                          right: -2, 
                           top: -2,
                           child: Container(
                             padding: const EdgeInsets.all(4),

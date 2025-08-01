@@ -6,7 +6,6 @@ class AdsServices {
   final CollectionReference adsCollection =
       FirebaseFirestore.instance.collection('ads');
 
-//جلب كل الاعلانات من الفايرستور
   Future<List<AdModel>> getAds() async {
     final snapshot = await adsCollection.get();
     return snapshot.docs
@@ -70,7 +69,6 @@ class AdsServices {
 //     }
 //   }
 
-// تحويل التاريخ
   DateTime _parseDate(String dateStr) {
     final parts = dateStr.split('-');
     if (parts.length != 3) return DateTime.now();

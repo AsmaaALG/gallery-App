@@ -51,7 +51,6 @@ class AdCard extends StatelessWidget {
             ),
           ),
 
-          // الجزء النصي
           Container(
             width: 140,
             child: Column(

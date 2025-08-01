@@ -5,7 +5,6 @@ import '../models/category_model.dart';
 class GalleryServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-// ترجع قائمة المعارض من Firestore.
   Stream<List<GalleryModel>> getItems() {
     return _firestore
         .collection('2')
@@ -18,7 +17,6 @@ class GalleryServices {
     });
   }
 
-// ترجع قائمة التصنيفات من Firestore.
   Stream<List<CategoryModel>> getCategories() {
     return _firestore.collection('classification').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -30,7 +28,6 @@ class GalleryServices {
     });
   }
 
-// تتحقق مما إذا كان البريد الإلكتروني موجودًا بالفعل في قاعدة البيانات.
   Future<bool> isEmailAlreadyExists(String email) async {
     final querySnapshot = await _firestore
         .collection('users')

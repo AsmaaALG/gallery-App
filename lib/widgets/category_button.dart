@@ -24,19 +24,19 @@ class CategoryButton extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             backgroundColor: isSelected
                 ? secondaryColor
-                : Colors.white, // لون الخلفية عند التحديد
+                : Colors.white, 
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0), // شكل الزر
+              borderRadius: BorderRadius.circular(20.0), 
             ),
             side: BorderSide(
-              color: isSelected ? Colors.black12 : Colors.grey, // لون الحواف
-              width: 1.0, // عرض الحواف
+              color: isSelected ? Colors.black12 : Colors.grey,
+              width: 1.0,
             ),
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.grey[700], // لون النص
+              color: isSelected ? Colors.white : Colors.grey[700], 
             ),
           ),
         ),
