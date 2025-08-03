@@ -1,3 +1,4 @@
+import 'package:final_project/screens/mainScreen.dart';
 import 'package:final_project/services/auth.dart';
 import 'package:final_project/services/users_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -109,6 +110,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           email: email,
         );
       }
+      if (created) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+          (Route<dynamic> route) => false,
+          
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
       if (e.code == 'network-request-failed') {
@@ -142,8 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         progressIndicator: CircularProgressIndicator(
-          valueColor:
-              AlwaysStoppedAnimation<Color>(primaryColor),
+          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
         ),
         child: Column(
           children: [
