@@ -6,16 +6,37 @@ import 'package:flutter/material.dart';
 import 'package:final_project/models/ad_model.dart';
 import 'package:final_project/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:final_project/models/partner_model.dart';
 
 class AdDetailScreen extends StatelessWidget {
   final AdModel ad;
-    final AdsServices _adsServices = AdsServices();
-
+  final AdsServices _adsServices = AdsServices();
 
   AdDetailScreen({super.key, required this.ad});
- 
 
- 
+  Future<List<PartnerModel>> fetchPartners(String adId) async {
+    // نحاول أولاً بالحقل ad_id
+    final snapshot1 = await FirebaseFirestore.instance
+        .collection('partners')
+        .where('ad_id', isEqualTo: adId)
+        .get();
+
+    if (snapshot1.docs.isNotEmpty) {
+      return snapshot1.docs
+          .map((doc) => PartnerModel.fromJson(doc.data(), doc.id))
+          .toList();
+    }
+
+    // إذا ما لقيناش بيانات بـ ad_id، نحاول بـ gallery id
+    final snapshot2 = await FirebaseFirestore.instance
+        .collection('partners')
+        .where('gallery id', isEqualTo: adId)
+        .get();
+
+    return snapshot2.docs
+        .map((doc) => PartnerModel.fromJson(doc.data(), doc.id))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +63,7 @@ class AdDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Color.fromARGB(255, 209, 180, 180), 
+                    color: Color.fromARGB(255, 209, 180, 180),
                     width: 1,
                   ),
                   boxShadow: [
@@ -58,7 +79,7 @@ class AdDetailScreen extends StatelessWidget {
                 child: ClipOval(
                   child: Image.network(
                     ad.imageUrl.isNotEmpty
-                        ? ad.imageUrl 
+                        ? ad.imageUrl
                         : 'https://via.placeholder.com/300x200.png?text=No+Image',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -76,7 +97,6 @@ class AdDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-
             Center(
               child: Text(
                 ad.title,
@@ -145,7 +165,7 @@ class AdDetailScreen extends StatelessWidget {
                   ),
                   Divider(color: Colors.grey[300], height: 10),
                   FutureBuilder<String>(
-                    future:  SharedSevices().fetchCityName(ad.city),
+                    future: SharedSevices().fetchCityName(ad.city),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return _buildInfoRow(
@@ -160,9 +180,8 @@ class AdDetailScreen extends StatelessWidget {
                     },
                   ),
                   Divider(color: Colors.grey[300], height: 10),
-
                   FutureBuilder<String>(
-                    future:  SharedSevices().fetchCompanyName(ad.company_id),
+                    future: SharedSevices().fetchCompanyName(ad.company_id),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return _buildInfoRow(Icons.person, 'جاري التحميل...');
@@ -198,7 +217,6 @@ class AdDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 35),
-
             Directionality(
               textDirection: TextDirection.rtl,
               child: Container(
@@ -215,7 +233,6 @@ class AdDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 55),
-
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -244,6 +261,106 @@ class AdDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 40),
+            FutureBuilder<List<PartnerModel>>(
+              future: fetchPartners(ad.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('حدث خطأ أثناء تحميل الشركاء'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return SizedBox(); 
+
+                final partners = snapshot.data!;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 18),
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "الشركاء",
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: mainFont,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 200,
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true, // هذا يخلي البداية من اليمين
+                          itemCount: partners.length,
+                          itemBuilder: (context, index) {
+                            final partner = partners[index];
+                            return Container(
+                              width: 150,
+                              margin: EdgeInsets.only(right: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(50.0),
+                                      child: Image.network(
+                                        partner.image,
+                                        fit: BoxFit.cover,
+                                        height: 100,
+                                        width: 100,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            width: 100,
+                                            height: 100,
+                                            color: Colors.grey.shade200,
+                                            child: Icon(Icons.broken_image,
+                                                size: 40, color: Colors.grey),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      partner.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(33, 77, 109, 1),
+                                        fontFamily: mainFont,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
             const SizedBox(height: 55),
           ],
         ),
@@ -262,8 +379,7 @@ class AdDetailScreen extends StatelessWidget {
               text,
               softWrap: true,
               maxLines: 3,
-              overflow: TextOverflow
-                  .ellipsis, 
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 13,
                 fontFamily: mainFont,
