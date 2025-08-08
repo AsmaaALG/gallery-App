@@ -280,7 +280,7 @@ class AdDetailScreen extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 18),
+                          vertical: 5, horizontal: 0),
                       child: Directionality(
                         textDirection: TextDirection.rtl,
                         child: Align(
@@ -298,9 +298,9 @@ class AdDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Container(
-                      height: 200,
+                      height: 135,
                       child: Directionality(
-                        textDirection: TextDirection.rtl,
+                        textDirection: TextDirection.ltr,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           reverse: true,
@@ -309,24 +309,26 @@ class AdDetailScreen extends StatelessWidget {
                             final partner = partners[index];
                             return Container(
                               width: 150,
-                              margin: EdgeInsets.only(right: 30),
+                              margin: EdgeInsets.only(right: 0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Align(
-                                    alignment: Alignment.centerRight,
+                                    // alignment: Alignment.centerRight,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(50.0),
                                       child: Image.network(
                                         partner.image,
                                         fit: BoxFit.cover,
-                                        height: 100,
-                                        width: 100,
+                                        height: 85,
+                                        width: 85,
                                         errorBuilder:
                                             (context, error, stackTrace) {
                                           return Container(
-                                            width: 100,
-                                            height: 100,
+                                            width: 85,
+                                            height: 85,
                                             color: Colors.grey.shade200,
                                             child: Icon(Icons.broken_image,
                                                 size: 40, color: Colors.grey),
@@ -335,18 +337,18 @@ class AdDetailScreen extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 20),
+                                  // SizedBox(height: 20),
                                   Align(
-                                    alignment: Alignment.centerRight,
+                                    // alignment: Alignment.centerRight,
                                     child: Text(
                                       partner.name,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
-                                      textAlign: TextAlign.right,
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Color.fromRGBO(33, 77, 109, 1),
                                         fontFamily: mainFont,
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -362,7 +364,6 @@ class AdDetailScreen extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 55),
           ],
         ),
       ),

@@ -70,7 +70,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 qrCodeResult = code;
               });
               print('QR Code found! $code');
-              Navigator.pop(context, code); // إرجاع النتيجة إلى الشاشة السابقة
+              Navigator.pop(context, code); 
             }
           }
         },
