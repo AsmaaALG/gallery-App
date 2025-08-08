@@ -270,7 +270,8 @@ class AdDetailScreen extends StatelessWidget {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('حدث خطأ أثناء تحميل الشركاء'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return SizedBox(); 
+                  return SizedBox();
+                }
 
                 final partners = snapshot.data!;
 
@@ -302,13 +303,13 @@ class AdDetailScreen extends StatelessWidget {
                         textDirection: TextDirection.rtl,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          reverse: true, // هذا يخلي البداية من اليمين
+                          reverse: true,
                           itemCount: partners.length,
                           itemBuilder: (context, index) {
                             final partner = partners[index];
                             return Container(
                               width: 150,
-                              margin: EdgeInsets.only(right: 20),
+                              margin: EdgeInsets.only(right: 30),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
